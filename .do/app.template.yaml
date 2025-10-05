@@ -1,0 +1,72 @@
+name: ${APP_NAME}
+
+services:
+  - name: application
+    environment_slug: node-js
+    source_dir: ./application
+    github:
+      repo: digitalocean/sea-notes-saas-starter-kit
+      branch: ${GITHUB_BRANCH}
+      deploy_on_push: false
+    build_command: "npm install && npm run build"
+    run_command: "npx prisma migrate deploy; npm run start"
+    http_port: 3000
+    routes:
+      - path: /
+    envs:
+      - key: "DATABASE_URL"
+        value: "${${DB_NAME}.DATABASE_URL}"
+        type: "SECRET"
+      - key: "SPACES_KEY_ID"
+        value: "${SPACES_KEY_ID}"
+      - key: "SPACES_SECRET_KEY"
+        value: "${SPACES_SECRET_KEY}"
+        type: "SECRET"
+      - key: "SPACES_BUCKET_NAME"
+        value: "${SPACES_BUCKET_NAME}"
+      - key: "SPACES_REGION"
+        value: "${SPACES_REGION}"
+      - key: "STORAGE_PROVIDER"
+        value: "Spaces"
+      - key: "AUTH_SECRET"
+        value: "${AUTH_SECRET}"
+        type: "SECRET"
+      - key: "BILLING_PROVIDER"
+        value: "Stripe"
+      - key: "STRIPE_WEBHOOK_SECRET"
+        value: "${STRIPE_WEBHOOK_SECRET}"
+        type: "SECRET"
+      - key: "STRIPE_SECRET_KEY"
+        value: "${STRIPE_SECRET_KEY}"
+        type: "SECRET"
+      - key: "STRIPE_FREE_PRICE_ID"
+        value: "${STRIPE_FREE_PRICE_ID}"
+      - key: "STRIPE_PRO_PRICE_ID"
+        value: "${STRIPE_PRO_PRICE_ID}"
+      - key: "STRIPE_PRO_GIFT_PRICE_ID"
+        value: "${STRIPE_PRO_GIFT_PRICE_ID}"
+      - key: "STRIPE_PORTAL_CONFIG_ID"
+        value: "${STRIPE_PORTAL_CONFIG_ID}"
+      - key: "EMAIL_PROVIDER"
+        value: "Resend"
+      - key: "RESEND_API_KEY"
+        value: "${RESEND_API_KEY}"
+        type: "SECRET"
+      - key: "RESEND_EMAIL_SENDER"
+        value: "${RESEND_EMAIL_SENDER}"
+      - key: "BASE_URL"
+        value: "__APP_URL_BIND__"
+      - key: "ENABLE_EMAIL_INTEGRATION"
+        value: "false"
+      - key: "DO_INFERENCE_API_KEY"
+        value: "${DO_INFERENCE_API_KEY}"
+        type: "SECRET"
+      - key: "NEXT_PUBLIC_DIGITALOCEAN_GRADIENTAI_ENABLED"
+        value: "true"
+
+databases:
+  - name: ${DB_NAME}
+    engine: PG
+    version: "15"
+    production: false
+    cluster_name: ${CLUSTER_NAME}

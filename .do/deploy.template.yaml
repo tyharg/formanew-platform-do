@@ -1,0 +1,85 @@
+# Specification for the deployment
+# You can check the documentation about the App Specification here:
+# https://docs.digitalocean.com/products/app-platform/reference/app-spec/
+
+spec:
+  # Name of the deployment
+  name: sea-notes-saas-starter-kit
+  # Optionally you can chose a region where the deployment will be hosted
+  # Otherwise, DO will chose the nearest region for you in the wizard
+  # region: nyc
+
+  # Configuration for services (nextjs app)
+  services:
+    - name: saas-application # Name of the service
+      environment_slug: node-js # Runtime environment
+      git:
+        branch: main # Git branch to deploy
+        repo_clone_url: https://github.com/digitalocean/sea-notes-saas-starter-kit # Repository URL
+      source_dir: ./application # Directory containing the service source code
+      build_command: "npm install && npm run build" # Command to build the service
+      run_command: "npx prisma migrate deploy; npm run start" # Command to run the service
+      http_port: 3000 # Port the service listens on
+      instance_count: 1 # Number of instances to deploy
+      instance_size_slug: apps-s-1vcpu-0.5gb # Instance size
+      envs: # Environment variables for the service
+        # These variables are using variable binding
+        # You can check the documentation about variable binding here:
+        # https://docs.digitalocean.com/products/app-platform/how-to/use-environment-variables/#using-bindable-variables-within-environment-variables
+        - key: "DATABASE_URL"
+          value: "${sea-notes-saas-starter-kit-db.DATABASE_URL}"
+          type: "SECRET"
+        - key: "SPACES_KEY_ID"
+          value: ""
+        - key: "SPACES_SECRET_KEY"
+          value: ""
+          type: "SECRET"
+        - key: "SPACES_BUCKET_NAME"
+          value: ""
+        - key: "SPACES_REGION"
+          value: ""
+        - key: "STORAGE_PROVIDER"
+          value: "Spaces"
+        - key: "AUTH_SECRET"
+          value: "your-AUTH-secret"
+        - key: "BILLING_PROVIDER"
+          value: "Stripe"
+        - key: "STRIPE_WEBHOOK_SECRET"
+          value: ""
+          type: "SECRET"
+        - key: "STRIPE_SECRET_KEY"
+          value: ""
+          type: "SECRET"
+        - key: "STRIPE_FREE_PRICE_ID"
+          value: ""
+        - key: "STRIPE_PRO_PRICE_ID"
+          value: ""
+        - key: "STRIPE_PRO_GIFT_PRICE_ID"
+          value: ""
+        - key: "STRIPE_PORTAL_CONFIG_ID"
+          value: ""
+        - key: "EMAIL_PROVIDER"
+          value: "Resend"
+        - key: "RESEND_API_KEY"
+          value: ""
+          type: "SECRET"
+        - key: "RESEND_EMAIL_SENDER"
+          value: ""
+        - key: "BASE_URL"
+          value: "${APP_URL}"
+        - key: "ENABLE_EMAIL_INTEGRATION"
+          value: "false"
+        - key: "DO_INFERENCE_API_KEY"
+          value: ""
+          type: "SECRET"
+
+  # Configuration for databases
+  databases:
+    - name: sea-notes-saas-starter-kit-db # Name of the resource
+      engine: PG # Database engine (PostgreSQL)
+      version: "15" # Database version
+      production: false # Whether the database is for production
+      cluster_name: sea-notes-saas-starter-kit-cluster # Name of the database cluster
+      # Optionally you can specify the database name and user, otherwise the resource name will be used
+      # db_name: example-db
+      # db_user: example-user

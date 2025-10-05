@@ -1,0 +1,30 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: saas-kit-postgres
+    restart: unless-stopped
+    env_file:
+      # Optional: Will load variables from .env if it exists
+      # If file doesn't exist, Docker Compose will use the default values below
+      - .env
+    ports:
+      # Map the database port from the host to the container
+      # Default to standard PostgreSQL port 5432 if DB_PORT is not set
+      - '${DB_PORT:-5432}:5432'
+    environment:
+      # Map our standard DB variables to PostgreSQL's expected variable names
+      # These defaults will be used if .env doesn't exist or variables are missing
+      POSTGRES_USER: '${DB_USERNAME:-postgres}'
+      POSTGRES_PASSWORD: '${DB_PASSWORD:-postgres}'
+      POSTGRES_DB: '${DB_NAME:-saas_kit_db}'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - saas-network
+
+volumes:
+  postgres_data:
+
+networks:
+  saas-network:
+    driver: bridge

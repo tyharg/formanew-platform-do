@@ -1,0 +1,128 @@
+# SeaNotes - Environment Variables
+# ====================================================
+# This file contains all the environment variables needed for the application.
+# Copy this file to .env and fill in your values before starting the application.
+
+# ====================
+# DATABASE CONFIGURATION
+# ====================
+# The database stores all user data, notes, subscription information, and application state
+# PostgreSQL is the only supported database provider in SeaNotes
+DATABASE_PROVIDER=Postgres
+
+# Database connection string for Prisma ORM
+# Format: postgresql://USERNAME:PASSWORD@HOST:PORT/DATABASE
+# This is used by the application and Prisma to connect to your database
+# In the app: Used by src/lib/prisma.ts to establish database connections
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/saas_kit_db
+
+# PostgreSQL container configuration (for local Docker Compose development)
+# These variables are used ONLY by Docker Compose to initialize the PostgreSQL container
+# They are separate from DATABASE_URL because:
+# 1. They configure the actual PostgreSQL server when using Docker
+# 2. DATABASE_URL is what your application uses to connect to the database
+# 3. In production, you would use a managed database where these aren't needed
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=saas_kit_db
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+
+# ====================
+# AUTHENTICATION
+# ====================
+# Authentication is handled by NextAuth.js
+# This secret is used to sign cookies and encrypt JWT tokens
+# In the app: Used in src/app/api/auth/[...nextauth]/route.ts and middleware.ts
+# Generate with: openssl rand -base64 32
+AUTH_SECRET=your-AUTH-secret
+
+# ====================
+# FILE STORAGE (DigitalOcean Spaces)
+# ====================
+# File storage is used for user uploads like profile pictures and note attachments
+# Spaces is DigitalOcean's S3-compatible object storage service
+# In the app: Used by src/services/storage/spacesStorageService.ts
+STORAGE_PROVIDER=Spaces
+
+# Spaces credentials (from your DigitalOcean dashboard)
+# These are used to authenticate API requests to DigitalOcean Spaces
+SPACES_KEY_ID=your-access-key-id-here
+SPACES_SECRET_KEY=your-access-key-secret-here
+
+# Spaces configuration
+# These define which bucket and region your files will be stored in
+SPACES_REGION=nyc3                # Your selected datacenter region (e.g., nyc3, sfo2)
+SPACES_BUCKET_NAME=my-app-bucket  # Name of your Spaces bucket 
+
+# ====================
+# EMAIL CONFIGURATION (Resend)
+# ====================
+# Email is used for verification, password reset, and subscription notifications
+# Resend is a modern email API that's easy to integrate
+# In the app: Used by src/services/email/resendEmailService.ts
+EMAIL_PROVIDER=Resend
+RESEND_API_KEY=your-resend-api-key
+RESEND_EMAIL_SENDER=your-email-sender-address  # Format: name@yourdomain.com
+
+# Set to false during development to skip email verification
+# Set to true in production to require email verification
+# In the app: Controls whether users need to verify email before accessing the dashboard
+ENABLE_EMAIL_INTEGRATION=false
+
+# ====================
+# BILLING CONFIGURATION (Stripe)
+# ====================
+# Stripe handles all subscription billing, payment processing, and customer management
+# In the app: Used by src/services/billing/stripeBillingService.ts
+BILLING_PROVIDER=Stripe
+
+# Stripe API credentials
+# This is your private API key used for server-side Stripe API calls
+STRIPE_SECRET_KEY=                # Your Stripe secret key (sk_test_...)
+
+# Webhook configuration for subscription events
+# This secret verifies that webhook events are actually coming from Stripe
+# In the app: Used in src/app/api/webhook/route.ts to validate webhook signatures
+STRIPE_WEBHOOK_SECRET=            # Secret to verify webhook payloads
+
+# Product and price IDs (automatically populated by setup:stripe script)
+# These IDs map to specific subscription plans in your Stripe account
+# In the app: Used to create checkout sessions and manage subscriptions
+STRIPE_FREE_PRICE_ID=             # ID for free tier subscription
+STRIPE_PRO_PRICE_ID=              # ID for pro tier subscription
+STRIPE_PRO_GIFT_PRICE_ID=         # ID for gifted pro subscription
+STRIPE_PORTAL_CONFIG_ID=          # ID for customer portal configuration
+
+# ====================
+# APPLICATION CONFIGURATION
+# ====================
+# General application settings that affect multiple components
+
+# Invoice Generation (DigitalOcean GradientAI)
+# Uses the same DO_INFERENCE_API_KEY as AI title generation
+INVOICE_PROVIDER=DigitalOcean GradientAI
+
+
+# Base URL of your application (used for callbacks, email links, etc.)
+# Format: https://yourdomain.com or http://localhost:3000 for development
+# In the app: Used for generating absolute URLs for email links and Stripe callbacks
+BASE_URL=
+
+# ====================
+# AI CONFIGURATION (DigitalOcean Inference API)
+# ====================
+# AI title generation for notes using DigitalOcean's inference API
+# When configured: Users only enter note content, titles are auto-generated
+# When not configured: Users enter both title and content (traditional flow)
+# In the app: Used by src/services/ai/titleGenerationService.ts for server-side generation
+DO_INFERENCE_API_KEY=             # Your DigitalOcean Inference API key
+
+# Client-side flag to enable DigitalOcean Gradient AI features in the UI
+# Set to 'true' when you want to enable AI-powered content generation
+NEXT_PUBLIC_DIGITALOCEAN_GRADIENTAI_ENABLED=true
+
+# Optional: Set logging level (default: info)
+# Controls the verbosity of application logs
+# Valid values: error, warn, info, debug
+# LOG_LEVEL=info

@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String         @id @default(uuid())
+  name           String
+  email          String         @unique
+  passwordHash   String
+  image          String?
+
+  role           Role           @default(USER)
+  createdAt      DateTime       @default(now())
+
+  subscription   Subscription?  @relation("UserSubscription")
+  notes          Note[]
+
+  verificationToken String? // Token for email verification
+  emailVerified     Boolean @default(false) // Email verification status
+}
+
+model Subscription {
+  id         String   @id @default(uuid())
+  user       User     @relation("UserSubscription", fields: [userId], references: [id])
+  userId     String   @unique
+  status     SubscriptionStatus?
+  plan       SubscriptionPlan?
+  customerId String?
+  createdAt  DateTime @default(now())
+}
+
+model Note {
+  id         String   @id @default(uuid())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+  title      String
+  content    String
+  createdAt  DateTime @default(now())
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum SubscriptionStatus {
+  PENDING
+  ACTIVE
+  CANCELED
+}
+
+enum SubscriptionPlan {
+  FREE
+  PRO
+}

@@ -1,0 +1,31 @@
+{
+  "features": [
+    { "key": "limit-50-notes", "name": "Up to 50 notes" },
+    { "key": "basic-sync", "name": "Basic sync across devices" },
+    { "key": "unlimited-notes", "name": "Unlimited notes" },
+    { "key": "real-time-sync", "name": "Real-time sync across devices" },
+    { "key": "version-history", "name": "Full version history" },
+    { "key": "priority-support", "name": "Priority support" }
+  ],
+  "products": [
+    {
+      "id": "FREE",
+      "name": "Free Plan",
+      "description": "Basic features for limited use",
+      "price": 0,
+      "currency": "usd",
+      "interval": "month",
+      "features": ["limit-50-notes", "basic-sync"]
+    },
+    {
+      "id": "PRO",
+      "name": "Pro Plan",
+      "description": "Advanced features for power users",
+      "price": 1200,
+      "currency": "usd",
+      "interval": "month",
+      "features": ["unlimited-notes", "real-time-sync", "version-history", "priority-support"],
+      "giftable": true
+    }
+  ]
+}
