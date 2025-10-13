@@ -1,4 +1,4 @@
-# SeaNotes - Environment Variables
+# FormaNew - Environment Variables
 # ====================================================
 # This file contains all the environment variables needed for the application.
 # Copy this file to .env and fill in your values before starting the application.
@@ -7,7 +7,7 @@
 # DATABASE CONFIGURATION
 # ====================
 # The database stores all user data, notes, subscription information, and application state
-# PostgreSQL is the only supported database provider in SeaNotes
+# PostgreSQL is the only supported database provider in FormaNew
 DATABASE_PROVIDER=Postgres
 
 # Database connection string for Prisma ORM
@@ -36,6 +36,14 @@ POSTGRES_PORT=5432
 # In the app: Used in src/app/api/auth/[...nextauth]/route.ts and middleware.ts
 # Generate with: openssl rand -base64 32
 AUTH_SECRET=your-AUTH-secret
+
+# ====================
+# HUMAN VERIFICATION (Cloudflare Turnstile)
+# ====================
+# Protects the login and signup forms from automated abuse
+# In the app: Widget rendered by LoginForm/SignUpForm, tokens verified server-side
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=
+TURNSTILE_SECRET_KEY=
 
 # ====================
 # FILE STORAGE (DigitalOcean Spaces)

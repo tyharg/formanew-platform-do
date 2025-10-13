@@ -1,0 +1,23 @@
+<svg width="256" height="256" viewBox="0 0 256 256"
+     xmlns="http://www.w3.org/2000/svg" role="img" aria-label="f(n) logo with SUSE Mono font">
+  <defs>
+    <style type="text/css"><![CDATA[
+      @import url('https://fonts.googleapis.com/css2?family=SUSE+Mono:wght@700&display=swap');
+      text {
+        font-family: 'SUSE Mono', monospace;
+        font-weight: 700;
+      }
+    ]]></style>
+
+    <mask id="knockout" x="0" y="0" width="100%" height="100%">
+      <rect width="100%" height="100%" fill="white"/>
+      <text x="50%" y="50%"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-size="96">f(n)</text>
+    </mask>
+  </defs>
+
+  <!-- Blue circle with transparent f(n) center -->
+  <circle cx="128" cy="128" r="120" fill="#0069ff" mask="url(#knockout)"/>
+</svg>

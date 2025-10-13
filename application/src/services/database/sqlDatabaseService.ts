@@ -1,6 +1,16 @@
 import { DatabaseClient } from './database';
 import { prisma } from '../../lib/prisma';
-import { Subscription, Note, User, UserWithSubscriptions, SubscriptionStatus } from 'types';
+import {
+  Subscription,
+  Note,
+  User,
+  UserWithSubscriptions,
+  SubscriptionStatus,
+  Company,
+  Contract,
+  CompanyContact,
+  CompanyNote,
+} from 'types';
 import { PrismaClient } from '@prisma/client';
 import { ServiceConfigStatus } from '../status/serviceConfigStatus';
 
@@ -190,6 +200,122 @@ export class SqlDatabaseService extends DatabaseClient {
             : {}),
         },
       });
+    },
+  };
+  company = {
+    findById: async (id: string): Promise<Company | null> => {
+      return prisma.company.findUnique({
+        where: { id },
+        include: { contracts: true, contacts: true, notes: true },
+      });
+    },
+    findByUserId: async (userId: string): Promise<Company[]> => {
+      return prisma.company.findMany({
+        where: { userId },
+        include: { contracts: true, contacts: true, notes: true },
+        orderBy: { createdAt: 'desc' },
+      });
+    },
+    create: async (
+      company: Omit<Company, 'id' | 'createdAt' | 'updatedAt' | 'contracts' | 'contacts' | 'notes'>
+    ): Promise<Company> => {
+      return prisma.company.create({
+        data: company,
+        include: { contracts: true, contacts: true, notes: true },
+      });
+    },
+    update: async (
+      id: string,
+      company: Partial<
+        Omit<Company, 'id' | 'createdAt' | 'updatedAt' | 'userId' | 'contracts' | 'contacts' | 'notes'>
+      >
+    ): Promise<Company> => {
+      return prisma.company.update({
+        where: { id },
+        data: company,
+        include: { contracts: true, contacts: true, notes: true },
+      });
+    },
+    delete: async (id: string): Promise<void> => {
+      await prisma.company.delete({ where: { id } });
+    },
+  };
+  contract = {
+    findById: async (id: string): Promise<Contract | null> => {
+      return prisma.contract.findUnique({
+        where: { id },
+      });
+    },
+    findByCompanyId: async (companyId: string): Promise<Contract[]> => {
+      return prisma.contract.findMany({
+        where: { companyId },
+        orderBy: { createdAt: 'desc' },
+      });
+    },
+    create: async (contract: Omit<Contract, 'id' | 'createdAt' | 'updatedAt'>): Promise<Contract> => {
+      return prisma.contract.create({
+        data: contract,
+      });
+    },
+    update: async (
+      id: string,
+      contract: Partial<Omit<Contract, 'id' | 'createdAt' | 'updatedAt' | 'companyId'>>
+    ): Promise<Contract> => {
+      return prisma.contract.update({
+        where: { id },
+        data: contract,
+      });
+    },
+    delete: async (id: string): Promise<void> => {
+      await prisma.contract.delete({ where: { id } });
+    },
+  };
+  companyContact = {
+    findByCompanyId: async (companyId: string): Promise<CompanyContact[]> => {
+      return prisma.companyContact.findMany({
+        where: { companyId },
+        orderBy: [
+          { isPrimary: 'desc' },
+          { fullName: 'asc' },
+        ],
+      });
+    },
+    create: async (
+      contact: Omit<CompanyContact, 'id' | 'createdAt' | 'updatedAt'>
+    ): Promise<CompanyContact> => {
+      return prisma.companyContact.create({
+        data: contact,
+      });
+    },
+    update: async (
+      id: string,
+      contact: Partial<Omit<CompanyContact, 'id' | 'createdAt' | 'updatedAt' | 'companyId'>>
+    ): Promise<CompanyContact> => {
+      return prisma.companyContact.update({
+        where: { id },
+        data: contact,
+      });
+    },
+    delete: async (id: string): Promise<void> => {
+      await prisma.companyContact.delete({ where: { id } });
+    },
+  };
+  companyNote = {
+    findByCompanyId: async (companyId: string): Promise<CompanyNote[]> => {
+      return prisma.companyNote.findMany({
+        where: { companyId },
+        orderBy: { createdAt: 'desc' },
+      });
+    },
+    create: async (
+      note: Omit<CompanyNote, 'id' | 'createdAt'>
+    ): Promise<CompanyNote> => {
+      return prisma.companyNote.create({
+        data: note,
+      });
+    },
+    delete: async (id: string): Promise<void> => {
+      await prisma.companyNote.delete({ where: { id } });
     },
   };
   verificationToken = {

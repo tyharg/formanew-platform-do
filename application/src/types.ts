@@ -13,6 +13,8 @@ export interface User {
 
   verificationToken?: string | null;
   emailVerified: boolean;
+
+  companies?: Company[];
 }
 
 // Subscription type
@@ -30,6 +32,70 @@ export interface Note {
   id: string;
   userId: string;
   title: string;
+  content: string;
+  createdAt: Date;
+}
+
+export interface Company {
+  id: string;
+  userId: string;
+  legalName: string;
+  displayName: string | null;
+  industry: string | null;
+  ein: string | null;
+  formationDate: Date | null;
+  website: string | null;
+  phone: string | null;
+  email: string | null;
+  addressLine1: string | null;
+  addressLine2: string | null;
+  city: string | null;
+  state: string | null;
+  postalCode: string | null;
+  country: string | null;
+  description: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  contracts?: Contract[];
+  contacts?: CompanyContact[];
+  notes?: CompanyNote[];
+}
+
+export interface Contract {
+  id: string;
+  companyId: string;
+  title: string;
+  counterpartyName: string;
+  counterpartyEmail: string | null;
+  contractValue: number | null;
+  currency: string | null;
+  status: ContractStatus;
+  startDate: Date | null;
+  endDate: Date | null;
+  signedDate: Date | null;
+  paymentTerms: string | null;
+  renewalTerms: string | null;
+  description: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CompanyContact {
+  id: string;
+  companyId: string;
+  fullName: string;
+  title: string | null;
+  email: string | null;
+  phone: string | null;
+  isPrimary: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CompanyNote {
+  id: string;
+  companyId: string;
+  authorName: string | null;
   content: string;
   createdAt: Date;
 }
@@ -53,4 +119,12 @@ export enum SubscriptionStatusEnum {
 export enum SubscriptionPlanEnum {
   FREE = 'FREE',
   PRO = 'PRO',
+}
+
+export enum ContractStatus {
+  DRAFT = 'DRAFT',
+  ACTIVE = 'ACTIVE',
+  PENDING_SIGNATURE = 'PENDING_SIGNATURE',
+  COMPLETED = 'COMPLETED',
+  TERMINATED = 'TERMINATED',
 }

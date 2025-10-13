@@ -1,26 +1,44 @@
 import React from 'react';
 import { Typography, Box, Container, Stack, Card, CardContent } from '@mui/material';
-import StorageIcon from '@mui/icons-material/Storage';
-import PaymentIcon from '@mui/icons-material/Payment';
-import SecurityIcon from '@mui/icons-material/Security';
-import CloudIcon from '@mui/icons-material/Cloud';
-import EmailIcon from '@mui/icons-material/Email';
-import PsychologyIcon from '@mui/icons-material/Psychology';
-import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
-import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
+import PublicIcon from '@mui/icons-material/Public';
+import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
+import FingerprintIcon from '@mui/icons-material/Fingerprint';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import ManageSearchIcon from '@mui/icons-material/ManageSearch';
+import QueryStatsIcon from '@mui/icons-material/QueryStats';
+import AutorenewIcon from '@mui/icons-material/Autorenew';
+import DescriptionIcon from '@mui/icons-material/Description';
+import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
 import { FEATURES, DIMENSIONS } from 'constants/landing';
 
 const featureIcons = {
-  'One-Click Deployment': <RocketLaunchIcon sx={{ fontSize: DIMENSIONS.iconSize.large, color: FEATURES[0].color }} />,
-  'DigitalOcean Spaces': <CloudIcon sx={{ fontSize: DIMENSIONS.iconSize.large, color: FEATURES[1].color }} />,
-  'DigitalOcean Gradient': <PsychologyIcon sx={{ fontSize: DIMENSIONS.iconSize.large, color: FEATURES[2].color }} />,
-  'PostgreSQL and Prisma ORM': <StorageIcon sx={{ fontSize: DIMENSIONS.iconSize.large, color: FEATURES[3].color }} />,
-  'Stripe Integration': <PaymentIcon sx={{ fontSize: DIMENSIONS.iconSize.large, color: FEATURES[4].color }} />,
-  'NextAuth Authentication': <SecurityIcon sx={{ fontSize: DIMENSIONS.iconSize.large, color: FEATURES[5].color }} />,
-  'Resend Email Service': <EmailIcon sx={{ fontSize: DIMENSIONS.iconSize.large, color: FEATURES[6].color }} />,
-  'Admin Dashboard': <AdminPanelSettingsIcon sx={{ fontSize: DIMENSIONS.iconSize.large, color: FEATURES[7].color }} />,
-  'System Health Monitoring': <MonitorHeartIcon sx={{ fontSize: DIMENSIONS.iconSize.large, color: FEATURES[8].color }} />,
+  'LLC Formation in Any State': (
+    <PublicIcon sx={{ fontSize: DIMENSIONS.iconSize.large, color: FEATURES[0].color }} />
+  ),
+  'Registered Agent Included': (
+    <AssignmentIndIcon sx={{ fontSize: DIMENSIONS.iconSize.large, color: FEATURES[1].color }} />
+  ),
+  'Fast EIN Setup': (
+    <FingerprintIcon sx={{ fontSize: DIMENSIONS.iconSize.large, color: FEATURES[2].color }} />
+  ),
+  'Bank + Payments Setup': (
+    <AccountBalanceIcon sx={{ fontSize: DIMENSIONS.iconSize.large, color: FEATURES[3].color }} />
+  ),
+  'Business Name Check': (
+    <ManageSearchIcon sx={{ fontSize: DIMENSIONS.iconSize.large, color: FEATURES[4].color }} />
+  ),
+  'State Fee & Timeline Estimator': (
+    <QueryStatsIcon sx={{ fontSize: DIMENSIONS.iconSize.large, color: FEATURES[5].color }} />
+  ),
+  'Compliance Autopilot': (
+    <AutorenewIcon sx={{ fontSize: DIMENSIONS.iconSize.large, color: FEATURES[6].color }} />
+  ),
+  'Contracts & E-Sign': (
+    <DescriptionIcon sx={{ fontSize: DIMENSIONS.iconSize.large, color: FEATURES[7].color }} />
+  ),
+  'Invoicing & Payouts': (
+    <RequestQuoteIcon sx={{ fontSize: DIMENSIONS.iconSize.large, color: FEATURES[8].color }} />
+  ),
 };
 
 /**
@@ -28,7 +46,7 @@ const featureIcons = {
  */
 const FeatureCards = () => {
   return (
-    <Box component="section" py={DIMENSIONS.spacing.section} bgcolor="background.default" aria-labelledby="features-title">
+    <Box component="section" py={DIMENSIONS.spacing.section} bgcolor="background.default" aria-labelledby="features-title" id="formation">
       <Container maxWidth="lg">
         <Stack spacing={DIMENSIONS.spacing.card}>
           <Box component="header">

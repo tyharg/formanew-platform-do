@@ -1,4 +1,12 @@
-import { Note, Subscription, User, UserWithSubscriptions, SubscriptionStatus } from 'types';
+import {
+  Note,
+  Subscription,
+  User,
+  UserWithSubscriptions,
+  SubscriptionStatus,
+  Company,
+  Contract,
+} from 'types';
 import { ServiceConfigStatus, ConfigurableService } from '../status/serviceConfigStatus';
 
 export type DatabaseProvider = 'Postgres';
@@ -75,6 +83,50 @@ export abstract class DatabaseClient implements ConfigurableService {
     ) => Promise<{ identifier: string; token: string; expires: Date } | null>;
     delete: (identifier: string, token: string) => Promise<void>;
     deleteExpired: (now: Date) => Promise<void>;
+  };
+  abstract company: {
+    findById: (id: string) => Promise<Company | null>;
+    findByUserId: (userId: string) => Promise<Company[]>;
+    create: (
+      company: Omit<Company, 'id' | 'createdAt' | 'updatedAt' | 'contracts' | 'contacts' | 'notes'>
+    ) => Promise<Company>;
+    update: (
+      id: string,
+      company: Partial<
+        Omit<Company, 'id' | 'createdAt' | 'updatedAt' | 'userId' | 'contracts' | 'contacts' | 'notes'>
+      >
+    ) => Promise<Company>;
+    delete: (id: string) => Promise<void>;
+  };
+  abstract contract: {
+    findById: (id: string) => Promise<Contract | null>;
+    findByCompanyId: (companyId: string) => Promise<Contract[]>;
+    create: (
+      contract: Omit<Contract, 'id' | 'createdAt' | 'updatedAt'>
+    ) => Promise<Contract>;
+    update: (
+      id: string,
+      contract: Partial<Omit<Contract, 'id' | 'createdAt' | 'updatedAt' | 'companyId'>>
+    ) => Promise<Contract>;
+    delete: (id: string) => Promise<void>;
+  };
+  abstract companyContact: {
+    findByCompanyId: (companyId: string) => Promise<CompanyContact[]>;
+    create: (
+      contact: Omit<CompanyContact, 'id' | 'createdAt' | 'updatedAt'>
+    ) => Promise<CompanyContact>;
+    update: (
+      id: string,
+      contact: Partial<Omit<CompanyContact, 'id' | 'createdAt' | 'updatedAt' | 'companyId'>>
+    ) => Promise<CompanyContact>;
+    delete: (id: string) => Promise<void>;
+  };
+  abstract companyNote: {
+    findByCompanyId: (companyId: string) => Promise<CompanyNote[]>;
+    create: (
+      note: Omit<CompanyNote, 'id' | 'createdAt'>
+    ) => Promise<CompanyNote>;
+    delete: (id: string) => Promise<void>;
   };
   abstract checkConnection(): Promise<boolean>;
 

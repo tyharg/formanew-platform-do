@@ -194,7 +194,7 @@ Invoice Details:
 - Subscription ID: ${invoiceData.subscriptionId}
 
 Please create a professional invoice with:
-1. Company header with "SeaNotes" branding
+1. Company header with "FormaNew" branding
 2. Customer and invoice details clearly displayed
 3. Itemized breakdown of the subscription
 4. Professional styling with blue color scheme (#0061EB)
@@ -388,7 +388,7 @@ Return the response as a JSON object with html, text, and subject fields.`;
       <body>
         <div class="container">
           <div class="header">
-            <h1>SeaNotes</h1>
+            <h1>FormaNew</h1>
             <h2>Invoice</h2>
           </div>
           <div class="content">
@@ -430,7 +430,7 @@ Return the response as a JSON object with html, text, and subject fields.`;
             </div>
             
             <div class="footer">
-              <p>SeaNotes</p>
+              <p>FormaNew</p>
               <p>This is an automatically generated invoice.</p>
             </div>
           </div>
@@ -442,7 +442,7 @@ Return the response as a JSON object with html, text, and subject fields.`;
     const text = `
 INVOICE - ${invoiceData.invoiceNumber}
 
-SeaNotes
+FormaNew
 Invoice Date: ${invoiceData.invoiceDate.toLocaleDateString()}
 
 Bill To:

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Typography, Box, Container } from '@mui/material';
-import TerminalMockup from 'components/Public/TerminalMockup/TerminalMockup';
+import FormationCarousel from 'components/Public/FormationCarousel/FormationCarousel';
 import CTAButtons from 'components/Public/CTAButtons/CTAButtons';
 import { DIMENSIONS } from 'constants/landing';
 
@@ -18,21 +18,27 @@ const HeroSection = () => {
           alignItems: { xs: 'center', lg: 'flex-start' },
           gap: DIMENSIONS.spacing.container
         }}>
-          {/* Code example */}
-          <Box component="aside" aria-label="Code example" sx={{ order: { xs: 1, lg: 2 } }}>
-            <TerminalMockup />
+          {/* Formation carousel */}
+          <Box
+            component="aside"
+            aria-label="Company journey overview"
+            sx={{ order: { xs: 2, lg: 2 }, mt: { xs: DIMENSIONS.spacing.container, lg: 0 } }}
+          >
+            <FormationCarousel />
           </Box>
           
           {/* Main hero content */}
           <Box component="header" sx={{ 
-            order: { xs: 2, lg: 1 },
+            order: { xs: 1, lg: 1 },
             flex: 1,
             minWidth: 0,
             textAlign: 'center',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: DIMENSIONS.spacing.container
+            gap: DIMENSIONS.spacing.container,
+            height: '100%',
+            justifyContent: 'space-between'
           }}>
             <Typography 
               variant="h1" 
@@ -44,7 +50,7 @@ const HeroSection = () => {
                 width: '100%'
               }}
             >
-              SeaNotes
+              FormaNew
             </Typography>
             <Typography 
               variant="h3" 
@@ -56,7 +62,7 @@ const HeroSection = () => {
                 width: '100%'
               }}
             >
-              Build Your SaaS Faster Than Ever
+              The Flagship Next-Generation Digital Economy Platform
             </Typography>
             <Typography 
               variant="h6" 
@@ -69,7 +75,7 @@ const HeroSection = () => {
                 width: '100%'
               }}
             >
-              Launch your SaaS product in record time with our powerful, ready-to-use template. Packed with modern technologies and essential integrations.
+              Launch your digital brand in record time with our elegent, ready-to-use platform. Packed with automated incorporation and powerful integrations.  Enter the future of work with FormaNew.
             </Typography>
             <Box component="nav" aria-label="Primary actions">
               <CTAButtons />

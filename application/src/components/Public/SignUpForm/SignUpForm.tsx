@@ -15,6 +15,7 @@ import Link from 'next/link';
 import FormButton from 'components/Public/FormButton/FormButton';
 import { useNavigating } from 'hooks/navigation';
 import { USER_ROLES } from 'lib/auth/roles';
+import TurnstileChallenge from 'components/Public/LoginForm/TurnstileChallenge';
 
 /**
  * User registration form.
@@ -28,6 +29,11 @@ const SignUpForm: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileReset, setTurnstileReset] = useState(0);
+
+  const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '';
+  const isTurnstileEnabled = Boolean(siteKey);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,22 +45,42 @@ const SignUpForm: React.FC = () => {
       return;
     }
 
+    if (isTurnstileEnabled && !turnstileToken) {
+      setError('Please complete the verification challenge.');
+      return;
+    }
+
     setNavigating(true);
     try {
+      const payload = {
+        email,
+        password,
+        name: USER_ROLES.USER,
+        ...(turnstileToken ? { turnstileToken } : {}),
+      };
+
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, name: USER_ROLES.USER }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (!res.ok || data.error) {
         setError(data.error || 'Something went wrong');
+        if (isTurnstileEnabled) {
+          setTurnstileToken(null);
+          setTurnstileReset((prev) => prev + 1);
+        }
       } else {
         setSuccess(data.message || 'Account created.');
       }
     } catch (err) {
       console.error('Signup error:', err);
       setError('Something went wrong during signup. Please try again later.');
+      if (isTurnstileEnabled) {
+        setTurnstileToken(null);
+        setTurnstileReset((prev) => prev + 1);
+      }
     }
     setNavigating(false);
   };
@@ -162,6 +188,19 @@ const SignUpForm: React.FC = () => {
                       >
                         {error}
                       </Typography>
+                    )}
+
+                    {isTurnstileEnabled && (
+                      <Stack spacing={1}>
+                        <Typography variant="body2" fontWeight={500} color="text.primary">
+                          Verification
+                        </Typography>
+                        <TurnstileChallenge
+                          siteKey={siteKey}
+                          onToken={(token) => setTurnstileToken(token)}
+                          resetSignal={turnstileReset}
+                        />
+                      </Stack>
                     )}
 
                     <Box mt={1}>

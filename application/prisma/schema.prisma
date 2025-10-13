@@ -19,6 +19,7 @@ model User {
 
   subscription   Subscription?  @relation("UserSubscription")
   notes          Note[]
+  companies      Company[]
 
   verificationToken String? // Token for email verification
   emailVerified     Boolean @default(false) // Email verification status
@@ -43,6 +44,82 @@ model Note {
   createdAt  DateTime @default(now())
 }
 
+model Company {
+  id              String            @id @default(uuid())
+  user            User              @relation(fields: [userId], references: [id])
+  userId          String
+
+  legalName       String
+  displayName     String?
+  industry        String?
+  ein             String?
+  formationDate   DateTime?
+  website         String?
+  phone           String?
+  email           String?
+  addressLine1    String?
+  addressLine2    String?
+  city            String?
+  state           String?
+  postalCode      String?
+  country         String?
+  description     String?
+
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  contracts       Contract[]
+  contacts        CompanyContact[]
+  notes           CompanyNote[]
+}
+
+model Contract {
+  id                String          @id @default(uuid())
+  company           Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId         String
+
+  title             String
+  counterpartyName  String
+  counterpartyEmail String?
+  contractValue     Float?
+  currency          String?         @default("USD")
+  status            ContractStatus  @default(DRAFT)
+  startDate         DateTime?
+  endDate           DateTime?
+  signedDate        DateTime?
+  paymentTerms      String?
+  renewalTerms      String?
+  description       String?
+
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+}
+
+model CompanyContact {
+  id          String   @id @default(uuid())
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId   String
+
+  fullName    String
+  title       String?
+  email       String?
+  phone       String?
+  isPrimary   Boolean  @default(false)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model CompanyNote {
+  id          String   @id @default(uuid())
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId   String
+
+  authorName  String?
+  content     String
+  createdAt   DateTime @default(now())
+}
+
 model VerificationToken {
   identifier String
   token      String
@@ -65,4 +142,12 @@ enum SubscriptionStatus {
 enum SubscriptionPlan {
   FREE
   PRO
+}
+
+enum ContractStatus {
+  DRAFT
+  ACTIVE
+  PENDING_SIGNATURE
+  COMPLETED
+  TERMINATED
 }

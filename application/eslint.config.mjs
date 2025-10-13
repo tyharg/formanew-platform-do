@@ -32,20 +32,9 @@ const config = [
       },
     },
     rules: {
-      'jsdoc/require-jsdoc': [
-        'error',
-        {
-          publicOnly: true,
-          require: {
-            FunctionDeclaration: true,
-            ClassDeclaration: true,
-            ArrowFunctionExpression: true,
-            FunctionExpression: true,
-          },
-        },
-      ],
+      'jsdoc/require-jsdoc': 'off',
 
-      'jsdoc/require-description': 'error',
+      'jsdoc/require-description': 'warn',
 
       'jsdoc/require-returns': 'off',
       'jsdoc/require-returns-description': 'off',
@@ -57,6 +46,14 @@ const config = [
 
       'jsdoc/check-tag-names': 'warn',
       'jsdoc/check-alignment': 'warn',
+
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+        },
+      ],
     },
   },
 ];

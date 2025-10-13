@@ -4,7 +4,7 @@ This file contains information to help Claude remember important details about y
 
 ## Project Overview
 
-SeaNotes is a Next.js 15 SaaS application with TypeScript, featuring user authentication, subscription management, and a notes system. The application uses a service-oriented architecture with comprehensive testing coverage.
+FormaNew is a Next.js 15 SaaS application with TypeScript, featuring user authentication, subscription management, and a notes system. The application uses a service-oriented architecture with comprehensive testing coverage.
 
 ## Technology Stack
 

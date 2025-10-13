@@ -1,6 +1,6 @@
 # Invoice Generation Guide
 
-This guide explains how to use **SeaNotes**' AI-powered invoice generation feature, which automatically creates invoices for user subscriptions using DigitalOcean's [GradientAI Serverless Inference API](https://docs.digitalocean.com/products/gradientai-platform/how-to/use-serverless-inference).
+This guide explains how to use **FormaNew**' AI-powered invoice generation feature, which automatically creates invoices for user subscriptions using DigitalOcean's [GradientAI Serverless Inference API](https://docs.digitalocean.com/products/gradientai-platform/how-to/use-serverless-inference).
 
 ## Overview
 
@@ -160,7 +160,7 @@ Invoice Details:
 - Subscription ID: ${invoiceData.subscriptionId}
 
 Please create a professional invoice with:
-1. Company header with "SeaNotes" branding
+1. Company header with "FormaNew" branding
 2. Customer and invoice details clearly displayed
 3. Itemized breakdown of the subscription
 4. Professional styling with blue color scheme (#0061EB)
@@ -211,7 +211,6 @@ If the AI service is unavailable, the system gracefully falls back to:
 2. Check spam/junk folders
 3. Ensure email service is enabled (`ENABLE_EMAIL_INTEGRATION=true`)
 4. Review email service logs
-
 
 
 

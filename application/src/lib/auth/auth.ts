@@ -5,6 +5,7 @@ import { createDatabaseService } from 'services/database/databaseFactory';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from '../prisma';
 import { verifyPassword } from 'helpers/hash';
+import { verifyTurnstileToken } from 'helpers/turnstile';
 import { User, UserRole } from 'types';
 import { InvalidCredentialsError } from './errors';
 import { serverConfig } from 'settings';
@@ -36,6 +37,7 @@ const providers: Provider[] = [
       email: {},
       password: {},
       magicLinkToken: {},
+      turnstileToken: {},
     },
     authorize: async (credentials) => {
       try {
@@ -55,6 +57,8 @@ const providers: Provider[] = [
         if (!credentials.email || !credentials.password) {
           throw new Error('Email and password are required');
         }
+
+        await verifyTurnstileToken(credentials.turnstileToken as string | undefined);
 
         const user = await dbClient.user.findByEmail(credentials.email as string);
         if (!user || !user.passwordHash) {

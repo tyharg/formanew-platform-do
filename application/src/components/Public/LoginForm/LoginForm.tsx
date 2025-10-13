@@ -15,6 +15,7 @@ import Link from 'next/link';
 import FormButton from 'components/Public/FormButton/FormButton';
 import { signIn } from 'next-auth/react';
 import { useNavigating, usePrefetchRouter } from 'hooks/navigation';
+import TurnstileChallenge from './TurnstileChallenge';
 
 /**
  * Login form.
@@ -26,22 +27,38 @@ const LoginForm: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileReset, setTurnstileReset] = useState(0);
   const { setNavigating } = useNavigating();
 
+  const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '';
+  const isTurnstileEnabled = Boolean(siteKey);
+
   const handleSubmit = async (e: React.FormEvent) => {
-    setNavigating(true);
     e.preventDefault();
     setError(null);
+
+    if (isTurnstileEnabled && !turnstileToken) {
+      setError('Please complete the verification challenge.');
+      return;
+    }
+
+    setNavigating(true);
 
     const res = await signIn('credentials', {
       redirect: false,
       email,
       password,
+      ...(turnstileToken ? { turnstileToken } : {}),
     });
 
     if (!res || res.error) {
       setNavigating(false);
       setError(res?.code || 'Something went wrong');
+      if (isTurnstileEnabled) {
+        setTurnstileToken(null);
+        setTurnstileReset((prev) => prev + 1);
+      }
     } else if (res.ok) {
       navigate('/dashboard/my-notes');
     }
@@ -116,6 +133,19 @@ const LoginForm: React.FC = () => {
                     <Typography color="error" variant="body2" textAlign="center">
                       {error}
                     </Typography>
+                  )}
+
+                  {isTurnstileEnabled && (
+                    <Stack spacing={1}>
+                      <Typography variant="body2" fontWeight={500} color="text.primary">
+                        Verification
+                      </Typography>
+                      <TurnstileChallenge
+                        siteKey={siteKey}
+                        onToken={(token) => setTurnstileToken(token)}
+                        resetSignal={turnstileReset}
+                      />
+                    </Stack>
                   )}
 
                   <Box mt={1}>

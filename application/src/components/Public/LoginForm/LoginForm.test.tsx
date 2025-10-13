@@ -22,6 +22,7 @@ describe('LoginForm', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
+
   it('renders email and password inputs', () => {
     render(<LoginForm />);
     expect(screen.getByPlaceholderText(/enter your email/i)).toBeInTheDocument();
@@ -63,5 +64,31 @@ describe('LoginForm', () => {
     fireEvent.click(submitButton);
 
     expect(await screen.findByText(/invalid credentials/i)).toBeInTheDocument();
+  });
+
+  it('requires Turnstile verification when enabled', async () => {
+    const originalSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+    process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY = 'test-site-key';
+
+    try {
+      render(<LoginForm />);
+      await userEvent.type(screen.getByPlaceholderText(/enter your email/i), 'robot@example.com');
+      await userEvent.type(screen.getByPlaceholderText(/enter your password/i), 'cannot-pass');
+
+      const form = screen.getByTestId('login-form');
+      fireEvent.submit(form);
+
+      expect(
+        await screen.findByText(/please complete the verification challenge/i)
+      ).toBeInTheDocument();
+      expect(signIn).not.toHaveBeenCalled();
+    } finally {
+      if (originalSiteKey) {
+        process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY = originalSiteKey;
+      } else {
+        delete process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+      }
+      document.getElementById('turnstile-script')?.remove();
+    }
   });
 });

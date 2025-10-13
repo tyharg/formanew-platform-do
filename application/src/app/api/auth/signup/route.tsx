@@ -10,6 +10,7 @@ import { serverConfig } from 'settings';
 import { DatabaseClient } from 'services/database/database';
 import { SubscriptionPlanEnum, SubscriptionStatusEnum, User } from 'types';
 import { createBillingService } from 'services/billing/billingFactory';
+import { verifyTurnstileToken } from 'helpers/turnstile';
 
 const createSubscription = async (db: DatabaseClient, user: User) => {
   const billingService = await createBillingService();
@@ -70,13 +71,15 @@ const createSubscription = async (db: DatabaseClient, user: User) => {
  */
 export async function POST(req: NextRequest) {
   try {
-    const { name, email, password } = await req.json();
+    const { name, email, password, turnstileToken } = await req.json();
     if (!email || !password || !name) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: HTTP_STATUS.BAD_REQUEST }
       );
     }
+
+    await verifyTurnstileToken(turnstileToken);
 
     const dbClient = await createDatabaseService();
     const userCount = await dbClient.user.count();

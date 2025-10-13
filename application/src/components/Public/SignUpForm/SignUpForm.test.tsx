@@ -23,9 +23,16 @@ jest.mock('../../../lib/api/stripe', () => ({
   })),
 }));
 
+const originalFetch = global.fetch;
+
 describe('SignUpForm', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    document.getElementById('turnstile-script')?.remove();
+  });
+
+  afterEach(() => {
+    global.fetch = originalFetch;
   });
 
   it('renders all inputs', () => {
@@ -117,5 +124,35 @@ describe('SignUpForm', () => {
     fireEvent.submit(screen.getByTestId('signup-form'));
 
     expect(await screen.findByText('Account created.')).toBeInTheDocument();
+  });
+
+  it('requires Turnstile verification when enabled', async () => {
+    const originalSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+    process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY = 'test-site-key';
+    global.fetch = jest.fn() as unknown as jest.Mock;
+
+    try {
+      render(<SignUpForm />);
+      await userEvent.type(screen.getByTestId('signup-email-input'), 'robot@example.com');
+      await userEvent.type(screen.getByTestId('signup-password-input'), 'password123!');
+      await userEvent.type(
+        screen.getByTestId('signup-confirm-password-input'),
+        'password123!'
+      );
+
+      fireEvent.submit(screen.getByTestId('signup-form'));
+
+      expect(
+        await screen.findByText(/please complete the verification challenge/i)
+      ).toBeInTheDocument();
+      expect(global.fetch).not.toHaveBeenCalled();
+    } finally {
+      if (originalSiteKey) {
+        process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY = originalSiteKey;
+      } else {
+        delete process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+      }
+      document.getElementById('turnstile-script')?.remove();
+    }
   });
 });

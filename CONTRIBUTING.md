@@ -1,6 +1,6 @@
-# Contributing to SeaNotes
+# Contributing to FormaNew
 
-Thank you for your interest in contributing to SeaNotes! This document provides guidelines and information for contributors to help make the contribution process smooth and effective.
+Thank you for your interest in contributing to FormaNew! This document provides guidelines and information for contributors to help make the contribution process smooth and effective.
 
 ## Table of Contents
 
@@ -16,7 +16,7 @@ Thank you for your interest in contributing to SeaNotes! This document provides 
 
 Before contributing, please:
 
-1. **Read the README.md** - Understand what SeaNotes is and how it works
+1. **Read the README.md** - Understand what FormaNew is and how it works
 2. **Check existing issues** - Your idea might already be discussed or in progress
 3. **Comment on issues to get assigned** - To contribute, you must comment on existing issues to get assigned to them. If you want to work on a new feature or bug that doesn't have an issue yet, you must first raise a new issue and then comment on it to get assigned.
 4. **Join the community** - Follow our [Code of Conduct](CODE_OF_CONDUCT.md)
@@ -245,8 +245,8 @@ When making changes that affect documentation:
 
 ## License
 
-By contributing to SeaNotes, you agree that your contributions will be licensed under the [MIT License](LICENSE).
+By contributing to FormaNew, you agree that your contributions will be licensed under the [MIT License](LICENSE).
 
 ---
 
-Thank you for contributing to SeaNotes! Your contributions help make this project better for everyone.
+Thank you for contributing to FormaNew! Your contributions help make this project better for everyone.

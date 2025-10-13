@@ -1,11 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
 import {
   AppBar,
   Toolbar,
-  Typography,
   Box,
   Button,
   IconButton,
@@ -21,6 +19,8 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { useSession, signOut } from 'next-auth/react';
 import ServiceWarningIndicator from 'components/Common/ServiceWarningIndicator/ServiceWarningIndicator';
 import { usePathname } from 'next/navigation';
+import Link from 'next/link';
+import BrandLogo from 'components/Common/BrandLogo/BrandLogo';
 
 /**
  * Main navigation bar of the application.
@@ -95,16 +95,7 @@ const NavBar = () => {
         }}
       >
         <Toolbar sx={{ justifyContent: 'space-between' }}>
-          <Link href="/" style={{ textDecoration: 'none' }}>
-            <Typography
-              variant="h5"
-              color="primary.main"
-              fontWeight={700}
-              sx={{ cursor: 'pointer' }}
-            >
-              🐳 SeaNotes
-            </Typography>
-          </Link>
+          <BrandLogo size={40} />
 
           {isMobile ? (
             <IconButton edge="end" color="inherit" onClick={handleDrawerToggle}>

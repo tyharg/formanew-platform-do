@@ -1,6 +1,6 @@
 # DigitalOcean Deployment Guide
 
-This guide walks you through deploying **SeaNotes**—our Next.js SaaS notes starter kit—to DigitalOcean App Platform, which provides a fully managed platform for hosting web applications.
+This guide walks you through deploying **FormaNew**—our Next.js SaaS notes starter kit—to DigitalOcean App Platform, which provides a fully managed platform for hosting web applications.
 
 ## Prerequisites
 
@@ -8,7 +8,7 @@ Before you begin, make sure you have:
 
 - A [DigitalOcean account](https://cloud.digitalocean.com/registrations/new)
 - Your SaaS Starter Kit application code with any customizations you've made
-- A GitHub repo for **SeaNotes** (either forked or your own copy)
+- A GitHub repo for **FormaNew** (either forked or your own copy)
 - [Stripe setup](./stripe-integration-guide.md) completed (if using billing features)
 - [Resend setup](../README.md#part-2-set-up-email-provider-resend) completed (if using email features)
 - [Spaces setup](../README.md#part-3-set-up-file-storage-digitalocean-spaces) completed (if using file storage)

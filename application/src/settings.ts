@@ -30,6 +30,11 @@ export interface ServerConfig {
     webhookSecret?: string;
     portalConfigId?: string;
   };
+  Turnstile: {
+    secretKey?: string;
+    siteKey?: string;
+    enabled: boolean;
+  };
 }
 
 export const serverConfig: ServerConfig = {
@@ -65,6 +70,11 @@ export const serverConfig: ServerConfig = {
   },
   GradientAI: {
     doInferenceApiKey: process.env.DO_INFERENCE_API_KEY,
+  },
+  Turnstile: {
+    secretKey: process.env.TURNSTILE_SECRET_KEY,
+    siteKey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
+    enabled: Boolean(process.env.TURNSTILE_SECRET_KEY && process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY),
   },
 };
 

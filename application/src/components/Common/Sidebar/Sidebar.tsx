@@ -12,7 +12,6 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Typography,
   styled,
   useMediaQuery,
   useTheme,
@@ -25,11 +24,14 @@ import {
   Logout,
   Assessment,
   Menu as MenuIcon,
+  Gavel,
+  Business,
 } from '@mui/icons-material';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import { USER_ROLES } from 'lib/auth/roles';
+import BrandLogo from 'components/Common/BrandLogo/BrandLogo';
 
 interface SidebarLinkProps {
   href: string;
@@ -87,9 +89,7 @@ const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => {
   return (
     <>
       <SidebarHeader justifyContent="space-between">
-        <Typography variant="h5" fontWeight={600}>
-          🐳 SeaNotes
-        </Typography>
+        <BrandLogo size={32} />
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>{getProfileIcon()}</Box>
       </SidebarHeader>
 
@@ -104,6 +104,20 @@ const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => {
             onClick={onNavigate}
           >
             My Notes
+          </SidebarLink>
+          <SidebarLink
+            href="/dashboard/my-companies"
+            icon={<Business fontSize="small" />}
+            onClick={onNavigate}
+          >
+            Companies
+          </SidebarLink>
+          <SidebarLink
+            href="/dashboard/my-contracts"
+            icon={<Gavel fontSize="small" />}
+            onClick={onNavigate}
+          >
+            Contracts
           </SidebarLink>
         </List>
       </Box>
