@@ -35,7 +35,7 @@ export async function POST(
       name: name,
       description: description,
       // Create a default price simultaneously
-      default_price_ { // FIX: Changed 'default_price_' to 'default_price_data'
+      default_price_ { // FIX: Corrected property name
         unit_amount: priceInCents,
         currency: currency,
         recurring: undefined, // Ensure it's a one-time payment for simplicity
