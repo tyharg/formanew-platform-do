@@ -14,9 +14,9 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
  */
 export async function POST(
   req: NextRequest,
-  { params }: { params: { companyId: string } }
+  { params }: { params: Promise<{ companyId: string }> }
 ) {
-  const { companyId } = params;
+  const { companyId } = await params;
 
   try {
     // 1. Fetch company data to check existing Stripe Account ID

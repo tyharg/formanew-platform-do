@@ -10,9 +10,9 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
  */
 export async function POST(
   req: NextRequest,
-  { params }: { params: { accountId: string } }
+  { params }: { params: Promise<{ accountId: string }> }
 ) {
-  const stripeAccountId = params.accountId;
+  const { accountId: stripeAccountId } = await params;
   const { priceId, applicationFeeAmount } = await req.json();
 
   if (!validateStripeAccountId(stripeAccountId)) {

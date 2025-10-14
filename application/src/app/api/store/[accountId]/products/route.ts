@@ -8,9 +8,9 @@ import Stripe from 'stripe';
  */
 export async function GET(
   req: NextRequest,
-  { params }: { params: { accountId: string } }
+  { params }: { params: Promise<{ accountId: string }> }
 ) {
-  const stripeAccountId = params.accountId;
+  const { accountId: stripeAccountId } = await params;
 
   if (!validateStripeAccountId(stripeAccountId)) {
     return NextResponse.json({ message: 'Invalid Stripe Account ID.' }, { status: 400 });

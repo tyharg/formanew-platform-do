@@ -7,9 +7,9 @@ import { getCompanyById, addProductToCompany } from '@/lib/mockDb';
  */
 export async function POST(
   req: NextRequest,
-  { params }: { params: { companyId: string } }
+  { params }: { params: Promise<{ companyId: string }> }
 ) {
-  const { companyId } = params;
+  const { companyId } = await params;
   const { name, description, price, currency } = await req.json();
 
   if (!name || !price || !currency) {
