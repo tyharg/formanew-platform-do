@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
       const account = data as Stripe.Account;
       
       // We retrieve the Company ID from the metadata we set during account creation
-      const companyId = account.metadata.companyId;
+      const companyId = account.metadata?.companyId;
 
       if (companyId) {
         console.log(`Received account.updated for Company ID: ${companyId}`);
