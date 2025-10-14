@@ -12,7 +12,7 @@ import {
   CompanyNote,
   CompanyFinance,
 } from 'types';
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { ServiceConfigStatus } from '../status/serviceConfigStatus';
 
 /**
@@ -88,17 +88,20 @@ export class SqlDatabaseService extends DatabaseClient {
       return { users, total };
     },
     create: async (user: Omit<User, 'id' | 'createdAt'>): Promise<User> => {
-      const newUser = await prisma.user.create({ data: user });
-      return newUser;
+      const { companies, ...userData } = user;
+      const newUser = await prisma.user.create({ data: userData });
+      return newUser as unknown as User;
     },
     update: async (id: string, user: Partial<Omit<User, 'id' | 'createdAt'>>): Promise<User> => {
-      return prisma.user.update({ where: { id }, data: user });
+      const { companies, ...userData } = user;
+      return prisma.user.update({ where: { id }, data: userData }) as unknown as User;
     },
     updateByEmail: async (
       email: string,
       user: Partial<Omit<User, 'id' | 'createdAt'>>
     ): Promise<User> => {
-      return prisma.user.update({ where: { email }, data: user });
+      const { companies, ...userData } = user;
+      return prisma.user.update({ where: { email }, data: userData }) as unknown as User;
     },
     delete: async (id: string): Promise<void> => {
       await prisma.user.delete({ where: { id } });
@@ -208,17 +211,19 @@ export class SqlDatabaseService extends DatabaseClient {
   };
   company = {
     findById: async (id: string): Promise<Company | null> => {
-      return prisma.company.findUnique({
+      const record = await prisma.company.findUnique({
         where: { id },
         include: { contracts: true, contacts: true, notes: true, finance: true },
       });
+      return record as unknown as Company | null;
     },
     findByUserId: async (userId: string): Promise<Company[]> => {
-      return prisma.company.findMany({
+      const records = await prisma.company.findMany({
         where: { userId },
         include: { contracts: true, contacts: true, notes: true, finance: true },
         orderBy: { createdAt: 'desc' },
       });
+      return records as unknown as Company[];
     },
     create: async (
       company: Omit<
@@ -226,10 +231,11 @@ export class SqlDatabaseService extends DatabaseClient {
         'id' | 'createdAt' | 'updatedAt' | 'contracts' | 'contacts' | 'notes' | 'finance'
       >
     ): Promise<Company> => {
-      return prisma.company.create({
-        data: company,
+      const created = await prisma.company.create({
+        data: company as unknown as Prisma.CompanyCreateInput,
         include: { contracts: true, contacts: true, notes: true, finance: true },
       });
+      return created as unknown as Company;
     },
     update: async (
       id: string,
@@ -240,11 +246,12 @@ export class SqlDatabaseService extends DatabaseClient {
         >
       >
     ): Promise<Company> => {
-      return prisma.company.update({
+      const updated = await prisma.company.update({
         where: { id },
-        data: company,
+        data: company as unknown as Prisma.CompanyUpdateInput,
         include: { contracts: true, contacts: true, notes: true, finance: true },
       });
+      return updated as unknown as Company;
     },
     delete: async (id: string): Promise<void> => {
       await prisma.company.delete({ where: { id } });
@@ -252,29 +259,33 @@ export class SqlDatabaseService extends DatabaseClient {
   };
   contract = {
     findById: async (id: string): Promise<Contract | null> => {
-      return prisma.contract.findUnique({
+      const record = await prisma.contract.findUnique({
         where: { id },
       });
+      return record as unknown as Contract | null;
     },
     findByCompanyId: async (companyId: string): Promise<Contract[]> => {
-      return prisma.contract.findMany({
+      const records = await prisma.contract.findMany({
         where: { companyId },
         orderBy: { createdAt: 'desc' },
       });
+      return records as unknown as Contract[];
     },
     create: async (contract: Omit<Contract, 'id' | 'createdAt' | 'updatedAt'>): Promise<Contract> => {
-      return prisma.contract.create({
-        data: contract,
+      const created = await prisma.contract.create({
+        data: contract as unknown as Prisma.ContractCreateInput,
       });
+      return created as unknown as Contract;
     },
     update: async (
       id: string,
       contract: Partial<Omit<Contract, 'id' | 'createdAt' | 'updatedAt' | 'companyId'>>
     ): Promise<Contract> => {
-      return prisma.contract.update({
+      const updated = await prisma.contract.update({
         where: { id },
-        data: contract,
+        data: contract as unknown as Prisma.ContractUpdateInput,
       });
+      return updated as unknown as Contract;
     },
     delete: async (id: string): Promise<void> => {
       await prisma.contract.delete({ where: { id } });
@@ -282,29 +293,32 @@ export class SqlDatabaseService extends DatabaseClient {
   };
   companyContact = {
     findByCompanyId: async (companyId: string): Promise<CompanyContact[]> => {
-      return prisma.companyContact.findMany({
+      const records = await prisma.companyContact.findMany({
         where: { companyId },
         orderBy: [
           { isPrimary: 'desc' },
           { fullName: 'asc' },
         ],
       });
+      return records as unknown as CompanyContact[];
     },
     create: async (
       contact: Omit<CompanyContact, 'id' | 'createdAt' | 'updatedAt'>
     ): Promise<CompanyContact> => {
-      return prisma.companyContact.create({
-        data: contact,
+      const created = await prisma.companyContact.create({
+        data: contact as unknown as Prisma.CompanyContactCreateInput,
       });
+      return created as unknown as CompanyContact;
     },
     update: async (
       id: string,
       contact: Partial<Omit<CompanyContact, 'id' | 'createdAt' | 'updatedAt' | 'companyId'>>
     ): Promise<CompanyContact> => {
-      return prisma.companyContact.update({
+      const updated = await prisma.companyContact.update({
         where: { id },
-        data: contact,
+        data: contact as unknown as Prisma.CompanyContactUpdateInput,
       });
+      return updated as unknown as CompanyContact;
     },
     delete: async (id: string): Promise<void> => {
       await prisma.companyContact.delete({ where: { id } });
@@ -312,17 +326,19 @@ export class SqlDatabaseService extends DatabaseClient {
   };
   companyNote = {
     findByCompanyId: async (companyId: string): Promise<CompanyNote[]> => {
-      return prisma.companyNote.findMany({
+      const records = await prisma.companyNote.findMany({
         where: { companyId },
         orderBy: { createdAt: 'desc' },
       });
+      return records as unknown as CompanyNote[];
     },
     create: async (
       note: Omit<CompanyNote, 'id' | 'createdAt'>
     ): Promise<CompanyNote> => {
-      return prisma.companyNote.create({
-        data: note,
+      const created = await prisma.companyNote.create({
+        data: note as unknown as Prisma.CompanyNoteCreateInput,
       });
+      return created as unknown as CompanyNote;
     },
     delete: async (id: string): Promise<void> => {
       await prisma.companyNote.delete({ where: { id } });
@@ -330,7 +346,10 @@ export class SqlDatabaseService extends DatabaseClient {
   };
   companyFinance = {
     findByCompanyId: async (companyId: string): Promise<CompanyFinance | null> => {
-      return prisma.companyFinance.findUnique({ where: { companyId } });
+      const record = await prisma.companyFinance.findUnique({ where: { companyId } });
+      return record
+        ? ({ products: [], ...record } as unknown as CompanyFinance)
+        : null;
     },
     create: async (
       finance: {
@@ -338,18 +357,20 @@ export class SqlDatabaseService extends DatabaseClient {
       } &
         Partial<Omit<CompanyFinance, 'id' | 'companyId' | 'createdAt' | 'updatedAt'>>
     ): Promise<CompanyFinance> => {
-      return prisma.companyFinance.create({
+      const created = await prisma.companyFinance.create({
         data: finance,
       });
+      return { products: [], ...created } as unknown as CompanyFinance;
     },
     update: async (
       companyId: string,
       finance: Partial<Omit<CompanyFinance, 'id' | 'companyId' | 'createdAt' | 'updatedAt'>>
     ): Promise<CompanyFinance> => {
-      return prisma.companyFinance.update({
+      const updated = await prisma.companyFinance.update({
         where: { companyId },
         data: finance,
       });
+      return { products: [], ...updated } as unknown as CompanyFinance;
     },
   };
   verificationToken = {

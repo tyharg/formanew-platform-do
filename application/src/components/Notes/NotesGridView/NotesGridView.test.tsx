@@ -6,6 +6,7 @@ const mockNotes = [
   {
     id: '1',
     userId: 'user1',
+    companyId: 'company-1',
     title: 'Test Note 1',
     content: 'Content for test note 1',
     createdAt: '2025-06-01T12:00:00Z',
@@ -13,6 +14,7 @@ const mockNotes = [
   {
     id: '2',
     userId: 'user1',
+    companyId: 'company-1',
     title: 'Test Note 2',
     content: 'Content for test note 2',
     createdAt: '2025-06-02T12:00:00Z',

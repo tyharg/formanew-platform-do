@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import Grid from '@mui/material/Grid';
 import {
   Alert,
   Box,
@@ -8,7 +9,6 @@ import {
   Chip,
   CircularProgress,
   Divider,
-  Grid,
   Stack,
   Typography,
 } from '@mui/material';
@@ -188,7 +188,7 @@ const FinancesPage: React.FC = () => {
         {renderStatusChips()}
 
         <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Stack spacing={1}>
               <Typography variant="subtitle2" color="text.secondary">
                 Stripe account ID
@@ -198,7 +198,7 @@ const FinancesPage: React.FC = () => {
               </Typography>
             </Stack>
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Stack spacing={1}>
               <Typography variant="subtitle2" color="text.secondary">
                 Onboarding link expires
@@ -206,7 +206,7 @@ const FinancesPage: React.FC = () => {
               <Typography variant="body1">{formatDateTime(finance.accountOnboardingExpiresAt)}</Typography>
             </Stack>
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Stack spacing={1}>
               <Typography variant="subtitle2" color="text.secondary">
                 Onboarding link
@@ -225,7 +225,7 @@ const FinancesPage: React.FC = () => {
               )}
             </Stack>
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Stack spacing={1}>
               <Typography variant="subtitle2" color="text.secondary">
                 Stripe dashboard login link
@@ -250,13 +250,13 @@ const FinancesPage: React.FC = () => {
         <Divider />
 
         <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Stack spacing={1}>
               <Typography variant="subtitle2">Requirements due</Typography>
               {renderRequirements(finance.requirementsDue)}
             </Stack>
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Stack spacing={1}>
               <Typography variant="subtitle2">Requirements due soon</Typography>
               {renderRequirements(finance.requirementsDueSoon)}

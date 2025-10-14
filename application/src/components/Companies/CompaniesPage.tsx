@@ -166,7 +166,7 @@ const CompaniesPage: React.FC = () => {
     try {
       setIsSubmitting(true);
       if (formMode === 'create') {
-        await companiesClient.createCompany(payload);
+        await companiesClient.createCompany(payload as CreateCompanyPayload);
         showToast('Company created successfully.');
       } else if (selectedCompany) {
         await companiesClient.updateCompany(selectedCompany.id, payload);

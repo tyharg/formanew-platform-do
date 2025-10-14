@@ -2,7 +2,8 @@ import { InvoiceService, InvoiceData } from './invoiceService';
 
 // Mock axios
 jest.mock('axios');
-import mockAxios from 'axios';
+import axios from 'axios';
+const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 // Mock serverConfig
 const mockServerConfig: {
@@ -82,14 +83,14 @@ describe('InvoiceService', () => {
         },
       };
 
-      mockAxios.post.mockResolvedValue(mockResponse);
+      mockedAxios.post.mockResolvedValue(mockResponse);
 
       const result = await invoiceService.generateInvoice(mockInvoiceData);
 
       expect(result.html).toBe('<html>Test Invoice</html>');
       expect(result.text).toBe('Test Invoice Text');
       expect(result.subject).toBe('Test Invoice Subject');
-      expect(mockAxios.post).toHaveBeenCalledWith(
+      expect(mockedAxios.post).toHaveBeenCalledWith(
         'https://api.digitalocean.com/v2/ai/inference',
         expect.objectContaining({
           model: 'claude-3.5-sonnet',
@@ -126,7 +127,7 @@ describe('InvoiceService', () => {
         },
       };
 
-      mockAxios.post.mockResolvedValue(mockResponse);
+      mockedAxios.post.mockResolvedValue(mockResponse);
 
       const result = await invoiceService.generateInvoice(mockInvoiceData);
 
@@ -138,7 +139,7 @@ describe('InvoiceService', () => {
     });
 
     it('should fallback to template when AI service fails', async () => {
-      mockAxios.post.mockRejectedValue(new Error('Network error'));
+      mockedAxios.post.mockRejectedValue(new Error('Network error'));
 
       const result = await invoiceService.generateInvoice(mockInvoiceData);
 

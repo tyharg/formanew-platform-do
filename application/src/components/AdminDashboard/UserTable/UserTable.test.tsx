@@ -16,6 +16,9 @@ describe('<UserTable />', () => {
       email: 'alice@example.com',
       role: USER_ROLES.USER,
       createdAt: new Date('2023-01-01'),
+      passwordHash: 'hash',
+      image: null,
+      emailVerified: true,
       subscription: {
         plan: SubscriptionPlanEnum.FREE,
         status: SubscriptionStatusEnum.ACTIVE,
@@ -31,6 +34,9 @@ describe('<UserTable />', () => {
       email: 'bob@example.com',
       role: USER_ROLES.ADMIN,
       createdAt: new Date('2023-01-02'),
+      passwordHash: 'hash',
+      image: null,
+      emailVerified: false,
       subscription: {
         plan: SubscriptionPlanEnum.PRO,
         status: SubscriptionStatusEnum.CANCELED,

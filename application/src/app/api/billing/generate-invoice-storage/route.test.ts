@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { POST as generateInvoiceStorageHandler } from './route';
+import { generateInvoiceStorageHandler } from './route';
 import { createInvoiceService } from 'services/invoice/invoiceFactory';
 import { createDatabaseService } from 'services/database/databaseFactory';
 import { createBillingService } from 'services/billing/billingFactory';

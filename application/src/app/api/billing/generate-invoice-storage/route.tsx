@@ -18,7 +18,7 @@ import { SubscriptionPlanEnum, SubscriptionStatusEnum } from 'types';
  *   - 400: { error: string }
  *   - 500: { error: string }
  */
-async function generateInvoiceStorageHandler(
+export async function generateInvoiceStorageHandler(
   req: NextRequest,
   user: { id: string; role: string; email: string }
 ): Promise<Response> {

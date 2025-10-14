@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Grid, Stack, Switch, TextField, Typography, FormControlLabel } from '@mui/material';
+import Grid from '@mui/material/Grid';
+import { Box, Button, Stack, Switch, TextField, Typography, FormControlLabel } from '@mui/material';
 import { CreateCompanyContactPayload, UpdateCompanyContactPayload, CompanyContact } from 'lib/api/companies';
 
 type FormMode = 'create' | 'edit';
@@ -70,7 +71,10 @@ const CompanyContactForm: React.FC<CompanyContactFormProps> = ({
   const handleChange =
     (field: keyof ContactFormState) =>
     (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      const value = field === 'isPrimary' ? event.target.checked : event.target.value;
+      const value =
+        field === 'isPrimary'
+          ? (event.target as HTMLInputElement).checked
+          : event.target.value;
       setValues((prev) => ({ ...prev, [field]: value as never }));
       setErrors((prev) => ({ ...prev, [field]: undefined }));
     };
@@ -123,7 +127,7 @@ const CompanyContactForm: React.FC<CompanyContactFormProps> = ({
         </Box>
 
         <Grid container spacing={2}>
-          <Grid item xs={12}>
+          <Grid size={12}>
             <TextField
               label="Full Name"
               fullWidth
@@ -135,7 +139,7 @@ const CompanyContactForm: React.FC<CompanyContactFormProps> = ({
             />
           </Grid>
 
-          <Grid item xs={12} sm={mode === 'create' ? 12 : 6}>
+          <Grid size={{ xs: 12, sm: mode === 'create' ? 12 : 6 }}>
             <TextField
               label="Email"
               fullWidth
@@ -148,7 +152,7 @@ const CompanyContactForm: React.FC<CompanyContactFormProps> = ({
 
           {mode === 'edit' && (
             <>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   label="Title"
                   fullWidth
@@ -156,7 +160,7 @@ const CompanyContactForm: React.FC<CompanyContactFormProps> = ({
                   onChange={handleChange('title')}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   label="Phone"
                   fullWidth
@@ -164,7 +168,7 @@ const CompanyContactForm: React.FC<CompanyContactFormProps> = ({
                   onChange={handleChange('phone')}
                 />
               </Grid>
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <FormControlLabel
                   control={
                     <Switch

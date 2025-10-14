@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Box, Button, Grid, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import Grid from '@mui/material/Grid';
+import { Box, Button, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import {
   CONTRACT_STATUS_OPTIONS,
   ContractStatus,
@@ -202,7 +203,7 @@ const ContractForm: React.FC<ContractFormProps> = ({
         </Box>
 
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               fullWidth
               label="Company"
@@ -220,7 +221,7 @@ const ContractForm: React.FC<ContractFormProps> = ({
               }
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               label="Title"
               fullWidth
@@ -232,7 +233,7 @@ const ContractForm: React.FC<ContractFormProps> = ({
             />
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               label="Counterparty Name"
               fullWidth
@@ -244,7 +245,7 @@ const ContractForm: React.FC<ContractFormProps> = ({
             />
           </Grid>
 
-          <Grid item xs={12} sm={mode === 'create' ? 12 : 6}>
+          <Grid size={{ xs: 12, sm: mode === 'create' ? 12 : 6 }}>
             <TextField
               label="Counterparty Email"
               fullWidth
@@ -256,7 +257,7 @@ const ContractForm: React.FC<ContractFormProps> = ({
 
           {mode === 'edit' && (
             <>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   label="Contract Value"
                   fullWidth
@@ -267,7 +268,7 @@ const ContractForm: React.FC<ContractFormProps> = ({
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   label="Currency"
                   fullWidth
@@ -276,7 +277,7 @@ const ContractForm: React.FC<ContractFormProps> = ({
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   select
                   label="Status"
@@ -292,7 +293,7 @@ const ContractForm: React.FC<ContractFormProps> = ({
                 </TextField>
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   label="Signed Date"
                   type="date"
@@ -303,7 +304,7 @@ const ContractForm: React.FC<ContractFormProps> = ({
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   label="Start Date"
                   type="date"
@@ -314,7 +315,7 @@ const ContractForm: React.FC<ContractFormProps> = ({
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   label="End Date"
                   type="date"
@@ -325,7 +326,7 @@ const ContractForm: React.FC<ContractFormProps> = ({
                 />
               </Grid>
 
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <TextField
                   label="Payment Terms"
                   fullWidth
@@ -336,7 +337,7 @@ const ContractForm: React.FC<ContractFormProps> = ({
                 />
               </Grid>
 
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <TextField
                   label="Renewal Terms"
                   fullWidth
@@ -347,7 +348,7 @@ const ContractForm: React.FC<ContractFormProps> = ({
                 />
               </Grid>
 
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <TextField
                   label="Description / Notes"
                   fullWidth

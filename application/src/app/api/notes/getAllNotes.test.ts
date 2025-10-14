@@ -7,7 +7,14 @@ const mockFindMany = jest.fn();
 const mockCount = jest.fn();
 const mockFindCompanyById = jest.fn();
 
-type TestNote = { id: string; userId: string; title: string; content: string; createdAt: string };
+type TestNote = {
+  id: string;
+  userId: string;
+  companyId: string;
+  title: string;
+  content: string;
+  createdAt: string;
+};
 
 jest.mock('../../../services/database/databaseFactory', () => ({
   createDatabaseService: () =>
@@ -42,8 +49,8 @@ describe('getAllNotes', () => {
 
   it('returns paginated notes and total for user and status 200', async () => {
     const notes: TestNote[] = [
-      { id: 'n1', userId: 'user-1', title: 't1', content: 'c1', createdAt: 'now' },
-      { id: 'n2', userId: 'user-1', title: 't2', content: 'c2', createdAt: 'now' },
+      { id: 'n1', userId: 'user-1', companyId: COMPANY_ID, title: 't1', content: 'c1', createdAt: 'now' },
+      { id: 'n2', userId: 'user-1', companyId: COMPANY_ID, title: 't2', content: 'c2', createdAt: 'now' },
     ];
     mockFindMany.mockResolvedValue(notes);
     mockCount.mockResolvedValue(5);
@@ -65,7 +72,7 @@ describe('getAllNotes', () => {
 
   it('calls findMany and count with search param if provided', async () => {
     const notes: TestNote[] = [
-      { id: 'n1', userId: 'user-1', title: 'meeting', content: 'notes', createdAt: 'now' },
+      { id: 'n1', userId: 'user-1', companyId: COMPANY_ID, title: 'meeting', content: 'notes', createdAt: 'now' },
     ];
     mockFindMany.mockResolvedValue(notes);
     mockCount.mockResolvedValue(1);
@@ -89,7 +96,7 @@ describe('getAllNotes', () => {
 
   it('calls findMany and count with sortBy=oldest if provided', async () => {
     const notes: TestNote[] = [
-      { id: 'n1', userId: 'user-1', title: 'meeting', content: 'notes', createdAt: 'now' },
+      { id: 'n1', userId: 'user-1', companyId: COMPANY_ID, title: 'meeting', content: 'notes', createdAt: 'now' },
     ];
     mockFindMany.mockResolvedValue(notes);
     mockCount.mockResolvedValue(1);
@@ -112,7 +119,7 @@ describe('getAllNotes', () => {
 
   it('calls findMany and count with sortBy=title if provided', async () => {
     const notes: TestNote[] = [
-      { id: 'n1', userId: 'user-1', title: 'Alpha', content: 'notes', createdAt: 'now' },
+      { id: 'n1', userId: 'user-1', companyId: COMPANY_ID, title: 'Alpha', content: 'notes', createdAt: 'now' },
     ];
     mockFindMany.mockResolvedValue(notes);
     mockCount.mockResolvedValue(1);
@@ -164,7 +171,7 @@ describe('getAllNotes', () => {
   describe('Pagination Edge Cases', () => {
     it('handles page 0 by treating it as page 1', async () => {
       const notes: TestNote[] = [
-        { id: 'n1', userId: 'user-1', title: 't1', content: 'c1', createdAt: 'now' },
+        { id: 'n1', userId: 'user-1', companyId: COMPANY_ID, title: 't1', content: 'c1', createdAt: 'now' },
       ];
       mockFindMany.mockResolvedValue(notes);
       mockCount.mockResolvedValue(1);
@@ -296,7 +303,7 @@ describe('getAllNotes', () => {
 
         expect(mockFindMany).toHaveBeenCalledWith({
           userId: 'user-1',
-        companyId: COMPANY_ID,
+          companyId: COMPANY_ID,
           skip: testCase.expectedSkip,
           take: testCase.pageSize,
           orderBy: { createdAt: 'desc' },
@@ -306,7 +313,7 @@ describe('getAllNotes', () => {
 
     it('returns consistent total count regardless of page', async () => {
       const notes: TestNote[] = [
-        { id: 'n1', userId: 'user-1', title: 't1', content: 'c1', createdAt: 'now' },
+        { id: 'n1', userId: 'user-1', companyId: COMPANY_ID, title: 't1', content: 'c1', createdAt: 'now' },
       ];
 
       mockFindMany.mockResolvedValue(notes);
@@ -328,7 +335,7 @@ describe('getAllNotes', () => {
         {
           id: 'n1',
           userId: 'user-1',
-        companyId: COMPANY_ID,
+          companyId: COMPANY_ID,
           title: 'meeting notes',
           content: 'content',
           createdAt: 'now',

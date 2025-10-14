@@ -154,8 +154,6 @@ beforeAll(() => {
       Promise.resolve({
         id: '3',
         userId: 'user1',
-        companyId: 'company-1',
-        companyId: data.companyId,
         ...data,
         createdAt: new Date().toISOString(),
       })
@@ -181,7 +179,6 @@ describe('NotesPage', () => {
         {
           id: 'company-1',
           userId: 'user1',
-        companyId: 'company-1',
           legalName: 'Acme Corp',
           displayName: 'Acme Corp',
           industry: null,
@@ -325,7 +322,6 @@ describe('NotesPage - Pagination Tests', () => {
         notes: Array.from({ length: 10 }, (_, i) => ({
           id: `${i + 1}`,
           userId: 'user1',
-        companyId: 'company-1',
           companyId: 'company-1',
           title: `Note ${i + 1}`,
           content: `Content ${i + 1}`,
@@ -352,7 +348,7 @@ describe('NotesPage - Pagination Tests', () => {
         notes: Array.from({ length: 10 }, (_, i) => ({
           id: `${i + 1}`,
           userId: 'user1',
-        companyId: 'company-1',
+          companyId: 'company-1',
           title: `Note ${i + 1}`,
           content: `Content ${i + 1}`,
           createdAt: new Date().toISOString(),

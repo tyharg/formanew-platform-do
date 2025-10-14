@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Grid, Stack, TextField, Typography } from '@mui/material';
+import Grid from '@mui/material/Grid';
+import { Box, Button, Stack, TextField, Typography } from '@mui/material';
 import { CreateCompanyPayload, UpdateCompanyPayload } from 'lib/api/companies';
 
 type FormMode = 'create' | 'edit';
@@ -160,7 +161,7 @@ const validate = () => {
         </Box>
 
         <Grid container spacing={2}>
-          <Grid item xs={12}>
+          <Grid size={12}>
             <TextField
               label="Company Name"
               fullWidth
@@ -174,7 +175,7 @@ const validate = () => {
 
           {mode === 'edit' && (
             <>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   label="Display Name"
                   fullWidth
@@ -183,7 +184,7 @@ const validate = () => {
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   label="Industry"
                   fullWidth
@@ -192,11 +193,11 @@ const validate = () => {
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField label="EIN" fullWidth value={values.ein} onChange={handleChange('ein')} />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   label="Formation Date"
                   type="date"
@@ -207,7 +208,7 @@ const validate = () => {
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   label="Website"
                   fullWidth
@@ -216,7 +217,7 @@ const validate = () => {
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   label="Phone"
                   fullWidth
@@ -225,7 +226,7 @@ const validate = () => {
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   label="Email"
                   fullWidth
@@ -236,7 +237,7 @@ const validate = () => {
                 />
               </Grid>
 
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <TextField
                   label="Address Line 1"
                   fullWidth
@@ -245,7 +246,7 @@ const validate = () => {
                 />
               </Grid>
 
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <TextField
                   label="Address Line 2"
                   fullWidth
@@ -254,11 +255,11 @@ const validate = () => {
                 />
               </Grid>
 
-              <Grid item xs={12} sm={4}>
+              <Grid size={{ xs: 12, sm: 4 }}>
                 <TextField label="City" fullWidth value={values.city} onChange={handleChange('city')} />
               </Grid>
 
-              <Grid item xs={12} sm={4}>
+              <Grid size={{ xs: 12, sm: 4 }}>
                 <TextField
                   label="State/Province"
                   fullWidth
@@ -267,7 +268,7 @@ const validate = () => {
                 />
               </Grid>
 
-              <Grid item xs={12} sm={4}>
+              <Grid size={{ xs: 12, sm: 4 }}>
                 <TextField
                   label="Postal Code"
                   fullWidth
@@ -276,7 +277,7 @@ const validate = () => {
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   label="Country"
                   fullWidth
@@ -285,7 +286,7 @@ const validate = () => {
                 />
               </Grid>
 
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <TextField
                   label="Description"
                   fullWidth

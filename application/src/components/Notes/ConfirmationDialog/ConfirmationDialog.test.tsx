@@ -54,7 +54,9 @@ describe('ConfirmationDialog', () => {
     render(<ConfirmationDialog {...mockProps} />);
 
     // This simulates clicking the backdrop to close the dialog
-    fireEvent.click(document.querySelector('.MuiBackdrop-root'));
+    const backdrop = document.querySelector('.MuiBackdrop-root');
+    expect(backdrop).not.toBeNull();
+    fireEvent.click(backdrop as Element);
 
     expect(mockProps.onCancel).toHaveBeenCalled();
   });

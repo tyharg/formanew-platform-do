@@ -20,6 +20,7 @@ const mockEmailService = {
   checkConfiguration: jest.fn(),
   checkConnection: jest.fn(),
   sendReactEmail: jest.fn(),
+  isEmailEnabled: jest.fn().mockReturnValue(true),
   isRequired: jest.fn().mockReturnValue(true),
 } as jest.Mocked<EmailService>;
 
@@ -31,6 +32,12 @@ const mockDatabaseService = {
   user: {} as any,
   subscription: {} as any,
   note: {} as any,
+  verificationToken: {} as any,
+  company: {} as any,
+  contract: {} as any,
+  companyContact: {} as any,
+  companyNote: {} as any,
+  companyFinance: {} as any,
 } as jest.Mocked<DatabaseClient>;
 
 const mockBillingService = {
