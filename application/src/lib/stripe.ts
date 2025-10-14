@@ -9,6 +9,11 @@ const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
 // This key is used client-side for Stripe.js initialization.
 export const STRIPE_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
 
+// NOTE: Webhook secret for verifying incoming events.
+// You must configure a webhook endpoint in your Stripe dashboard pointing to 
+// YOUR_BASE_URL/api/stripe/webhook and subscribe to 'account.updated' events.
+export const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
+
 // The API version requested by the user.
 const API_VERSION = '2025-09-30.clover';
 
