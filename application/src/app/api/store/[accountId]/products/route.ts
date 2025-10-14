@@ -38,7 +38,7 @@ export async function GET(
                 { stripeAccount: stripeAccountId } // RequestOptions (third argument)
             );
             stripeProducts.push(product);
-        } catch (e) {
+        } catch {
             console.warn(`Product ${productId} not found on Stripe account ${stripeAccountId}. Skipping.`);
         }
     }

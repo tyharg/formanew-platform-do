@@ -37,6 +37,7 @@ export default function StripeConnectSetup({ finance, companyId, onRefresh }: St
 
       // 2. Redirect user to Stripe onboarding URL
       window.location.href = url;
+      onRefresh();
 
     } catch (err) {
       console.error(err);
@@ -66,6 +67,7 @@ export default function StripeConnectSetup({ finance, companyId, onRefresh }: St
 
       // Redirect user to Stripe Express Dashboard
       window.location.href = url;
+      onRefresh();
 
     } catch (err) {
       console.error(err);

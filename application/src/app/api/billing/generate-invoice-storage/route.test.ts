@@ -5,6 +5,10 @@ import { createDatabaseService } from 'services/database/databaseFactory';
 import { createBillingService } from 'services/billing/billingFactory';
 import { createStorageService } from 'services/storage/storageFactory';
 import { pdfService } from 'services/pdf/pdfService';
+import { DatabaseClient } from 'services/database/database';
+import { BillingService } from 'services/billing/billing';
+import { InvoiceService } from 'services/invoice/invoiceService';
+import { StorageService } from 'services/storage/storage';
 
 // Mock all services
 jest.mock('services/invoice/invoiceFactory');
@@ -53,7 +57,7 @@ describe('generateInvoiceStorageHandler', () => {
         create: jest.fn()
       }
     };
-    mockCreateDatabaseService.mockResolvedValue(mockDb as any);
+    mockCreateDatabaseService.mockResolvedValue(mockDb as unknown as DatabaseClient);
 
     // Mock billing service
     const mockBillingService = {
@@ -70,7 +74,7 @@ describe('generateInvoiceStorageHandler', () => {
       createCustomer: jest.fn().mockResolvedValue({ id: 'cus_123' }),
       createSubscription: jest.fn()
     };
-    mockCreateBillingService.mockResolvedValue(mockBillingService as any);
+    mockCreateBillingService.mockResolvedValue(mockBillingService as unknown as BillingService);
 
     // Mock invoice service
     const mockInvoiceService = {
@@ -84,7 +88,7 @@ describe('generateInvoiceStorageHandler', () => {
         connected: true
       })
     };
-    mockCreateInvoiceService.mockResolvedValue(mockInvoiceService as any);
+    mockCreateInvoiceService.mockResolvedValue(mockInvoiceService as unknown as InvoiceService);
 
     // Mock storage service
     const mockStorageService = {
@@ -95,7 +99,7 @@ describe('generateInvoiceStorageHandler', () => {
         connected: true
       })
     };
-    mockCreateStorageService.mockResolvedValue(mockStorageService as any);
+    mockCreateStorageService.mockResolvedValue(mockStorageService as unknown as StorageService);
 
     // Mock PDF service
     (pdfService.isAvailable as jest.Mock).mockResolvedValue(true);
@@ -121,7 +125,7 @@ describe('generateInvoiceStorageHandler', () => {
         findById: jest.fn().mockResolvedValue(null)
       }
     };
-    mockCreateDatabaseService.mockResolvedValue(mockDb as any);
+    mockCreateDatabaseService.mockResolvedValue(mockDb as unknown as DatabaseClient);
 
     const response = await generateInvoiceStorageHandler(mockRequest, mockUser);
     const data = await response.json();
@@ -147,7 +151,7 @@ describe('generateInvoiceStorageHandler', () => {
         }])
       }
     };
-    mockCreateDatabaseService.mockResolvedValue(mockDb as any);
+    mockCreateDatabaseService.mockResolvedValue(mockDb as unknown as DatabaseClient);
 
     const mockBillingService = {
       getProducts: jest.fn().mockResolvedValue([{
@@ -156,7 +160,7 @@ describe('generateInvoiceStorageHandler', () => {
         amount: 12.00
       }])
     };
-    mockCreateBillingService.mockResolvedValue(mockBillingService as any);
+    mockCreateBillingService.mockResolvedValue(mockBillingService as unknown as BillingService);
 
     const mockInvoiceService = {
       checkConfiguration: jest.fn().mockResolvedValue({
@@ -164,7 +168,7 @@ describe('generateInvoiceStorageHandler', () => {
         connected: false
       })
     };
-    mockCreateInvoiceService.mockResolvedValue(mockInvoiceService as any);
+    mockCreateInvoiceService.mockResolvedValue(mockInvoiceService as unknown as InvoiceService);
 
     process.env.STRIPE_PRO_PRICE_ID = 'price_pro';
 
@@ -192,7 +196,7 @@ describe('generateInvoiceStorageHandler', () => {
         }])
       }
     };
-    mockCreateDatabaseService.mockResolvedValue(mockDb as any);
+    mockCreateDatabaseService.mockResolvedValue(mockDb as unknown as DatabaseClient);
 
     const mockBillingService = {
       getProducts: jest.fn().mockResolvedValue([{
@@ -201,7 +205,7 @@ describe('generateInvoiceStorageHandler', () => {
         amount: 12.00
       }])
     };
-    mockCreateBillingService.mockResolvedValue(mockBillingService as any);
+    mockCreateBillingService.mockResolvedValue(mockBillingService as unknown as BillingService);
 
     const mockInvoiceService = {
       generateInvoice: jest.fn().mockResolvedValue({
@@ -214,7 +218,7 @@ describe('generateInvoiceStorageHandler', () => {
         connected: true
       })
     };
-    mockCreateInvoiceService.mockResolvedValue(mockInvoiceService as any);
+    mockCreateInvoiceService.mockResolvedValue(mockInvoiceService as unknown as InvoiceService);
 
     const mockStorageService = {
       checkConfiguration: jest.fn().mockResolvedValue({
@@ -222,7 +226,7 @@ describe('generateInvoiceStorageHandler', () => {
         connected: false
       })
     };
-    mockCreateStorageService.mockResolvedValue(mockStorageService as any);
+    mockCreateStorageService.mockResolvedValue(mockStorageService as unknown as StorageService);
 
     (pdfService.isAvailable as jest.Mock).mockResolvedValue(true);
     (pdfService.generateInvoicePDF as jest.Mock).mockResolvedValue(Buffer.from('PDF content'));

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { ServiceConfigStatus } from 'services/status/serviceConfigStatus';
 import { AuthService } from './auth';
 

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Button, Stack } from '@mui/material';
 import Link from 'next/link';
-import GitHubIcon from '@mui/icons-material/GitHub';
 import { COLORS, URLS, DIMENSIONS } from 'constants/landing';
 
 /**
@@ -17,7 +16,6 @@ const CTAButtons = () => {
         rel="noopener noreferrer"
         variant="contained"
         size="large"
-        startIcon=""
         sx={{
           backgroundColor: COLORS.github,
           color: '#ffffff',

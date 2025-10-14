@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, CircularProgress, Alert, Card, CardContent, Button, Stack } from '@mui/material';
-import { STRIPE_PUBLISHABLE_KEY } from '@/lib/stripe';
+import { Box, Typography, CircularProgress, Alert, Card, CardContent, Button } from '@mui/material';
 
 // Define the structure for product data retrieved from the API
 interface ProductDisplay {

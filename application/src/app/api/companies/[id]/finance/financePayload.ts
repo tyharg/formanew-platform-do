@@ -91,7 +91,7 @@ export const parseFinancePayload = (payload: unknown): ParseSuccess | ParseFailu
     try {
       const value = parser();
       data[key] = value;
-    } catch (error) {
+    } catch {
       throw new Error(errorMessage);
     }
   };

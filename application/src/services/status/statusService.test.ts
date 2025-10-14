@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { StatusService } from './statusService';
 import { serverConfig } from 'settings';
 import { StorageService } from '../storage/storage';
@@ -29,15 +28,15 @@ const mockDatabaseService = {
   checkConfiguration: jest.fn(),
   isRequired: jest.fn().mockReturnValue(true),
   // Mock the nested properties that are required by DatabaseClient
-  user: {} as any,
-  subscription: {} as any,
-  note: {} as any,
-  verificationToken: {} as any,
-  company: {} as any,
-  contract: {} as any,
-  companyContact: {} as any,
-  companyNote: {} as any,
-  companyFinance: {} as any,
+  user: {} as unknown as DatabaseClient['user'],
+  subscription: {} as unknown as DatabaseClient['subscription'],
+  note: {} as unknown as DatabaseClient['note'],
+  verificationToken: {} as unknown as DatabaseClient['verificationToken'],
+  company: {} as unknown as DatabaseClient['company'],
+  contract: {} as unknown as DatabaseClient['contract'],
+  companyContact: {} as unknown as DatabaseClient['companyContact'],
+  companyNote: {} as unknown as DatabaseClient['companyNote'],
+  companyFinance: {} as unknown as DatabaseClient['companyFinance'],
 } as jest.Mocked<DatabaseClient>;
 
 const mockBillingService = {
@@ -111,8 +110,8 @@ describe('StatusService', () => {
     mockCreateAuthService.mockResolvedValue(mockAuthService);
 
     // Reset static state using proper type casting (since we don't have resetForTesting method)
-    (StatusService as any).cachedHealthState = null;
-    (StatusService as any).isInitialized = false;
+    (StatusService as unknown as { cachedHealthState: unknown }).cachedHealthState = null;
+    (StatusService as unknown as { isInitialized: boolean }).isInitialized = false;
     (StatusService as unknown as { isInitialized: boolean }).isInitialized = false;
 
     // Set default mock values for testing
