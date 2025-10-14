@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect, useState, useCallback } from 'react';
 import { Box, Typography, Alert, CircularProgress, Paper } from '@mui/material';
 import StripeConnectSetup from './StripeConnectSetup';
