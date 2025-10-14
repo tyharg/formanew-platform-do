@@ -78,3 +78,19 @@ export class CompanyFinanceApiClient {
     return data.finance as CompanyFinance;
   }
 }
+
+// Exporting a singleton instance and helper functions for easy use
+const companyFinanceClient = new CompanyFinanceApiClient();
+
+export const getCompanyFinance = (companyId: string) =>
+  companyFinanceClient.getFinance(companyId);
+
+export const createCompanyFinance = (
+  companyId: string,
+  payload: CompanyFinancePayload = {}
+) => companyFinanceClient.createFinance(companyId, payload);
+
+export const updateCompanyFinance = (
+  companyId: string,
+  payload: CompanyFinancePayload
+) => companyFinanceClient.updateFinance(companyId, payload);

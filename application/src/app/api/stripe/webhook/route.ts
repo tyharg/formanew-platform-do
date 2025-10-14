@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe, STRIPE_WEBHOOK_SECRET } from '@/lib/stripe';
-import { updateCompanyFinance } from '@/lib/mockDb';
+import { updateCompanyFinance } from '@/lib/api/companyFinance';
 import Stripe from 'stripe';
 
 /**
