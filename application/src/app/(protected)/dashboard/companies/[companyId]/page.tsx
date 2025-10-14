@@ -1,11 +1,12 @@
 import CompanyDetailsPage from 'components/Companies/CompanyDetails/CompanyDetailsPage';
 
 type PageProps = {
-  params: {
+  params: Promise<{
     companyId: string;
-  };
+  }>;
 };
 
-export default function CompanyDetailsRoute({ params }: PageProps) {
-  return <CompanyDetailsPage companyId={params.companyId} />;
+export default async function CompanyDetailsRoute({ params }: PageProps) {
+  const { companyId } = await params;
+  return <CompanyDetailsPage companyId={companyId} />;
 }
