@@ -3,7 +3,7 @@ import { Box, Typography, Alert, CircularProgress, Paper } from '@mui/material';
 import StripeConnectSetup from './StripeConnectSetup';
 import ProductCreationForm from './ProductCreationForm'; // Import the new form
 import { Company, CompanyFinance } from '@/types'; 
-import { getCompanyById, updateCompanyFinance } from '@/lib/mockDb'; // Use mock DB for company data
+import { getCompanyById, updateCompanyFinance } from '../../../lib/mockDb'; // Use relative path for mock DB
 
 /**
  * Placeholder for fetching the current user's primary company ID.
