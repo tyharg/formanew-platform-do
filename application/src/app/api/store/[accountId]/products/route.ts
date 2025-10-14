@@ -32,10 +32,11 @@ export async function GET(
     for (const { productId } of localProducts) {
         try {
             // Use the stripeAccount option to retrieve the product from the connected account
-            const product = await stripe.products.retrieve(productId, {
-                stripeAccount: stripeAccountId,
-                expand: ['default_price'], // Expand price details for display
-            });
+            const product = await stripe.products.retrieve(
+                productId, 
+                { expand: ['default_price'] }, // ProductRetrieveParams (second argument)
+                { stripeAccount: stripeAccountId } // RequestOptions (third argument)
+            );
             stripeProducts.push(product);
         } catch (e) {
             console.warn(`Product ${productId} not found on Stripe account ${stripeAccountId}. Skipping.`);
