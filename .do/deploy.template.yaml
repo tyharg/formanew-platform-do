@@ -4,7 +4,7 @@
 
 spec:
   # Name of the deployment
-  name: sea-notes-saas-starter-kit
+  name: formanew-platform-do
   # Optionally you can chose a region where the deployment will be hosted
   # Otherwise, DO will chose the nearest region for you in the wizard
   # region: nyc
@@ -15,7 +15,7 @@ spec:
       environment_slug: node-js # Runtime environment
       git:
         branch: main # Git branch to deploy
-        repo_clone_url: https://github.com/digitalocean/sea-notes-saas-starter-kit # Repository URL
+        repo_clone_url: https://github.com/tyharg/formanew-platform-do # Repository URL
       source_dir: ./application # Directory containing the service source code
       build_command: "npm install && npm run build" # Command to build the service
       run_command: "npx prisma migrate deploy; npm run start" # Command to run the service
