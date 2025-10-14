@@ -58,7 +58,8 @@ export default function CompanyFinanceSettings() {
       }
       
       setCompany(fetchedCompany);
-      let currentFinance = fetchedCompany.finance;
+      // Ensure currentFinance is CompanyFinance | null, handling potential undefined from fetchedCompany.finance
+      let currentFinance: CompanyFinance | null = fetchedCompany.finance || null;
 
       if (currentFinance && currentFinance.stripeAccountId) {
         // 2. If Stripe Account exists, fetch live status from Stripe API
@@ -66,7 +67,9 @@ export default function CompanyFinanceSettings() {
         
         // 3. Update local finance state with live status (mocked DB update)
         // This ensures the UI reflects the current state of the Stripe account
-        currentFinance = await updateCompanyFinance(MOCK_COMPANY_ID, liveStatus);
+        const updatedFinance = await updateCompanyFinance(MOCK_COMPANY_ID, liveStatus);
+        // Ensure the result is CompanyFinance | null
+        currentFinance = updatedFinance || null;
       }
 
       setFinance(currentFinance);
