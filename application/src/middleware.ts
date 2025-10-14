@@ -4,8 +4,8 @@ import { UserRole } from 'types';
 import { USER_ROLES } from 'lib/auth/roles';
 
 const ROLE_HOME_URL: Record<UserRole, string> = {
-  [USER_ROLES.USER]: '/dashboard/my-notes',
-  [USER_ROLES.ADMIN]: '/dashboard/my-notes',
+  [USER_ROLES.USER]: '/dashboard/notes',
+  [USER_ROLES.ADMIN]: '/dashboard/notes',
 };
 
 /**

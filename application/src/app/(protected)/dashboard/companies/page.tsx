@@ -1,5 +1,5 @@
 import CompaniesPage from 'components/Companies/CompaniesPage';
 
-export default function MyCompaniesPage() {
+export default function CompaniesRoute() {
   return <CompaniesPage />;
 }

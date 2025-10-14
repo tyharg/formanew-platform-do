@@ -17,11 +17,18 @@ export const createNote = async (
 ): Promise<NextResponse> => {
   try {
     const userId = user.id;
-    const { title, content } = await request.json();
+    const { title, content, companyId } = await request.json();
 
     if (!content) {
       return NextResponse.json(
         { error: 'Content is required' },
+        { status: HTTP_STATUS.BAD_REQUEST }
+      );
+    }
+
+    if (!companyId || typeof companyId !== 'string') {
+      return NextResponse.json(
+        { error: 'companyId is required' },
         { status: HTTP_STATUS.BAD_REQUEST }
       );
     }
@@ -31,9 +38,16 @@ export const createNote = async (
 
     const dbClient = await createDatabaseService();
 
+    const company = await dbClient.company.findById(companyId);
+
+    if (!company || company.userId !== userId) {
+      return NextResponse.json({ error: 'Company not found' }, { status: HTTP_STATUS.NOT_FOUND });
+    }
+
     // Save note immediately with timestamp title
     const note = await dbClient.note.create({
       userId,
+      companyId,
       title: finalTitle,
       content,
     });

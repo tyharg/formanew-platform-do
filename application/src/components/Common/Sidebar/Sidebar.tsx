@@ -6,12 +6,19 @@ import {
   Box,
   Divider,
   Drawer,
+  FormControl,
+  FormHelperText,
   IconButton,
+  InputLabel,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  MenuItem,
+  Select,
+  Skeleton,
+  Typography,
   styled,
   useMediaQuery,
   useTheme,
@@ -26,12 +33,14 @@ import {
   Menu as MenuIcon,
   Gavel,
   Business,
+  AccountBalance,
 } from '@mui/icons-material';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import { USER_ROLES } from 'lib/auth/roles';
 import BrandLogo from 'components/Common/BrandLogo/BrandLogo';
+import { useCompanySelection } from 'context/CompanySelectionContext';
 
 interface SidebarLinkProps {
   href: string;
@@ -75,6 +84,14 @@ const SidebarHeader = styled(Box)(({ theme }) => ({
 
 const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => {
   const { data: session } = useSession();
+  const {
+    companies,
+    selectedCompanyId,
+    selectCompany,
+    isLoading: isLoadingCompanies,
+    isRefreshing,
+  } = useCompanySelection();
+  const isInitialCompanyLoad = isLoadingCompanies && companies.length === 0;
 
   const getProfileIcon = useCallback(() => {
     const url = session?.user?.image ?? undefined;
@@ -93,31 +110,61 @@ const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>{getProfileIcon()}</Box>
       </SidebarHeader>
 
+      <Box sx={{ px: 2, py: 1.5, borderBottom: 1, borderColor: 'divider' }}>
+        {isInitialCompanyLoad ? (
+          <Skeleton variant="rounded" height={40} animation="wave" />
+        ) : companies.length > 0 ? (
+          <FormControl fullWidth size="small" disabled={isLoadingCompanies}>
+            <InputLabel id="sidebar-company-selector-label">Company</InputLabel>
+            <Select
+              labelId="sidebar-company-selector-label"
+              value={selectedCompanyId ?? ''}
+              label="Company"
+              onChange={(event) => selectCompany(event.target.value || null)}
+              MenuProps={{ disablePortal: true }}
+            >
+              {companies.map((company) => (
+                <MenuItem key={company.id} value={company.id}>
+                  {company.displayName || company.legalName}
+                </MenuItem>
+              ))}
+            </Select>
+            {isRefreshing && !isInitialCompanyLoad ? (
+              <FormHelperText sx={{ mt: 1 }}>Updating companies…</FormHelperText>
+            ) : null}
+          </FormControl>
+        ) : (
+          <Typography variant="body2" color="text.secondary">
+            Create a company to get started.
+          </Typography>
+        )}
+      </Box>
+
       <Box sx={{ p: 2, flex: 1, overflowY: 'auto' }}>
         <List sx={{ p: 0 }}>
           <SidebarLink href="/dashboard" icon={<Person fontSize="small" />} onClick={onNavigate}>
             Dashboard
           </SidebarLink>
           <SidebarLink
-            href="/dashboard/my-notes"
+            href="/dashboard/notes"
             icon={<Receipt fontSize="small" />}
             onClick={onNavigate}
           >
-            My Notes
+            Notes
           </SidebarLink>
           <SidebarLink
-            href="/dashboard/my-companies"
-            icon={<Business fontSize="small" />}
-            onClick={onNavigate}
-          >
-            Companies
-          </SidebarLink>
-          <SidebarLink
-            href="/dashboard/my-contracts"
+            href="/dashboard/contracts"
             icon={<Gavel fontSize="small" />}
             onClick={onNavigate}
           >
             Contracts
+          </SidebarLink>
+          <SidebarLink
+            href="/dashboard/finances"
+            icon={<AccountBalance fontSize="small" />}
+            onClick={onNavigate}
+          >
+            Finances
           </SidebarLink>
         </List>
       </Box>
@@ -135,6 +182,13 @@ const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => {
               Admin Dashboard
             </SidebarLink>
           )}
+          <SidebarLink
+            href="/dashboard/companies"
+            icon={<Business fontSize="small" />}
+            onClick={onNavigate}
+          >
+            Companies
+          </SidebarLink>
           <SidebarLink
             href="/dashboard/account"
             icon={<Settings fontSize="small" />}

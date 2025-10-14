@@ -1,6 +1,12 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import MyNotes from './MyNotesPage';
+import NotesPage from './NotesPage';
+
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+  }),
+}));
 
 // Mock the API client
 jest.mock('lib/api/notes', () => {
@@ -76,6 +82,12 @@ jest.mock('./NotesGridView/NotesGridView', () => {
   };
 });
 
+const mockUseCompanySelection = jest.fn();
+
+jest.mock('context/CompanySelectionContext', () => ({
+  useCompanySelection: () => mockUseCompanySelection(),
+}));
+
 jest.mock('./NotesHeader/NotesHeader', () => {
   return {
     __esModule: true,
@@ -121,6 +133,7 @@ beforeAll(() => {
     {
       id: '1',
       userId: 'user1',
+      companyId: 'company-1',
       title: 'Test Note 1',
       content: 'Content for test note 1',
       createdAt: '2025-06-01T12:00:00Z',
@@ -128,6 +141,7 @@ beforeAll(() => {
     {
       id: '2',
       userId: 'user1',
+      companyId: 'company-1',
       title: 'Test Note 2',
       content: 'Content for test note 2',
       createdAt: '2025-06-02T12:00:00Z',
@@ -135,32 +149,97 @@ beforeAll(() => {
   ];
 
   mockGetNotes.mockResolvedValue({ notes: mockNotes, total: mockNotes.length });
-  mockCreateNote.mockImplementation((data: { title: string; content: string }) =>
-    Promise.resolve({
-      id: '3',
-      userId: 'user1',
-      ...data,
-      createdAt: new Date().toISOString(),
-    })
+  mockCreateNote.mockImplementation(
+    (data: { title?: string; content: string; companyId: string }) =>
+      Promise.resolve({
+        id: '3',
+        userId: 'user1',
+        companyId: 'company-1',
+        companyId: data.companyId,
+        ...data,
+        createdAt: new Date().toISOString(),
+      })
   );
-  mockUpdateNote.mockImplementation((id: string, data: { title: string; content: string }) =>
+  mockUpdateNote.mockImplementation((id: string, data: { title?: string; content?: string }) =>
     Promise.resolve({
       id,
       userId: 'user1',
-      ...data,
+      companyId: 'company-1',
+      title: data.title ?? 'Updated',
+      content: data.content ?? 'Updated content',
       createdAt: '2025-06-03T12:00:00Z',
     })
   );
   mockDeleteNote.mockResolvedValue(undefined);
 });
 
-describe('MyNotes', () => {
+describe('NotesPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUseCompanySelection.mockReturnValue({
+      companies: [
+        {
+          id: 'company-1',
+          userId: 'user1',
+        companyId: 'company-1',
+          legalName: 'Acme Corp',
+          displayName: 'Acme Corp',
+          industry: null,
+          ein: null,
+          formationDate: null,
+          website: null,
+          phone: null,
+          email: null,
+          addressLine1: null,
+          addressLine2: null,
+          city: null,
+          state: null,
+          postalCode: null,
+          country: null,
+          description: null,
+          createdAt: '',
+          updatedAt: '',
+          contracts: [],
+          contacts: [],
+          notes: [],
+        },
+      ],
+      selectedCompanyId: 'company-1',
+      selectCompany: jest.fn(),
+      selectedCompany: {
+        id: 'company-1',
+        userId: 'user1',
+        companyId: 'company-1',
+        legalName: 'Acme Corp',
+        displayName: 'Acme Corp',
+        industry: null,
+        ein: null,
+        formationDate: null,
+        website: null,
+        phone: null,
+        email: null,
+        addressLine1: null,
+        addressLine2: null,
+        city: null,
+        state: null,
+        postalCode: null,
+        country: null,
+        description: null,
+        createdAt: '',
+        updatedAt: '',
+        contracts: [],
+        contacts: [],
+        notes: [],
+      },
+      isLoading: false,
+      isRefreshing: false,
+      error: null,
+      refreshCompanies: jest.fn(),
+    });
   });
 
   it('renders notes header and list view by default', async () => {
-    render(<MyNotes />);
+    render(<NotesPage />);
 
     // Header should always be visible
     expect(screen.getByTestId('notes-header')).toBeInTheDocument();
@@ -178,7 +257,7 @@ describe('MyNotes', () => {
       total: 0,
     });
 
-    render(<MyNotes />);
+    render(<NotesPage />);
 
     await waitFor(() => {
       expect(screen.getByTestId('notes-list-view')).toBeInTheDocument();
@@ -195,6 +274,7 @@ describe('MyNotes', () => {
       notes: Array.from({ length: 10 }, (_, i) => ({
         id: `${i + 1}`,
         userId: 'user1',
+        companyId: 'company-1',
         title: `Note ${i + 1}`,
         content: `Content ${i + 1}`,
         createdAt: new Date().toISOString(),
@@ -202,7 +282,7 @@ describe('MyNotes', () => {
       total: 25, // Multiple pages
     });
 
-    render(<MyNotes />);
+    render(<NotesPage />);
 
     await waitFor(() => {
       expect(screen.getByTestId('notes-list-view')).toBeInTheDocument();
@@ -217,20 +297,23 @@ describe('MyNotes', () => {
   it('calls getNotes with correct pagination parameters', async () => {
     mockGetNotes.mockResolvedValue({ notes: [], total: 0 });
 
-    render(<MyNotes />);
+    render(<NotesPage />);
 
     await waitFor(() => {
-      expect(mockGetNotes).toHaveBeenCalledWith({
-        page: 1,
-        pageSize: 10,
-        search: '',
-        sortBy: 'newest',
-      });
+      expect(mockGetNotes).toHaveBeenCalledWith(
+        expect.objectContaining({
+          companyId: 'company-1',
+          page: 1,
+          pageSize: 10,
+          search: '',
+          sortBy: 'newest',
+        })
+      );
     });
   });
 });
 
-describe('MyNotes - Pagination Tests', () => {
+describe('NotesPage - Pagination Tests', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -242,6 +325,8 @@ describe('MyNotes - Pagination Tests', () => {
         notes: Array.from({ length: 10 }, (_, i) => ({
           id: `${i + 1}`,
           userId: 'user1',
+        companyId: 'company-1',
+          companyId: 'company-1',
           title: `Note ${i + 1}`,
           content: `Content ${i + 1}`,
           createdAt: new Date().toISOString(),
@@ -249,7 +334,7 @@ describe('MyNotes - Pagination Tests', () => {
         total: 25, // 3 pages with pageSize 10
       });
 
-      render(<MyNotes />);
+      render(<NotesPage />);
 
       await waitFor(() => {
         expect(screen.getByTestId('notes-list-view')).toBeInTheDocument();
@@ -267,6 +352,7 @@ describe('MyNotes - Pagination Tests', () => {
         notes: Array.from({ length: 10 }, (_, i) => ({
           id: `${i + 1}`,
           userId: 'user1',
+        companyId: 'company-1',
           title: `Note ${i + 1}`,
           content: `Content ${i + 1}`,
           createdAt: new Date().toISOString(),
@@ -274,7 +360,7 @@ describe('MyNotes - Pagination Tests', () => {
         total: 25,
       });
 
-      render(<MyNotes />);
+      render(<NotesPage />);
 
       await waitFor(() => {
         expect(screen.getByTestId('notes-list-view')).toBeInTheDocument();
@@ -286,12 +372,15 @@ describe('MyNotes - Pagination Tests', () => {
       fireEvent.click(page2Button);
 
       await waitFor(() => {
-        expect(mockGetNotes).toHaveBeenCalledWith({
-          page: 2,
-          pageSize: 10,
-          search: '',
-          sortBy: 'newest',
-        });
+        expect(mockGetNotes).toHaveBeenCalledWith(
+          expect.objectContaining({
+            companyId: 'company-1',
+            page: 2,
+            pageSize: 10,
+            search: '',
+            sortBy: 'newest',
+          })
+        );
       });
     });
 
@@ -300,6 +389,7 @@ describe('MyNotes - Pagination Tests', () => {
         notes: Array.from({ length: 10 }, (_, i) => ({
           id: `${i + 1}`,
           userId: 'user1',
+        companyId: 'company-1',
           title: `Note ${i + 1}`,
           content: `Content ${i + 1}`,
           createdAt: new Date().toISOString(),
@@ -307,7 +397,7 @@ describe('MyNotes - Pagination Tests', () => {
         total: 25,
       });
 
-      render(<MyNotes />);
+      render(<NotesPage />);
 
       await waitFor(() => {
         expect(screen.getByTestId('notes-list-view')).toBeInTheDocument();
@@ -322,19 +412,22 @@ describe('MyNotes - Pagination Tests', () => {
       fireEvent.click(option20);
 
       await waitFor(() => {
-        expect(mockGetNotes).toHaveBeenCalledWith({
-          page: 1, // Should reset to page 1
-          pageSize: 20,
-          search: '',
-          sortBy: 'newest',
-        });
+        expect(mockGetNotes).toHaveBeenCalledWith(
+          expect.objectContaining({
+            companyId: 'company-1',
+            page: 1, // Should reset to page 1
+            pageSize: 20,
+            search: '',
+            sortBy: 'newest',
+          })
+        );
       });
     });
 
     it('handles empty results correctly', async () => {
       mockGetNotes.mockResolvedValue({ notes: [], total: 0 });
 
-      render(<MyNotes />);
+      render(<NotesPage />);
 
       await waitFor(() => {
         expect(screen.getByTestId('notes-list-view')).toBeInTheDocument();
@@ -348,7 +441,7 @@ describe('MyNotes - Pagination Tests', () => {
     it('handles API errors during pagination', async () => {
       mockGetNotes.mockRejectedValue(new Error('API Error'));
 
-      render(<MyNotes />);
+      render(<NotesPage />);
 
       await waitFor(() => {
         expect(screen.getByTestId('notes-list-view')).toBeInTheDocument();

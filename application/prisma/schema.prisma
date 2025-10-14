@@ -36,12 +36,14 @@ model Subscription {
 }
 
 model Note {
-  id         String   @id @default(uuid())
-  user       User     @relation(fields: [userId], references: [id])
+  id         String    @id @default(uuid())
+  user       User      @relation(fields: [userId], references: [id])
   userId     String
+  company    Company?  @relation("CompanyNotes", fields: [companyId], references: [id], onDelete: Cascade)
+  companyId  String?
   title      String
   content    String
-  createdAt  DateTime @default(now())
+  createdAt  DateTime  @default(now())
 }
 
 model Company {
@@ -71,6 +73,8 @@ model Company {
   contracts       Contract[]
   contacts        CompanyContact[]
   notes           CompanyNote[]
+  userNotes       Note[]          @relation("CompanyNotes")
+  finance         CompanyFinance?
 }
 
 model Contract {
@@ -118,6 +122,25 @@ model CompanyNote {
   authorName  String?
   content     String
   createdAt   DateTime @default(now())
+}
+
+model CompanyFinance {
+  id                          String    @id @default(uuid())
+  company                     Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId                   String    @unique
+
+  stripeAccountId             String?
+  accountOnboardingUrl        String?
+  accountOnboardingExpiresAt  DateTime?
+  accountLoginLinkUrl         String?
+  detailsSubmitted            Boolean   @default(false)
+  chargesEnabled              Boolean   @default(false)
+  payoutsEnabled              Boolean   @default(false)
+  requirementsDue             String[]  @default([])
+  requirementsDueSoon         String[]  @default([])
+
+  createdAt                   DateTime  @default(now())
+  updatedAt                   DateTime  @updatedAt
 }
 
 model VerificationToken {

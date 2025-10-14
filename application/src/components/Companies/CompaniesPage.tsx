@@ -200,7 +200,7 @@ const CompaniesPage: React.FC = () => {
   };
 
   const handleViewCompany = (company: Company) => {
-    router.push(`/dashboard/my-companies/${company.id}`);
+    router.push(`/dashboard/companies/${company.id}`);
   };
 
   const renderTableSection = () => {

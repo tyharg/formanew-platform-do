@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import NotesGridView from './NotesGridView';
+import NotesListView from './NotesListView';
 
 const mockNotes = [
   {
@@ -25,69 +25,77 @@ const mockHandlers = {
   onDeleteNote: jest.fn(),
 };
 
-describe('NotesGridView', () => {
+describe('NotesListView', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
   it('renders loading state correctly', () => {
     render(
-      <NotesGridView
+      <NotesListView
         notes={[]}
         isLoading={true}
         error={null}
         onViewNote={mockHandlers.onViewNote}
         onEditNote={mockHandlers.onEditNote}
         onDeleteNote={mockHandlers.onDeleteNote}
+        recentlyUpdatedTitles={new Set()}
       />
     );
 
-    expect(screen.getByTestId('notes-grid-loading')).toBeInTheDocument();
+    expect(screen.getByTestId('notes-list-loading')).toBeInTheDocument();
   });
 
   it('renders error message when there is an error', () => {
     const errorMessage = 'Failed to load notes';
     render(
-      <NotesGridView
+      <NotesListView
         notes={[]}
         isLoading={false}
         error={errorMessage}
         onViewNote={mockHandlers.onViewNote}
         onEditNote={mockHandlers.onEditNote}
         onDeleteNote={mockHandlers.onDeleteNote}
+        recentlyUpdatedTitles={new Set()}
       />
     );
 
-    expect(screen.getByTestId('notes-grid-error')).toBeInTheDocument();
-    expect(screen.getByTestId('notes-grid-error-message')).toHaveTextContent(errorMessage);
+    expect(screen.getByTestId('notes-list-error')).toBeInTheDocument();
+    expect(screen.getByTestId('notes-list-error-message')).toHaveTextContent(errorMessage);
   });
 
   it('renders empty state message when there are no notes', () => {
     render(
-      <NotesGridView
+      <NotesListView
         notes={[]}
         isLoading={false}
         error={null}
         onViewNote={mockHandlers.onViewNote}
         onEditNote={mockHandlers.onEditNote}
         onDeleteNote={mockHandlers.onDeleteNote}
+        recentlyUpdatedTitles={new Set()}
       />
     );
 
-    expect(screen.getByTestId('notes-grid-empty')).toBeInTheDocument();
+    expect(screen.getByTestId('notes-list-empty')).toBeInTheDocument();
   });
 
-  it('renders notes in cards', () => {
+  it('renders notes in a table', () => {
     render(
-      <NotesGridView
+      <NotesListView
         notes={mockNotes}
         isLoading={false}
         error={null}
         onViewNote={mockHandlers.onViewNote}
         onEditNote={mockHandlers.onEditNote}
         onDeleteNote={mockHandlers.onDeleteNote}
+        recentlyUpdatedTitles={new Set()}
       />
     );
 
-    expect(screen.getByTestId('notes-grid-container')).toBeInTheDocument();
-    expect(screen.getByTestId('note-card-1')).toBeInTheDocument();
-    expect(screen.getByTestId('note-card-2')).toBeInTheDocument();
+    expect(screen.getByTestId('notes-list-container')).toBeInTheDocument();
+    expect(screen.getByTestId('notes-table')).toBeInTheDocument();
+    expect(screen.getByTestId('note-row-1')).toBeInTheDocument();
+    expect(screen.getByTestId('note-row-2')).toBeInTheDocument();
     expect(screen.getByTestId('note-title-1')).toHaveTextContent('Test Note 1');
     expect(screen.getByTestId('note-title-2')).toHaveTextContent('Test Note 2');
     expect(screen.getByTestId('note-content-1')).toHaveTextContent('Content for test note 1');
@@ -96,13 +104,14 @@ describe('NotesGridView', () => {
 
   it('calls onViewNote when view button is clicked', () => {
     render(
-      <NotesGridView
+      <NotesListView
         notes={mockNotes}
         isLoading={false}
         error={null}
         onViewNote={mockHandlers.onViewNote}
         onEditNote={mockHandlers.onEditNote}
         onDeleteNote={mockHandlers.onDeleteNote}
+        recentlyUpdatedTitles={new Set()}
       />
     );
 
@@ -114,13 +123,14 @@ describe('NotesGridView', () => {
 
   it('calls onEditNote when edit button is clicked', () => {
     render(
-      <NotesGridView
+      <NotesListView
         notes={mockNotes}
         isLoading={false}
         error={null}
         onViewNote={mockHandlers.onViewNote}
         onEditNote={mockHandlers.onEditNote}
         onDeleteNote={mockHandlers.onDeleteNote}
+        recentlyUpdatedTitles={new Set()}
       />
     );
 
@@ -132,13 +142,14 @@ describe('NotesGridView', () => {
 
   it('calls onDeleteNote when delete button is clicked', () => {
     render(
-      <NotesGridView
+      <NotesListView
         notes={mockNotes}
         isLoading={false}
         error={null}
         onViewNote={mockHandlers.onViewNote}
         onEditNote={mockHandlers.onEditNote}
         onDeleteNote={mockHandlers.onDeleteNote}
+        recentlyUpdatedTitles={new Set()}
       />
     );
 
@@ -148,3 +159,19 @@ describe('NotesGridView', () => {
     expect(mockHandlers.onDeleteNote).toHaveBeenCalledWith('1');
   });
 });
+  it('navigates when a row is clicked', () => {
+    render(
+      <NotesListView
+        notes={mockNotes}
+        isLoading={false}
+        error={null}
+        onViewNote={mockHandlers.onViewNote}
+        onEditNote={mockHandlers.onEditNote}
+        onDeleteNote={mockHandlers.onDeleteNote}
+        recentlyUpdatedTitles={new Set()}
+      />
+    );
+
+    fireEvent.click(screen.getByTestId('note-row-1'));
+    expect(mockHandlers.onViewNote).toHaveBeenCalledWith('1');
+  });

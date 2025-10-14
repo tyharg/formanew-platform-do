@@ -2,27 +2,12 @@
 
 import React from 'react';
 import { Add, Search } from '@mui/icons-material';
-import {
-  Box,
-  Button,
-  InputAdornment,
-  MenuItem,
-  Select,
-  Stack,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { Box, Button, InputAdornment, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { CONTRACT_STATUS_OPTIONS, ContractStatus } from 'lib/api/contracts';
 
-interface CompanyOption {
-  id: string;
-  name: string;
-}
-
 interface ContractsHeaderProps {
-  companies: CompanyOption[];
-  selectedCompanyId: string | null;
-  onCompanyChange: (companyId: string) => void;
+  selectedCompanyName: string | null;
+  canCreate: boolean;
   onCreateContract: () => void;
   searchQuery: string;
   onSearchChange: (value: string) => void;
@@ -33,9 +18,8 @@ interface ContractsHeaderProps {
 }
 
 const ContractsHeader: React.FC<ContractsHeaderProps> = ({
-  companies,
-  selectedCompanyId,
-  onCompanyChange,
+  selectedCompanyName,
+  canCreate,
   onCreateContract,
   searchQuery,
   onSearchChange,
@@ -44,7 +28,9 @@ const ContractsHeader: React.FC<ContractsHeaderProps> = ({
   statusFilter,
   onStatusFilterChange,
 }) => {
-  const hasCompanies = companies.length > 0;
+  const subtitle = selectedCompanyName
+    ? `Showing contracts for ${selectedCompanyName}.`
+    : 'Select a company from the sidebar to manage contracts.';
 
   return (
     <Box sx={{ mb: 3 }}>
@@ -53,15 +39,13 @@ const ContractsHeader: React.FC<ContractsHeaderProps> = ({
           <Typography variant="h5" fontWeight={600}>
             Contracts
           </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Track agreement stages, signature dates, and counterparties for each company.
-          </Typography>
+          <Typography variant="body2" color="text.secondary">{subtitle}</Typography>
         </Box>
         <Button
           variant="contained"
           startIcon={<Add />}
           onClick={onCreateContract}
-          disabled={!hasCompanies}
+          disabled={!canCreate}
         >
           New Contract
         </Button>
@@ -72,23 +56,6 @@ const ContractsHeader: React.FC<ContractsHeaderProps> = ({
         spacing={2}
         alignItems={{ xs: 'stretch', md: 'center' }}
       >
-        <TextField
-          select
-          label="Company"
-          size="small"
-          value={selectedCompanyId ?? ''}
-          onChange={(event) => onCompanyChange(event.target.value)}
-          sx={{ minWidth: { xs: '100%', md: 220 } }}
-          disabled={!hasCompanies}
-          helperText={!hasCompanies ? 'Create a company to start tracking contracts.' : undefined}
-        >
-          {companies.map((company) => (
-            <MenuItem key={company.id} value={company.id}>
-              {company.name}
-            </MenuItem>
-          ))}
-        </TextField>
-
         <TextField
           placeholder="Search contracts"
           size="small"

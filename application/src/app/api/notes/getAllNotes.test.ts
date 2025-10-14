@@ -5,21 +5,37 @@ import { HTTP_STATUS } from 'lib/api/http';
 
 const mockFindMany = jest.fn();
 const mockCount = jest.fn();
+const mockFindCompanyById = jest.fn();
 
 type TestNote = { id: string; userId: string; title: string; content: string; createdAt: string };
 
 jest.mock('../../../services/database/databaseFactory', () => ({
   createDatabaseService: () =>
-    Promise.resolve({ note: { findMany: mockFindMany, count: mockCount } }),
+    Promise.resolve({
+      note: { findMany: mockFindMany, count: mockCount },
+      company: { findById: mockFindCompanyById },
+    }),
 }));
 
 describe('getAllNotes', () => {
+  const COMPANY_ID = 'company-1';
+
   beforeEach(() => {
     jest.clearAllMocks();
+    mockFindCompanyById.mockResolvedValue({ id: COMPANY_ID, userId: 'user-1' });
   });
 
-  function makeRequest(url = 'http://localhost/api/notes?page=1&pageSize=10') {
-    return { url } as unknown as NextRequest;
+  function makeRequest(
+    url = `http://localhost/api/notes?companyId=${COMPANY_ID}&page=1&pageSize=10`,
+    options: { includeCompanyId?: boolean } = {}
+  ) {
+    const includeCompanyId = options.includeCompanyId !== false;
+    const parsedUrl = new URL(url, 'http://localhost');
+    if (includeCompanyId && !parsedUrl.searchParams.has('companyId')) {
+      parsedUrl.searchParams.set('companyId', COMPANY_ID);
+    }
+
+    return { url: parsedUrl.toString() } as unknown as NextRequest;
   }
 
   const user = { id: 'user-1', role: USER_ROLES.USER };
@@ -31,15 +47,18 @@ describe('getAllNotes', () => {
     ];
     mockFindMany.mockResolvedValue(notes);
     mockCount.mockResolvedValue(5);
+    mockFindCompanyById.mockResolvedValue({ id: COMPANY_ID, userId: 'user-1' });
     const req = makeRequest();
     const res = await getAllNotes(req, user);
+    expect(mockFindCompanyById).toHaveBeenCalledWith(COMPANY_ID);
     expect(mockFindMany).toHaveBeenCalledWith({
       userId: 'user-1',
+      companyId: COMPANY_ID,
       skip: 0,
       take: 10,
       orderBy: { createdAt: 'desc' },
     });
-    expect(mockCount).toHaveBeenCalledWith('user-1', undefined);
+    expect(mockCount).toHaveBeenCalledWith({ userId: 'user-1', companyId: COMPANY_ID, search: undefined });
     expect(res.status).toBe(HTTP_STATUS.OK);
     expect(await res.json()).toEqual({ notes, total: 5 });
   });
@@ -50,16 +69,20 @@ describe('getAllNotes', () => {
     ];
     mockFindMany.mockResolvedValue(notes);
     mockCount.mockResolvedValue(1);
-    const req = makeRequest('http://localhost/api/notes?page=1&pageSize=10&search=meet');
+    mockFindCompanyById.mockResolvedValue({ id: COMPANY_ID, userId: 'user-1' });
+    const req = makeRequest(
+      `http://localhost/api/notes?companyId=${COMPANY_ID}&page=1&pageSize=10&search=meet`
+    );
     const res = await getAllNotes(req, user);
     expect(mockFindMany).toHaveBeenCalledWith({
       userId: 'user-1',
+      companyId: COMPANY_ID,
       search: 'meet',
       skip: 0,
       take: 10,
       orderBy: { createdAt: 'desc' },
     });
-    expect(mockCount).toHaveBeenCalledWith('user-1', 'meet');
+    expect(mockCount).toHaveBeenCalledWith({ userId: 'user-1', companyId: COMPANY_ID, search: 'meet' });
     expect(res.status).toBe(HTTP_STATUS.OK);
     expect(await res.json()).toEqual({ notes, total: 1 });
   });
@@ -70,15 +93,19 @@ describe('getAllNotes', () => {
     ];
     mockFindMany.mockResolvedValue(notes);
     mockCount.mockResolvedValue(1);
-    const req = makeRequest('http://localhost/api/notes?page=1&pageSize=10&sortBy=oldest');
+    mockFindCompanyById.mockResolvedValue({ id: COMPANY_ID, userId: 'user-1' });
+    const req = makeRequest(
+      `http://localhost/api/notes?companyId=${COMPANY_ID}&page=1&pageSize=10&sortBy=oldest`
+    );
     const res = await getAllNotes(req, user);
     expect(mockFindMany).toHaveBeenCalledWith({
       userId: 'user-1',
+      companyId: COMPANY_ID,
       skip: 0,
       take: 10,
       orderBy: { createdAt: 'asc' },
     });
-    expect(mockCount).toHaveBeenCalledWith('user-1', undefined);
+    expect(mockCount).toHaveBeenCalledWith({ userId: 'user-1', companyId: COMPANY_ID, search: undefined });
     expect(res.status).toBe(HTTP_STATUS.OK);
     expect(await res.json()).toEqual({ notes, total: 1 });
   });
@@ -89,22 +116,45 @@ describe('getAllNotes', () => {
     ];
     mockFindMany.mockResolvedValue(notes);
     mockCount.mockResolvedValue(1);
-    const req = makeRequest('http://localhost/api/notes?page=1&pageSize=10&sortBy=title');
+    mockFindCompanyById.mockResolvedValue({ id: COMPANY_ID, userId: 'user-1' });
+    const req = makeRequest(
+      `http://localhost/api/notes?companyId=${COMPANY_ID}&page=1&pageSize=10&sortBy=title`
+    );
     const res = await getAllNotes(req, user);
     expect(mockFindMany).toHaveBeenCalledWith({
       userId: 'user-1',
+      companyId: COMPANY_ID,
       skip: 0,
       take: 10,
       orderBy: { title: 'asc' },
     });
-    expect(mockCount).toHaveBeenCalledWith('user-1', undefined);
+    expect(mockCount).toHaveBeenCalledWith({ userId: 'user-1', companyId: COMPANY_ID, search: undefined });
     expect(res.status).toBe(HTTP_STATUS.OK);
     expect(await res.json()).toEqual({ notes, total: 1 });
+  });
+
+  it('returns 404 when company does not belong to user', async () => {
+    mockFindCompanyById.mockResolvedValueOnce({ id: COMPANY_ID, userId: 'other-user' });
+    const req = makeRequest();
+    const res = await getAllNotes(req, user);
+    expect(res.status).toBe(HTTP_STATUS.NOT_FOUND);
+    expect(await res.json()).toEqual({ error: 'Company not found' });
+    expect(mockFindMany).not.toHaveBeenCalled();
+  });
+
+  it('returns 400 when companyId query is missing', async () => {
+    const req = makeRequest('http://localhost/api/notes?page=1&pageSize=10', {
+      includeCompanyId: false,
+    });
+    const res = await getAllNotes(req, user);
+    expect(res.status).toBe(HTTP_STATUS.BAD_REQUEST);
+    expect(await res.json()).toEqual({ error: 'companyId query parameter is required' });
   });
 
   it('returns 500 on db error', async () => {
     mockFindMany.mockRejectedValue(new Error('fail'));
     mockCount.mockResolvedValue(0);
+    mockFindCompanyById.mockResolvedValue({ id: COMPANY_ID, userId: 'user-1' });
     const req = makeRequest();
     const res = await getAllNotes(req, user);
     expect(res.status).toBe(HTTP_STATUS.INTERNAL_SERVER_ERROR);
@@ -122,7 +172,8 @@ describe('getAllNotes', () => {
       const res = await getAllNotes(req, user);
       expect(mockFindMany).toHaveBeenCalledWith({
         userId: 'user-1',
-        skip: -10, // (0-1) * 10 = -10
+        companyId: COMPANY_ID,
+        skip: 0,
         take: 10,
         orderBy: { createdAt: 'desc' },
       });
@@ -137,7 +188,8 @@ describe('getAllNotes', () => {
       const res = await getAllNotes(req, user);
       expect(mockFindMany).toHaveBeenCalledWith({
         userId: 'user-1',
-        skip: -60, // (-5-1) * 10 = -60
+        companyId: COMPANY_ID,
+        skip: 0,
         take: 10,
         orderBy: { createdAt: 'desc' },
       });
@@ -152,6 +204,7 @@ describe('getAllNotes', () => {
       const res = await getAllNotes(req, user);
       expect(mockFindMany).toHaveBeenCalledWith({
         userId: 'user-1',
+        companyId: COMPANY_ID,
         skip: 9999980, // (999999-1) * 10
         take: 10,
         orderBy: { createdAt: 'desc' },
@@ -166,8 +219,9 @@ describe('getAllNotes', () => {
       const res = await getAllNotes(req, user);
       expect(mockFindMany).toHaveBeenCalledWith({
         userId: 'user-1',
+        companyId: COMPANY_ID,
         skip: 0,
-        take: 0,
+        take: 10,
         orderBy: { createdAt: 'desc' },
       });
       expect(res.status).toBe(HTTP_STATUS.OK);
@@ -181,8 +235,9 @@ describe('getAllNotes', () => {
       const res = await getAllNotes(req, user);
       expect(mockFindMany).toHaveBeenCalledWith({
         userId: 'user-1',
+        companyId: COMPANY_ID,
         skip: 0,
-        take: 1000,
+        take: 100,
         orderBy: { createdAt: 'desc' },
       });
       expect(res.status).toBe(HTTP_STATUS.OK);
@@ -196,7 +251,8 @@ describe('getAllNotes', () => {
       const res = await getAllNotes(req, user);
       expect(mockFindMany).toHaveBeenCalledWith({
         userId: 'user-1',
-        skip: NaN, // parseInt('abc') returns NaN
+        companyId: COMPANY_ID,
+        skip: 0,
         take: 10,
         orderBy: { createdAt: 'desc' },
       });
@@ -211,8 +267,9 @@ describe('getAllNotes', () => {
       const res = await getAllNotes(req, user);
       expect(mockFindMany).toHaveBeenCalledWith({
         userId: 'user-1',
+        companyId: COMPANY_ID,
         skip: 0,
-        take: NaN, // parseInt('xyz') returns NaN
+        take: 10,
         orderBy: { createdAt: 'desc' },
       });
       expect(res.status).toBe(HTTP_STATUS.OK);
@@ -239,6 +296,7 @@ describe('getAllNotes', () => {
 
         expect(mockFindMany).toHaveBeenCalledWith({
           userId: 'user-1',
+        companyId: COMPANY_ID,
           skip: testCase.expectedSkip,
           take: testCase.pageSize,
           orderBy: { createdAt: 'desc' },
@@ -261,7 +319,7 @@ describe('getAllNotes', () => {
         const data = await res.json();
 
         expect(data.total).toBe(50);
-        expect(mockCount).toHaveBeenCalledWith('user-1', undefined);
+        expect(mockCount).toHaveBeenCalledWith({ userId: 'user-1', companyId: COMPANY_ID, search: undefined });
       }
     });
 
@@ -270,6 +328,7 @@ describe('getAllNotes', () => {
         {
           id: 'n1',
           userId: 'user-1',
+        companyId: COMPANY_ID,
           title: 'meeting notes',
           content: 'content',
           createdAt: 'now',
@@ -284,13 +343,14 @@ describe('getAllNotes', () => {
 
       expect(mockFindMany).toHaveBeenCalledWith({
         userId: 'user-1',
+        companyId: COMPANY_ID,
         search: 'meeting',
         skip: 5, // Page 2 with pageSize 5
         take: 5,
         orderBy: { createdAt: 'desc' },
       });
 
-      expect(mockCount).toHaveBeenCalledWith('user-1', 'meeting');
+      expect(mockCount).toHaveBeenCalledWith({ userId: 'user-1', companyId: COMPANY_ID, search: 'meeting' });
 
       const data = await res.json();
       expect(data.total).toBe(15);
@@ -307,12 +367,13 @@ describe('getAllNotes', () => {
 
       expect(mockFindMany).toHaveBeenCalledWith({
         userId: 'user-1',
+        companyId: COMPANY_ID,
         skip: 0, // Default page 1: (1-1) * 10 = 0
         take: 10, // Default pageSize
         orderBy: { createdAt: 'desc' }, // Default sortBy
       });
 
-      expect(mockCount).toHaveBeenCalledWith('user-1', undefined); // No search
+      expect(mockCount).toHaveBeenCalledWith({ userId: 'user-1', companyId: COMPANY_ID, search: undefined }); // No search
     });
 
     it('ignores unknown query parameters', async () => {
@@ -326,6 +387,7 @@ describe('getAllNotes', () => {
 
       expect(mockFindMany).toHaveBeenCalledWith({
         userId: 'user-1',
+        companyId: COMPANY_ID,
         skip: 0,
         take: 10,
         orderBy: { createdAt: 'desc' },
@@ -341,13 +403,14 @@ describe('getAllNotes', () => {
 
       expect(mockFindMany).toHaveBeenCalledWith({
         userId: 'user-1',
+        companyId: COMPANY_ID,
         search: 'meeting notes & tasks', // Should be decoded
         skip: 0,
         take: 10,
         orderBy: { createdAt: 'desc' },
       });
 
-      expect(mockCount).toHaveBeenCalledWith('user-1', 'meeting notes & tasks');
+      expect(mockCount).toHaveBeenCalledWith({ userId: 'user-1', companyId: COMPANY_ID, search: 'meeting notes & tasks' });
     });
 
     it('trims whitespace from search parameter', async () => {
@@ -359,13 +422,14 @@ describe('getAllNotes', () => {
 
       expect(mockFindMany).toHaveBeenCalledWith({
         userId: 'user-1',
+        companyId: COMPANY_ID,
         search: 'meeting', // Should be trimmed
         skip: 0,
         take: 10,
         orderBy: { createdAt: 'desc' },
       });
 
-      expect(mockCount).toHaveBeenCalledWith('user-1', 'meeting');
+      expect(mockCount).toHaveBeenCalledWith({ userId: 'user-1', companyId: COMPANY_ID, search: 'meeting' });
     });
 
     it('handles empty search parameter correctly', async () => {
@@ -377,13 +441,14 @@ describe('getAllNotes', () => {
 
       expect(mockFindMany).toHaveBeenCalledWith({
         userId: 'user-1',
+        companyId: COMPANY_ID,
         search: undefined, // Empty string after trim becomes undefined
         skip: 0,
         take: 10,
         orderBy: { createdAt: 'desc' },
       });
 
-      expect(mockCount).toHaveBeenCalledWith('user-1', undefined);
+      expect(mockCount).toHaveBeenCalledWith({ userId: 'user-1', companyId: COMPANY_ID, search: undefined });
     });
   });
 });

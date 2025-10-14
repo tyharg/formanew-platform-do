@@ -7,6 +7,7 @@ import {
   Card,
   CardContent,
   CardActions,
+  CardActionArea,
   Stack,
 } from '@mui/material';
 import { Edit, Visibility, Delete } from '@mui/icons-material';
@@ -77,49 +78,58 @@ const NotesGridView: React.FC<NotesGridViewProps> = ({
       {notes.map((note) => (
         <Card
           key={note.id}
-          sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+          sx={{ height: '100%', display: 'flex', flexDirection: 'column', cursor: 'pointer' }}
           data-testid={`note-card-${note.id}`}
         >
-          <CardContent sx={{ flexGrow: 1 }}>
-            <Stack spacing={2}>
-              <Typography 
-                variant="h6" 
-                component="h3" 
-                data-testid={`note-title-${note.id}`}
-                sx={getTitleUpdateFlashAnimation(recentlyUpdatedTitles.has(note.id), true)}
-              >
-                {note.title}
-              </Typography>{' '}
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{
-                  display: '-webkit-box',
-                  WebkitLineClamp: 3,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                }}
-                title={note.content}
-                data-testid={`note-content-${note.id}`}
-              >
-                {note.content}
-              </Typography>{' '}
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                data-testid={`note-date-${note.id}`}
-              >
-                {new Date(note.createdAt).toLocaleDateString()}
-              </Typography>
-            </Stack>
-          </CardContent>
+          <CardActionArea
+            onClick={() => onViewNote(note.id)}
+            sx={{ flexGrow: 1 }}
+            data-testid={`note-card-action-${note.id}`}
+          >
+            <CardContent sx={{ flexGrow: 1 }}>
+              <Stack spacing={2}>
+                <Typography 
+                  variant="h6" 
+                  component="h3" 
+                  data-testid={`note-title-${note.id}`}
+                  sx={getTitleUpdateFlashAnimation(recentlyUpdatedTitles.has(note.id), true)}
+                >
+                  {note.title}
+                </Typography>{' '}
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{
+                    display: '-webkit-box',
+                    WebkitLineClamp: 3,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}
+                  title={note.content}
+                  data-testid={`note-content-${note.id}`}
+                >
+                  {note.content}
+                </Typography>{' '}
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  data-testid={`note-date-${note.id}`}
+                >
+                  {new Date(note.createdAt).toLocaleDateString()}
+                </Typography>
+              </Stack>
+            </CardContent>
+          </CardActionArea>
           <CardActions sx={{ justifyContent: 'flex-end' }}>
             {' '}
             <IconButton
               size="small"
               color="primary"
-              onClick={() => onViewNote(note.id)}
+              onClick={(event) => {
+                event.stopPropagation();
+                onViewNote(note.id);
+              }}
               title="View note"
               data-testid={`note-view-button-${note.id}`}
             >
@@ -128,7 +138,10 @@ const NotesGridView: React.FC<NotesGridViewProps> = ({
             <IconButton
               size="small"
               color="primary"
-              onClick={() => onEditNote(note.id)}
+              onClick={(event) => {
+                event.stopPropagation();
+                onEditNote(note.id);
+              }}
               title="Edit note"
               data-testid={`note-edit-button-${note.id}`}
             >
@@ -137,7 +150,10 @@ const NotesGridView: React.FC<NotesGridViewProps> = ({
             <IconButton
               size="small"
               color="error"
-              onClick={() => onDeleteNote(note.id)}
+              onClick={(event) => {
+                event.stopPropagation();
+                onDeleteNote(note.id);
+              }}
               title="Delete note"
               data-testid={`note-delete-button-${note.id}`}
             >

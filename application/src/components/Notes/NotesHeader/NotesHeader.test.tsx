@@ -17,6 +17,9 @@ const mockProps = {
   onSortChange: jest.fn(),
   onViewModeChange: jest.fn(),
   onCreateNote: jest.fn(),
+  canCreate: true,
+  companyName: 'Acme Corp',
+  isCompanyLoading: false,
 };
 
 describe('NotesHeader', () => {
@@ -78,5 +81,34 @@ describe('NotesHeader', () => {
 
     expect(screen.getByTestId('notes-list-view-button')).toBeInTheDocument();
     expect(screen.getByTestId('notes-grid-view-button')).toBeInTheDocument();
+  });
+  it('disables create button when canCreate is false', () => {
+    render(
+      <TestWrapper>
+        <NotesHeader {...mockProps} canCreate={false} />
+      </TestWrapper>
+    );
+
+    expect(screen.getByTestId('notes-create-button')).toBeDisabled();
+  });
+
+  it('shows loading message while companies are loading', () => {
+    render(
+      <TestWrapper>
+        <NotesHeader {...mockProps} isCompanyLoading companyName={null} />
+      </TestWrapper>
+    );
+
+    expect(screen.getByText('Loading companies…')).toBeInTheDocument();
+  });
+
+  it('shows prompt when no company is selected', () => {
+    render(
+      <TestWrapper>
+        <NotesHeader {...mockProps} companyName={null} />
+      </TestWrapper>
+    );
+
+    expect(screen.getByText('Select a company to get started.')).toBeInTheDocument();
   });
 });

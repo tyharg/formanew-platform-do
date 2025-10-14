@@ -1,12 +1,14 @@
 export interface Note {
   id: string;
   userId: string;
+  companyId: string | null;
   title: string;
   content: string;
   createdAt: string;
 }
 
 export interface CreateNoteData {
+  companyId: string;
   title?: string;
   content: string;
 }
@@ -14,6 +16,7 @@ export interface CreateNoteData {
 export interface UpdateNoteData {
   title?: string;
   content?: string;
+  companyId?: string;
 }
 
 export interface PaginatedNotes {
@@ -28,27 +31,19 @@ export interface PaginatedNotes {
 export class NotesApiClient {
   constructor(private baseURL = '/api/notes') {}
   // Fetch all notes
-  async getNotes(params?: {
+  async getNotes(params: {
+    companyId: string;
     page?: number;
     pageSize?: number;
     search?: string;
     sortBy?: string;
   }): Promise<PaginatedNotes> {
-    let url = `${this.baseURL}`;
-    if (
-      params &&
-      (params.page !== undefined ||
-        params.pageSize !== undefined ||
-        params.search !== undefined ||
-        params.sortBy !== undefined)
-    ) {
-      const query = new URLSearchParams();
-      if (params.page !== undefined) query.append('page', params.page.toString());
-      if (params.pageSize !== undefined) query.append('pageSize', params.pageSize.toString());
-      if (params.search !== undefined) query.append('search', params.search);
-      if (params.sortBy !== undefined) query.append('sortBy', params.sortBy);
-      url += `?${query.toString()}`;
-    }
+    const query = new URLSearchParams({ companyId: params.companyId });
+    if (params.page !== undefined) query.append('page', params.page.toString());
+    if (params.pageSize !== undefined) query.append('pageSize', params.pageSize.toString());
+    if (params.search !== undefined) query.append('search', params.search);
+    if (params.sortBy !== undefined) query.append('sortBy', params.sortBy);
+    const url = `${this.baseURL}?${query.toString()}`;
     const res = await fetch(url);
     if (!res.ok) throw new Error('Failed to fetch notes');
     return res.json();

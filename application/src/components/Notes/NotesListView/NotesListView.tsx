@@ -76,7 +76,13 @@ const NotesListView: React.FC<NotesListViewProps> = ({
         </TableHead>
         <TableBody>
           {notes.map((note) => (
-            <TableRow key={note.id} hover data-testid={`note-row-${note.id}`}>
+            <TableRow
+              key={note.id}
+              hover
+              onClick={() => onViewNote(note.id)}
+              sx={{ cursor: 'pointer' }}
+              data-testid={`note-row-${note.id}`}
+            >
               <TableCell 
                 data-testid={`note-title-cell-${note.id}`}
                 sx={getTitleUpdateFlashAnimation(recentlyUpdatedTitles.has(note.id))}
@@ -116,7 +122,10 @@ const NotesListView: React.FC<NotesListViewProps> = ({
                   <IconButton
                     size="small"
                     color="primary"
-                    onClick={() => onViewNote(note.id)}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onViewNote(note.id);
+                    }}
                     title="View note"
                     data-testid={`note-view-button-${note.id}`}
                   >
@@ -125,7 +134,10 @@ const NotesListView: React.FC<NotesListViewProps> = ({
                   <IconButton
                     size="small"
                     color="primary"
-                    onClick={() => onEditNote(note.id)}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onEditNote(note.id);
+                    }}
                     title="Edit note"
                     data-testid={`note-edit-button-${note.id}`}
                   >
@@ -134,7 +146,10 @@ const NotesListView: React.FC<NotesListViewProps> = ({
                   <IconButton
                     size="small"
                     color="error"
-                    onClick={() => onDeleteNote(note.id)}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onDeleteNote(note.id);
+                    }}
                     title="Delete note"
                     data-testid={`note-delete-button-${note.id}`}
                   >

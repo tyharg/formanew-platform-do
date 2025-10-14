@@ -30,12 +30,13 @@ interface NoteFormProps {
   noteId?: string;
   onSave?: (note: { id?: string; title?: string; content: string }) => void;
   onCancel?: () => void;
+  isSubmitting?: boolean;
 }
 
 /**
  * NoteForm component for creating, editing, and viewing notes
  */
-const NoteForm: React.FC<NoteFormProps> = ({ mode, noteId, onSave, onCancel }) => {
+const NoteForm: React.FC<NoteFormProps> = ({ mode, noteId, onSave, onCancel, isSubmitting = false }) => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [createdAt, setCreatedAt] = useState<string>('');
@@ -248,9 +249,16 @@ const NoteForm: React.FC<NoteFormProps> = ({ mode, noteId, onSave, onCancel }) =
                     type="submit"
                     variant="contained"
                     color="primary"
+                    disabled={isSubmitting}
                     data-testid="note-save-button"
                   >
-                    {mode === 'edit' ? 'Save Changes' : 'Save Note'}
+                    {isSubmitting
+                      ? mode === 'edit'
+                        ? 'Saving…'
+                        : 'Saving…'
+                      : mode === 'edit'
+                        ? 'Save Changes'
+                        : 'Save Note'}
                   </Button>
                 )}
               </Box>

@@ -93,7 +93,12 @@ const ContractsTable: React.FC<ContractsTableProps> = ({ contracts, onView, onEd
         </TableHead>
         <TableBody>
           {contracts.map((contract) => (
-            <TableRow key={contract.id} hover>
+            <TableRow
+              key={contract.id}
+              hover
+              onClick={() => onView(contract)}
+              sx={{ cursor: 'pointer' }}
+            >
               <TableCell>
                 <Stack spacing={0.5}>
                   <Typography variant="subtitle1" fontWeight={600}>
@@ -135,19 +140,36 @@ const ContractsTable: React.FC<ContractsTableProps> = ({ contracts, onView, onEd
               <TableCell align="right">
                 <Box display="flex" justifyContent="flex-end" gap={1}>
                   <Tooltip title="View">
-                    <IconButton size="small" onClick={() => onView(contract)} aria-label="View">
+                    <IconButton
+                      size="small"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onView(contract);
+                      }}
+                      aria-label="View"
+                    >
                       <Visibility fontSize="small" />
                     </IconButton>
                   </Tooltip>
                   <Tooltip title="Edit">
-                    <IconButton size="small" onClick={() => onEdit(contract)} aria-label="Edit">
+                    <IconButton
+                      size="small"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onEdit(contract);
+                      }}
+                      aria-label="Edit"
+                    >
                       <Edit fontSize="small" />
                     </IconButton>
                   </Tooltip>
                   <Tooltip title="Delete">
                     <IconButton
                       size="small"
-                      onClick={() => onDelete(contract)}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onDelete(contract);
+                      }}
                       color="error"
                       aria-label="Delete"
                     >

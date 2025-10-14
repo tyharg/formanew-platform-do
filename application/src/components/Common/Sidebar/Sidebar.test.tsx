@@ -14,6 +14,21 @@ jest.mock('next-auth/react', () => {
   };
 });
 
+const mockUseCompanySelection = jest.fn().mockReturnValue({
+  companies: [],
+  selectedCompanyId: null,
+  selectedCompany: null,
+  isLoading: false,
+  isRefreshing: false,
+  error: null,
+  selectCompany: jest.fn(),
+  refreshCompanies: jest.fn(),
+});
+
+jest.mock('context/CompanySelectionContext', () => ({
+  useCompanySelection: () => mockUseCompanySelection(),
+}));
+
 jest.mock('next/link', () => {
   const MockLink = ({
     href,
@@ -41,6 +56,16 @@ import { USER_ROLES } from 'lib/auth/roles';
 describe('Sidebar', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUseCompanySelection.mockReturnValue({
+      companies: [],
+      selectedCompanyId: null,
+      selectedCompany: null,
+      isLoading: false,
+      isRefreshing: false,
+      error: null,
+      selectCompany: jest.fn(),
+      refreshCompanies: jest.fn(),
+    });
   });
 
   it('renders desktop sidebar with standard links', () => {
@@ -52,7 +77,8 @@ describe('Sidebar', () => {
     render(<Sidebar />);
 
     expect(screen.getByText('Dashboard')).toBeInTheDocument();
-    expect(screen.getByText('My Notes')).toBeInTheDocument();
+    expect(screen.getByText('Notes')).toBeInTheDocument();
+    expect(screen.getByText('Finances')).toBeInTheDocument();
     expect(screen.getByText('Account Settings')).toBeInTheDocument();
     expect(screen.getByText('Billing')).toBeInTheDocument();
     expect(screen.getByText('Logout')).toBeInTheDocument();

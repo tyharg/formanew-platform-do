@@ -29,7 +29,14 @@ describe('editNote', () => {
   }
 
   const user = { id: 'user-1', role: USER_ROLES.USER };
-  const note = { id: 'n1', userId: 'user-1', title: 't', content: 'c', createdAt: 'now' };
+  const note = {
+    id: 'n1',
+    userId: 'user-1',
+    companyId: 'company-1',
+    title: 't',
+    content: 'c',
+    createdAt: 'now',
+  };
 
   it('updates note and returns 200', async () => {
     mockFindById.mockResolvedValue(note);

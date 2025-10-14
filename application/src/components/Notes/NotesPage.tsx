@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, ChangeEvent, useRef } from 'react';
-import { Dialog, DialogContent } from '@mui/material';
+import { Alert, Dialog, DialogContent } from '@mui/material';
+import { useRouter } from 'next/navigation';
 import { Note, NotesApiClient } from 'lib/api/notes';
 import NoteForm from './NotesForm/NoteForm';
 import NotesGridView from './NotesGridView/NotesGridView';
@@ -12,24 +13,22 @@ import ConfirmationDialog from './ConfirmationDialog/ConfirmationDialog';
 import Toast from '../Common/Toast/Toast';
 import Pagination from '../Common/Pagination/Pagination';
 import { useNotesSSE } from '../../hooks/useNotesSSE';
+import { useCompanySelection } from 'context/CompanySelectionContext';
 
 // Create an instance of the ApiClient
 const apiClient = new NotesApiClient();
 
 /**
- * MyNotes component
- * This component displays a list of notes with options to view, edit, and create new notes.
+ * NotesPage component
+ * Displays a list of notes with options to view, edit, and create new notes.
  */
-const MyNotes: React.FC = () => {
+const NotesPage: React.FC = () => {
   const [viewMode, setViewMode] = useState('list');
   const [sortBy, setSortBy] = useState('newest');
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
   const [noteToDelete, setNoteToDelete] = useState<string | null>(null);
   // Toast state
@@ -43,15 +42,32 @@ const MyNotes: React.FC = () => {
   const [notes, setNotes] = useState<Note[]>([]);
   const [totalNotes, setTotalNotes] = useState(0);
   const [recentlyUpdatedTitles, setRecentlyUpdatedTitles] = useState<Set<string>>(new Set());
-  
+
   // Ref to track timeout IDs for cleanup
   const timeoutRef = useRef<Record<string, NodeJS.Timeout>>({});
-  
+  const { selectedCompanyId, selectedCompany, isLoading: isLoadingCompanies } =
+    useCompanySelection();
+  const router = useRouter();
+
+  const companyDisplayName = selectedCompany
+    ? selectedCompany.displayName ?? selectedCompany.legalName
+    : null;
+  const canManageNotes = Boolean(selectedCompanyId) && !isLoadingCompanies;
+
   // Fetch notes from API
   const fetchNotes = useCallback(async () => {
+    if (!selectedCompanyId) {
+      setNotes([]);
+      setTotalNotes(0);
+      setError(null);
+      setIsLoading(false);
+      return;
+    }
+
     try {
       setIsLoading(true);
       const { notes, total } = await apiClient.getNotes({
+        companyId: selectedCompanyId,
         page,
         pageSize,
         search: searchQuery,
@@ -65,11 +81,18 @@ const MyNotes: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [page, pageSize, searchQuery, sortBy]);
+  }, [selectedCompanyId, page, pageSize, searchQuery, sortBy]);
 
   useEffect(() => {
+    if (isLoadingCompanies) {
+      return;
+    }
     fetchNotes();
-  }, [fetchNotes]);
+  }, [fetchNotes, isLoadingCompanies]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [selectedCompanyId]);
 
   // Handle real-time title updates via SSE
   const handleTitleUpdate = useCallback((noteId: string, newTitle: string) => {
@@ -126,8 +149,15 @@ const MyNotes: React.FC = () => {
   };
 
   const handleCreateNote = async (noteData: { title?: string; content: string }) => {
+    if (!selectedCompanyId) {
+      setToastMessage('Select a company before creating notes.');
+      setToastSeverity('info');
+      setToastOpen(true);
+      return;
+    }
+
     try {
-      await apiClient.createNote(noteData);
+      await apiClient.createNote({ ...noteData, companyId: selectedCompanyId });
       setIsCreateModalOpen(false);
 
       // Navigate to page 1 to see the new note (newest first)
@@ -148,31 +178,6 @@ const MyNotes: React.FC = () => {
       setError('Failed to create note. Please try again.');
       // Show error toast
       setToastMessage('Failed to create note');
-      setToastSeverity('error');
-      setToastOpen(true);
-    }
-  };
-  const handleUpdateNote = async (noteData: { title?: string; content: string }) => {
-    if (!selectedNoteId) return;
-
-    try {
-      await apiClient.updateNote(selectedNoteId, noteData);
-      setIsEditModalOpen(false);
-      setSelectedNoteId(null);
-
-      // Refetch current page to ensure data consistency
-      // (note might no longer match current search/sort criteria)
-      await fetchNotes();
-
-      // Show success toast
-      setToastMessage('Note updated successfully');
-      setToastSeverity('success');
-      setToastOpen(true);
-    } catch (err) {
-      console.error('Error updating note:', err);
-      setError('Failed to update note. Please try again.');
-      // Show error toast
-      setToastMessage('Failed to update note');
       setToastSeverity('error');
       setToastOpen(true);
     }
@@ -228,33 +233,26 @@ const MyNotes: React.FC = () => {
   const handleDeleteNote = (noteId: string) => {
     handleDeleteConfirmation(noteId);
   };
+
   const handleCloseCreateModal = () => {
     setIsCreateModalOpen(false);
     // Don't fetch notes here - only refresh when actual updates are made
   };
 
+  const navigateToNote = (noteId: string) => {
+    router.push(`/dashboard/notes/${noteId}`);
+  };
+
   const handleViewNote = (noteId: string) => {
-    setSelectedNoteId(noteId);
-    setIsViewModalOpen(true);
+    navigateToNote(noteId);
   };
 
   const handleEditNote = (noteId: string) => {
-    setSelectedNoteId(noteId);
-    setIsEditModalOpen(true);
-  };
-  const handleCloseViewModal = () => {
-    setIsViewModalOpen(false);
-    setSelectedNoteId(null);
-  };
-
-  const handleCloseEditModal = () => {
-    setIsEditModalOpen(false);
-    setSelectedNoteId(null);
-    // Don't fetch notes here - only refresh when actual updates are made
+    navigateToNote(noteId);
   };
 
   return (
-    <PageContainer title="My Notes">
+    <PageContainer title="Notes">
       {/* Header and Controls */}
       <NotesHeader
         searchQuery={searchQuery}
@@ -263,8 +261,25 @@ const MyNotes: React.FC = () => {
         onSearchChange={handleSearchChange}
         onSortChange={handleSortChange}
         onViewModeChange={setViewMode}
-        onCreateNote={() => setIsCreateModalOpen(true)}
+        onCreateNote={() => {
+          if (!canManageNotes) {
+            setToastMessage('Select a company before creating notes.');
+            setToastSeverity('info');
+            setToastOpen(true);
+            return;
+          }
+          setIsCreateModalOpen(true);
+        }}
+        canCreate={canManageNotes}
+        companyName={companyDisplayName}
+        isCompanyLoading={isLoadingCompanies}
       />
+
+      {!isLoadingCompanies && !selectedCompanyId && (
+        <Alert severity="info" sx={{ mb: 3 }}>
+          Add a company to start capturing notes and documents in one place.
+        </Alert>
+      )}
 
       {/* Notes Display */}
       {viewMode === 'list' ? (
@@ -307,29 +322,6 @@ const MyNotes: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      {/* View Note Modal */}
-      <Dialog open={isViewModalOpen} onClose={handleCloseViewModal} maxWidth="md" fullWidth>
-        <DialogContent>
-          {selectedNoteId && (
-            <NoteForm mode="view" noteId={selectedNoteId} onCancel={handleCloseViewModal} />
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Edit Note Modal */}
-      <Dialog open={isEditModalOpen} onClose={handleCloseEditModal} maxWidth="md" fullWidth>
-        <DialogContent>
-          {selectedNoteId && (
-            <NoteForm
-              mode="edit"
-              noteId={selectedNoteId}
-              onSave={handleUpdateNote}
-              onCancel={handleCloseEditModal}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
-
       {/* Delete Confirmation Dialog */}
       <ConfirmationDialog
         open={deleteConfirmationOpen}
@@ -353,4 +345,4 @@ const MyNotes: React.FC = () => {
   );
 };
 
-export default MyNotes;
+export default NotesPage;

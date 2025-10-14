@@ -14,6 +14,7 @@ jest.mock('lib/api/notes', () => {
   const mockNote = {
     id: '123',
     userId: 'user1',
+    companyId: 'company-1',
     title: 'Test Note',
     content: 'Test Content',
     createdAt: '2025-06-01T12:00:00Z',

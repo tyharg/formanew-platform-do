@@ -1,28 +1,16 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import {
-  Box,
-  Button,
-  Grid,
-  MenuItem,
-  Stack,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { Box, Button, Grid, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import {
   CONTRACT_STATUS_OPTIONS,
   ContractStatus,
   CreateContractPayload,
   UpdateContractPayload,
 } from 'lib/api/contracts';
+import { useCompanySelection } from 'context/CompanySelectionContext';
 
 type FormMode = 'create' | 'edit';
-
-type CompanyOption = {
-  id: string;
-  name: string;
-};
 
 type ContractFormState = {
   companyId: string;
@@ -57,9 +45,7 @@ const sanitizeOptional = (value: string) => {
 
 interface ContractFormProps {
   mode: FormMode;
-  companies: CompanyOption[];
   initialValues?: Partial<ContractFormState>;
-  defaultCompanyId?: string;
   onSubmit: (payload: CreateContractPayload | UpdateContractPayload) => Promise<void> | void;
   onCancel: () => void;
   isSubmitting?: boolean;
@@ -83,26 +69,21 @@ const DEFAULT_FORM_VALUES: ContractFormState = {
 
 const ContractForm: React.FC<ContractFormProps> = ({
   mode,
-  companies,
   initialValues,
-  defaultCompanyId,
   onSubmit,
   onCancel,
   isSubmitting = false,
 }) => {
+  const { companies, selectedCompanyId, selectedCompany } = useCompanySelection();
   const [values, setValues] = useState<ContractFormState>(DEFAULT_FORM_VALUES);
   const [errors, setErrors] = useState<FieldErrors>({});
 
-  const disableCompanySelection = mode === 'edit';
-
-  const companyOptions = useMemo(
-    () =>
-      companies.map((company) => ({
-        id: company.id,
-        name: company.name,
-      })),
-    [companies],
-  );
+  const activeCompany = useMemo(() => {
+    if (mode === 'edit' && initialValues?.companyId) {
+      return companies.find((company) => company.id === initialValues.companyId) ?? null;
+    }
+    return selectedCompany ?? null;
+  }, [companies, initialValues?.companyId, mode, selectedCompany]);
 
   useEffect(() => {
     const formatted: ContractFormState = {
@@ -125,16 +106,12 @@ const ContractForm: React.FC<ContractFormProps> = ({
     if (mode === 'edit' && initialValues?.companyId) {
       formatted.companyId = initialValues.companyId;
     } else {
-      formatted.companyId =
-        initialValues?.companyId ??
-        defaultCompanyId ??
-        companyOptions[0]?.id ??
-        '';
+      formatted.companyId = initialValues?.companyId ?? selectedCompanyId ?? '';
     }
 
     setValues(formatted);
     setErrors({});
-  }, [initialValues, companyOptions, defaultCompanyId, mode]);
+  }, [initialValues, mode, selectedCompanyId]);
 
   const handleChange =
     (field: keyof ContractFormState) =>
@@ -149,15 +126,10 @@ const ContractForm: React.FC<ContractFormProps> = ({
     setValues((prev) => ({ ...prev, status: value as ContractStatus }));
   };
 
-  const handleCompanyChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setValues((prev) => ({ ...prev, companyId: event.target.value }));
-    setErrors((prev) => ({ ...prev, companyId: undefined }));
-  };
-
   const validate = (): boolean => {
     const nextErrors: FieldErrors = {};
 
-    if (mode === 'create' && !values.companyId) {
+    if (mode === 'create' && !(values.companyId || selectedCompanyId)) {
       nextErrors.companyId = 'Company is required';
     }
     if (!values.title.trim()) {
@@ -184,8 +156,14 @@ const ContractForm: React.FC<ContractFormProps> = ({
     event.preventDefault();
     if (!validate()) return;
 
+    const activeCompanyId = values.companyId || selectedCompanyId || '';
+    if (!activeCompanyId) {
+      setErrors((prev) => ({ ...prev, companyId: 'Company is required' }));
+      return;
+    }
+
     const basePayload: CreateContractPayload = {
-      companyId: values.companyId || defaultCompanyId || '',
+      companyId: activeCompanyId,
       title: values.title.trim(),
       counterpartyName: values.counterpartyName.trim(),
       counterpartyEmail: sanitizeOptional(values.counterpartyEmail),
@@ -209,11 +187,6 @@ const ContractForm: React.FC<ContractFormProps> = ({
     }
   };
 
-  const companySelectHelperText =
-    mode === 'create'
-      ? errors.companyId
-      : 'Contracts remain associated with their original company.';
-
   return (
     <Box component="form" onSubmit={handleSubmit} noValidate>
       <Stack spacing={3}>
@@ -231,24 +204,21 @@ const ContractForm: React.FC<ContractFormProps> = ({
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
             <TextField
-              select
               fullWidth
               label="Company"
-              value={values.companyId}
-              onChange={handleCompanyChange}
-              disabled={disableCompanySelection}
-              required={mode === 'create'}
+              value={activeCompany ? activeCompany.displayName || activeCompany.legalName : ''}
+              InputProps={{ readOnly: true }}
               error={Boolean(errors.companyId)}
               helperText={
-                errors.companyId ? errors.companyId : disableCompanySelection ? companySelectHelperText : undefined
+                errors.companyId
+                  ? errors.companyId
+                  : mode === 'edit'
+                    ? 'Contracts remain associated with their original company.'
+                    : !activeCompany
+                        ? 'Select a company from the sidebar to assign this contract.'
+                        : undefined
               }
-            >
-              {companyOptions.map((company) => (
-                <MenuItem key={company.id} value={company.id}>
-                  {company.name}
-                </MenuItem>
-              ))}
-            </TextField>
+            />
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField

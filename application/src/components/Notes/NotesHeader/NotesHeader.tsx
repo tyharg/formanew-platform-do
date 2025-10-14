@@ -8,6 +8,7 @@ import {
   MenuItem,
   FormControl,
   Stack,
+  Typography,
 } from '@mui/material';
 import { Add, Search, List, GridView } from '@mui/icons-material';
 
@@ -22,6 +23,9 @@ interface NotesHeaderProps {
   ) => void;
   onViewModeChange: (mode: string) => void;
   onCreateNote: () => void;
+  canCreate: boolean;
+  companyName?: string | null;
+  isCompanyLoading: boolean;
 }
 
 /**
@@ -36,17 +40,33 @@ const NotesHeader: React.FC<NotesHeaderProps> = ({
   onSortChange,
   onViewModeChange,
   onCreateNote,
+  canCreate,
+  companyName,
+  isCompanyLoading,
 }) => {
   return (
     <Box data-testid="notes-header">
       {/* Header */}
-      <Stack direction="row" justifyContent="right" sx={{ mb: 3 }}>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+        <Box>
+          <Typography variant="h5" fontWeight={600} gutterBottom>
+            Notes
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {companyName
+              ? `Showing notes for ${companyName}`
+              : isCompanyLoading
+                ? 'Loading companies…'
+                : 'Select a company to get started.'}
+          </Typography>
+        </Box>
         <Button
           variant="contained"
           startIcon={<Add />}
           onClick={onCreateNote}
           size="small"
           data-testid="notes-create-button"
+          disabled={!canCreate}
         >
           Create Note
         </Button>

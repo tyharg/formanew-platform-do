@@ -27,7 +27,14 @@ describe('getNote', () => {
   const user = { id: 'user-1', role: USER_ROLES.USER };
 
   it('returns note for user and status 200', async () => {
-    const note = { id: 'n1', userId: 'user-1', title: 't', content: 'c', createdAt: 'now' };
+    const note = {
+      id: 'n1',
+      userId: 'user-1',
+      companyId: 'company-1',
+      title: 't',
+      content: 'c',
+      createdAt: 'now',
+    };
     mockFindById.mockResolvedValue(note);
     const req = makeRequest();
     const res = await getNote(req, user, makeParams('n1'));
@@ -45,7 +52,14 @@ describe('getNote', () => {
   });
 
   it('returns 403 if user does not own note', async () => {
-    const note = { id: 'n1', userId: 'other', title: 't', content: 'c', createdAt: 'now' };
+    const note = {
+      id: 'n1',
+      userId: 'other',
+      companyId: 'company-2',
+      title: 't',
+      content: 'c',
+      createdAt: 'now',
+    };
     mockFindById.mockResolvedValue(note);
     const req = makeRequest();
     const res = await getNote(req, user, makeParams('n1'));

@@ -60,7 +60,7 @@ const LoginForm: React.FC = () => {
         setTurnstileReset((prev) => prev + 1);
       }
     } else if (res.ok) {
-      navigate('/dashboard/my-notes');
+      navigate('/dashboard/notes');
     }
   };
   return (

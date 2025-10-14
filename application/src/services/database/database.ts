@@ -6,6 +6,9 @@ import {
   SubscriptionStatus,
   Company,
   Contract,
+  CompanyContact,
+  CompanyNote,
+  CompanyFinance,
 } from 'types';
 import { ServiceConfigStatus, ConfigurableService } from '../status/serviceConfigStatus';
 
@@ -63,6 +66,7 @@ export abstract class DatabaseClient implements ConfigurableService {
     findMany: (args: {
       search?: string;
       userId: string;
+      companyId: string;
       skip: number;
       take: number;
       orderBy: {
@@ -70,7 +74,7 @@ export abstract class DatabaseClient implements ConfigurableService {
         title?: 'asc';
       };
     }) => Promise<Note[]>;
-    count: (userId: string, search?: string) => Promise<number>;
+    count: (args: { userId: string; companyId: string; search?: string }) => Promise<number>;
   };
   abstract verificationToken: {
     create: (data: { identifier: string; token: string; expires: Date }) => Promise<void>;
@@ -88,12 +92,18 @@ export abstract class DatabaseClient implements ConfigurableService {
     findById: (id: string) => Promise<Company | null>;
     findByUserId: (userId: string) => Promise<Company[]>;
     create: (
-      company: Omit<Company, 'id' | 'createdAt' | 'updatedAt' | 'contracts' | 'contacts' | 'notes'>
+      company: Omit<
+        Company,
+        'id' | 'createdAt' | 'updatedAt' | 'contracts' | 'contacts' | 'notes' | 'finance'
+      >
     ) => Promise<Company>;
     update: (
       id: string,
       company: Partial<
-        Omit<Company, 'id' | 'createdAt' | 'updatedAt' | 'userId' | 'contracts' | 'contacts' | 'notes'>
+        Omit<
+          Company,
+          'id' | 'createdAt' | 'updatedAt' | 'userId' | 'contracts' | 'contacts' | 'notes' | 'finance'
+        >
       >
     ) => Promise<Company>;
     delete: (id: string) => Promise<void>;
@@ -127,6 +137,20 @@ export abstract class DatabaseClient implements ConfigurableService {
       note: Omit<CompanyNote, 'id' | 'createdAt'>
     ) => Promise<CompanyNote>;
     delete: (id: string) => Promise<void>;
+  };
+  abstract companyFinance: {
+    findByCompanyId: (companyId: string) => Promise<CompanyFinance | null>;
+    create: (
+      finance: {
+        companyId: string;
+      } &
+        Partial<Omit<CompanyFinance, 'id' | 'companyId' | 'createdAt' | 'updatedAt'>>
+    ) => Promise<CompanyFinance>;
+    update: (
+      companyId: string,
+      finance: Partial<Omit<CompanyFinance, 'id' | 'companyId' | 'createdAt' | 'updatedAt'>
+      >
+    ) => Promise<CompanyFinance>;
   };
   abstract checkConnection(): Promise<boolean>;
 

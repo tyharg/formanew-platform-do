@@ -1,3 +1,5 @@
+import type { CompanyFinance } from './companyFinance';
+
 export interface Company {
   id: string;
   userId: string;
@@ -21,6 +23,7 @@ export interface Company {
   contracts?: CompanyContractSummary[];
   contacts?: CompanyContact[];
   notes?: CompanyNote[];
+  finance?: CompanyFinance | null;
 }
 
 export interface CompanyContractSummary {

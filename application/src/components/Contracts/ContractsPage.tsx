@@ -9,7 +9,6 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Grid,
   Typography,
   Button,
 } from '@mui/material';
@@ -19,6 +18,7 @@ import PaginationControl from 'components/Common/Pagination/Pagination';
 import ContractsHeader from './ContractsHeader/ContractsHeader';
 import ContractsTable from './ContractsTable/ContractsTable';
 import ContractForm from './ContractForm/ContractForm';
+import { useRouter } from 'next/navigation';
 import {
   Contract,
   ContractStatus,
@@ -26,10 +26,9 @@ import {
   CreateContractPayload,
   UpdateContractPayload,
 } from 'lib/api/contracts';
-import { CompaniesApiClient, Company } from 'lib/api/companies';
+import { useCompanySelection } from 'context/CompanySelectionContext';
 
 const contractsClient = new ContractsApiClient();
-const companiesClient = new CompaniesApiClient();
 
 type SortOption = 'recent' | 'oldest' | 'title' | 'valueHigh' | 'valueLow';
 
@@ -59,44 +58,16 @@ const sortContracts = (contracts: Contract[], sortBy: SortOption): Contract[] =>
   }
 };
 
-const formatStatus = (status: ContractStatus) => status.replace(/_/g, ' ');
-
-const formatCurrencyValue = (
-  value: number | null | undefined,
-  currency: string | null | undefined,
-) => {
-  if (value === null || value === undefined) return '—';
-  try {
-    return new Intl.NumberFormat(undefined, {
-      style: 'currency',
-      currency: currency ?? 'USD',
-      maximumFractionDigits: 0,
-    }).format(value);
-  } catch {
-    return `${currency ?? 'USD'} ${value.toLocaleString()}`;
-  }
-};
-
-const detailRow = (label: string, value: React.ReactNode) => (
-  <Grid item xs={12} sm={6}>
-    <Typography variant="subtitle2" color="text.secondary">
-      {label}
-    </Typography>
-    <Typography variant="body1" fontWeight={500}>
-      {value ?? '—'}
-    </Typography>
-  </Grid>
-);
-
 const ContractsPage: React.FC = () => {
-  const [companies, setCompanies] = useState<Company[]>([]);
-  const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
+  const {
+    companies,
+    selectedCompanyId,
+    selectedCompany,
+    isLoading: isLoadingCompanies,
+    error: companyError,
+  } = useCompanySelection();
   const [contracts, setContracts] = useState<Contract[]>([]);
-
-  const [isLoadingCompanies, setIsLoadingCompanies] = useState(true);
   const [isLoadingContracts, setIsLoadingContracts] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('recent');
   const [statusFilter, setStatusFilter] = useState<ContractStatus | 'ALL'>('ALL');
@@ -104,12 +75,7 @@ const ContractsPage: React.FC = () => {
   const [pageSize, setPageSize] = useState(10);
 
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
-  const [activeContract, setActiveContract] = useState<Contract | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
-  const [contractToView, setContractToView] = useState<Contract | null>(null);
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [contractToDelete, setContractToDelete] = useState<Contract | null>(null);
@@ -120,6 +86,8 @@ const ContractsPage: React.FC = () => {
   const [toastSeverity, setToastSeverity] = useState<'success' | 'error' | 'info' | 'warning'>(
     'info',
   );
+
+  const router = useRouter();
 
   const resetToast = () => {
     setToastOpen(false);
@@ -132,28 +100,6 @@ const ContractsPage: React.FC = () => {
     setToastSeverity(severity);
     setToastOpen(true);
   };
-
-  const loadCompanies = useCallback(async () => {
-    try {
-      setIsLoadingCompanies(true);
-      setError(null);
-      const companyList = await companiesClient.getCompanies();
-      setCompanies(companyList);
-
-      if (companyList.length > 0) {
-        setSelectedCompanyId((prev) => prev ?? companyList[0].id);
-      } else {
-        setSelectedCompanyId(null);
-      }
-    } catch (err) {
-      console.error('Failed to load companies', err);
-      setError('Unable to load companies. Please try again later.');
-      setCompanies([]);
-      setSelectedCompanyId(null);
-    } finally {
-      setIsLoadingCompanies(false);
-    }
-  }, []);
 
   const loadContracts = useCallback(
     async (companyId: string) => {
@@ -173,16 +119,16 @@ const ContractsPage: React.FC = () => {
   );
 
   useEffect(() => {
-    loadCompanies();
-  }, [loadCompanies]);
+    if (isLoadingCompanies) {
+      return;
+    }
 
-  useEffect(() => {
     if (!selectedCompanyId) {
       setContracts([]);
       return;
     }
     loadContracts(selectedCompanyId);
-  }, [selectedCompanyId, loadContracts]);
+  }, [selectedCompanyId, loadContracts, isLoadingCompanies]);
 
   useEffect(() => {
     setPage(1);
@@ -220,20 +166,19 @@ const ContractsPage: React.FC = () => {
   }, [filteredContracts, page, pageSize]);
 
   const handleCreateClick = () => {
-    setFormMode('create');
-    setActiveContract(null);
+    if (!selectedCompanyId) {
+      showToast('Select a company from the sidebar before creating a contract.', 'info');
+      return;
+    }
     setIsFormOpen(true);
   };
 
   const handleEdit = (contract: Contract) => {
-    setFormMode('edit');
-    setActiveContract(contract);
-    setIsFormOpen(true);
+    router.push(`/dashboard/contracts/${contract.id}`);
   };
 
   const handleView = (contract: Contract) => {
-    setContractToView(contract);
-    setIsViewDialogOpen(true);
+    router.push(`/dashboard/contracts/${contract.id}`);
   };
 
   const handleDeletePrompt = (contract: Contract) => {
@@ -241,30 +186,23 @@ const ContractsPage: React.FC = () => {
     setDeleteDialogOpen(true);
   };
 
-  const handleContractSubmit = async (
-    payload: CreateContractPayload | UpdateContractPayload,
-  ) => {
-    if (!selectedCompanyId && formMode === 'create') {
-      showToast('Select a company before creating a contract.', 'warning');
+  const handleContractSubmit = async (payload: CreateContractPayload | UpdateContractPayload) => {
+    if (!selectedCompanyId) {
+      showToast('Select a company from the sidebar before creating a contract.', 'warning');
       return;
     }
 
     try {
       setIsSubmitting(true);
-      if (formMode === 'create') {
-        const createPayload = payload as CreateContractPayload;
-        if (!createPayload.companyId) {
-          createPayload.companyId = selectedCompanyId as string;
-        }
-        await contractsClient.createContract(createPayload);
-        showToast('Contract created successfully.', 'success');
-      } else if (activeContract) {
-        await contractsClient.updateContract(activeContract.id, payload as UpdateContractPayload);
-        showToast('Contract updated successfully.', 'success');
+      const createPayload = payload as CreateContractPayload;
+      if (!createPayload.companyId) {
+        createPayload.companyId = selectedCompanyId;
       }
 
+      await contractsClient.createContract(createPayload);
+      showToast('Contract created successfully.', 'success');
+
       setIsFormOpen(false);
-      setActiveContract(null);
       if (selectedCompanyId) {
         await loadContracts(selectedCompanyId);
       }
@@ -295,13 +233,6 @@ const ContractsPage: React.FC = () => {
     }
   };
 
-  const selectedCompanyOptions = companies.map((company) => ({
-    id: company.id,
-    name: company.displayName || company.legalName,
-  }));
-
-  const defaultCompanyId = selectedCompanyId ?? selectedCompanyOptions[0]?.id;
-
   const renderContent = () => {
     if (isLoadingCompanies) {
       return (
@@ -311,26 +242,33 @@ const ContractsPage: React.FC = () => {
       );
     }
 
-    if (!selectedCompanyId && companies.length === 0) {
-      return (
-        <Alert severity="info">
-          Create a company record first to start adding contracts. Head to the Companies section of
-          the platform to get started.
-        </Alert>
-      );
-    }
+    const hasCompanies = companies.length > 0;
+    const hasSelectedCompany = Boolean(selectedCompanyId);
+    const fallbackCompany = selectedCompanyId
+      ? companies.find((company) => company.id === selectedCompanyId)
+      : null;
+    const selectedCompanyName =
+      selectedCompany?.displayName ||
+      selectedCompany?.legalName ||
+      fallbackCompany?.displayName ||
+      fallbackCompany?.legalName ||
+      null;
 
     return (
       <>
-        {error && (
+        {companyError && (
           <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
+            {companyError}
+          </Alert>
+        )}
+        {!companyError && !hasCompanies && (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            Add a company to start managing contracts.
           </Alert>
         )}
         <ContractsHeader
-          companies={selectedCompanyOptions}
-          selectedCompanyId={selectedCompanyId}
-          onCompanyChange={(id) => setSelectedCompanyId(id)}
+          selectedCompanyName={selectedCompanyName}
+          canCreate={hasSelectedCompany}
           onCreateContract={handleCreateClick}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
@@ -340,28 +278,30 @@ const ContractsPage: React.FC = () => {
           onStatusFilterChange={setStatusFilter}
         />
 
-        {isLoadingContracts ? (
-          <Box display="flex" justifyContent="center" alignItems="center" minHeight={200}>
-            <CircularProgress />
-          </Box>
-        ) : (
-          <>
-            <ContractsTable
-              contracts={paginatedContracts}
-              onView={handleView}
-              onEdit={handleEdit}
-              onDelete={handleDeletePrompt}
-            />
-            <PaginationControl
-              totalItems={totalItems}
-              pageSize={pageSize}
-              setPageSize={setPageSize}
-              page={page}
-              setPage={setPage}
-              sx={{ mt: 3 }}
-            />
-          </>
-        )}
+        {hasSelectedCompany ? (
+          isLoadingContracts ? (
+            <Box display="flex" justifyContent="center" alignItems="center" minHeight={200}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <>
+              <ContractsTable
+                contracts={paginatedContracts}
+                onView={handleView}
+                onEdit={handleEdit}
+                onDelete={handleDeletePrompt}
+              />
+              <PaginationControl
+                totalItems={totalItems}
+                pageSize={pageSize}
+                setPageSize={setPageSize}
+                page={page}
+                setPage={setPage}
+                sx={{ mt: 3 }}
+              />
+            </>
+          )
+        ) : null}
       </>
     );
   };
@@ -378,76 +318,16 @@ const ContractsPage: React.FC = () => {
       >
         <DialogContent dividers sx={{ p: 3 }}>
           <ContractForm
-            mode={formMode}
-            companies={selectedCompanyOptions}
-            initialValues={
-              formMode === 'edit' && activeContract
-                ? {
-                    companyId: activeContract.companyId,
-                    title: activeContract.title,
-                    counterpartyName: activeContract.counterpartyName,
-                    counterpartyEmail: activeContract.counterpartyEmail ?? '',
-                    contractValue:
-                      activeContract.contractValue !== null &&
-                      activeContract.contractValue !== undefined
-                        ? String(activeContract.contractValue)
-                        : '',
-                    currency: activeContract.currency ?? 'USD',
-                    status: activeContract.status,
-                    startDate: activeContract.startDate,
-                    endDate: activeContract.endDate,
-                    signedDate: activeContract.signedDate,
-                    paymentTerms: activeContract.paymentTerms ?? '',
-                    renewalTerms: activeContract.renewalTerms ?? '',
-                    description: activeContract.description ?? '',
-                  }
-                : { companyId: defaultCompanyId ?? '' }
-            }
-            defaultCompanyId={defaultCompanyId ?? undefined}
+            mode="create"
+            initialValues={{ companyId: selectedCompanyId ?? '' }}
             onSubmit={handleContractSubmit}
             onCancel={() => {
               if (!isSubmitting) {
                 setIsFormOpen(false);
-                setActiveContract(null);
               }
             }}
             isSubmitting={isSubmitting}
           />
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={isViewDialogOpen} onClose={() => setIsViewDialogOpen(false)} maxWidth="md" fullWidth>
-        <DialogTitle>{contractToView?.title ?? 'Contract details'}</DialogTitle>
-        <DialogContent dividers>
-          {contractToView ? (
-            <Grid container spacing={2} sx={{ mt: 0.5 }}>
-              {detailRow('Company', companies.find((c) => c.id === contractToView.companyId)?.displayName ?? companies.find((c) => c.id === contractToView.companyId)?.legalName ?? '—')}
-              {detailRow('Counterparty', contractToView.counterpartyName)}
-              {detailRow('Counterparty Email', contractToView.counterpartyEmail ?? '—')}
-              {detailRow('Status', formatStatus(contractToView.status))}
-              {detailRow(
-                'Value',
-                formatCurrencyValue(contractToView.contractValue, contractToView.currency),
-              )}
-              {detailRow('Signed Date', contractToView.signedDate ? new Date(contractToView.signedDate).toLocaleDateString() : '—')}
-              {detailRow('Start Date', contractToView.startDate ? new Date(contractToView.startDate).toLocaleDateString() : '—')}
-              {detailRow('End Date', contractToView.endDate ? new Date(contractToView.endDate).toLocaleDateString() : '—')}
-              {detailRow('Payment Terms', contractToView.paymentTerms ?? '—')}
-              {detailRow('Renewal Terms', contractToView.renewalTerms ?? '—')}
-              <Grid item xs={12}>
-                <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                  Description / Notes
-                </Typography>
-                <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
-                  {contractToView.description ?? '—'}
-                </Typography>
-              </Grid>
-            </Grid>
-          ) : (
-            <Typography variant="body2" color="text.secondary">
-              Unable to display contract details.
-            </Typography>
-          )}
         </DialogContent>
       </Dialog>
 

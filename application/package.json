@@ -14,7 +14,8 @@
     "test:all": "npm run test && npm run test:server",
     "setup:stripe": "node ./setup/stripe.mjs",
     "setup:deploy": "node ./setup/appspec.mjs",
-    "deploy": "node ./setup/deploy.mjs"
+    "deploy": "node ./setup/deploy.mjs",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.9.1",

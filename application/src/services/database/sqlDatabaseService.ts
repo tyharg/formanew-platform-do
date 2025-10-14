@@ -10,6 +10,7 @@ import {
   Contract,
   CompanyContact,
   CompanyNote,
+  CompanyFinance,
 } from 'types';
 import { PrismaClient } from '@prisma/client';
 import { ServiceConfigStatus } from '../status/serviceConfigStatus';
@@ -160,6 +161,7 @@ export class SqlDatabaseService extends DatabaseClient {
     },
     findMany: async (args: {
       userId: string;
+      companyId: string;
       search?: string;
       skip: number;
       take: number;
@@ -168,10 +170,11 @@ export class SqlDatabaseService extends DatabaseClient {
         title?: 'asc';
       };
     }) => {
-      const { userId, search, skip, take, orderBy } = args;
+      const { userId, companyId, search, skip, take, orderBy } = args;
       return prisma.note.findMany({
         where: {
           userId,
+          companyId,
           ...(search
             ? {
                 OR: [
@@ -186,10 +189,11 @@ export class SqlDatabaseService extends DatabaseClient {
         orderBy,
       });
     },
-    count: async (userId: string, search?: string) => {
+    count: async ({ userId, companyId, search }: { userId: string; companyId: string; search?: string }) => {
       return prisma.note.count({
         where: {
           userId,
+          companyId,
           ...(search
             ? {
                 OR: [
@@ -206,34 +210,40 @@ export class SqlDatabaseService extends DatabaseClient {
     findById: async (id: string): Promise<Company | null> => {
       return prisma.company.findUnique({
         where: { id },
-        include: { contracts: true, contacts: true, notes: true },
+        include: { contracts: true, contacts: true, notes: true, finance: true },
       });
     },
     findByUserId: async (userId: string): Promise<Company[]> => {
       return prisma.company.findMany({
         where: { userId },
-        include: { contracts: true, contacts: true, notes: true },
+        include: { contracts: true, contacts: true, notes: true, finance: true },
         orderBy: { createdAt: 'desc' },
       });
     },
     create: async (
-      company: Omit<Company, 'id' | 'createdAt' | 'updatedAt' | 'contracts' | 'contacts' | 'notes'>
+      company: Omit<
+        Company,
+        'id' | 'createdAt' | 'updatedAt' | 'contracts' | 'contacts' | 'notes' | 'finance'
+      >
     ): Promise<Company> => {
       return prisma.company.create({
         data: company,
-        include: { contracts: true, contacts: true, notes: true },
+        include: { contracts: true, contacts: true, notes: true, finance: true },
       });
     },
     update: async (
       id: string,
       company: Partial<
-        Omit<Company, 'id' | 'createdAt' | 'updatedAt' | 'userId' | 'contracts' | 'contacts' | 'notes'>
+        Omit<
+          Company,
+          'id' | 'createdAt' | 'updatedAt' | 'userId' | 'contracts' | 'contacts' | 'notes' | 'finance'
+        >
       >
     ): Promise<Company> => {
       return prisma.company.update({
         where: { id },
         data: company,
-        include: { contracts: true, contacts: true, notes: true },
+        include: { contracts: true, contacts: true, notes: true, finance: true },
       });
     },
     delete: async (id: string): Promise<void> => {
@@ -316,6 +326,30 @@ export class SqlDatabaseService extends DatabaseClient {
     },
     delete: async (id: string): Promise<void> => {
       await prisma.companyNote.delete({ where: { id } });
+    },
+  };
+  companyFinance = {
+    findByCompanyId: async (companyId: string): Promise<CompanyFinance | null> => {
+      return prisma.companyFinance.findUnique({ where: { companyId } });
+    },
+    create: async (
+      finance: {
+        companyId: string;
+      } &
+        Partial<Omit<CompanyFinance, 'id' | 'companyId' | 'createdAt' | 'updatedAt'>>
+    ): Promise<CompanyFinance> => {
+      return prisma.companyFinance.create({
+        data: finance,
+      });
+    },
+    update: async (
+      companyId: string,
+      finance: Partial<Omit<CompanyFinance, 'id' | 'companyId' | 'createdAt' | 'updatedAt'>>
+    ): Promise<CompanyFinance> => {
+      return prisma.companyFinance.update({
+        where: { companyId },
+        data: finance,
+      });
     },
   };
   verificationToken = {
