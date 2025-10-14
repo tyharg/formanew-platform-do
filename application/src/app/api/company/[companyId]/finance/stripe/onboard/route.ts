@@ -50,7 +50,7 @@ export async function POST(
         },
         // Optional: Pre-fill information if available (e.g., company email)
         email: company.email || undefined,
-        meta {
+        meta { // FIX: Changed 'meta' to 'metadata'
           companyId: companyId,
         },
       });

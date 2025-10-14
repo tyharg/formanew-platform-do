@@ -30,7 +30,7 @@ export default function StripeConnectSetup({ finance, companyId, onRefresh }: St
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(data.message || 'Failed to initiate Stripe Connect onboarding.');
+        throw new Error(errorData.message || 'Failed to initiate Stripe Connect onboarding.');
       }
 
       const { url } = await response.json();
