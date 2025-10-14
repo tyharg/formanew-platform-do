@@ -1,11 +1,12 @@
 import ContractDetailsPage from 'components/Contracts/ContractDetailsPage';
 
 interface ContractRouteProps {
-  params: {
+  params: Promise<{
     contractId: string;
-  };
+  }>;
 }
 
-export default function ContractRoute({ params }: ContractRouteProps) {
-  return <ContractDetailsPage contractId={params.contractId} />;
+export default async function ContractRoute({ params }: ContractRouteProps) {
+  const { contractId } = await params;
+  return <ContractDetailsPage contractId={contractId} />;
 }

@@ -1,11 +1,12 @@
 import NoteDetailsPage from 'components/Notes/NoteDetailsPage';
 
 interface NoteRouteProps {
-  params: {
+  params: Promise<{
     noteId: string;
-  };
+  }>;
 }
 
-export default function NoteRoute({ params }: NoteRouteProps) {
-  return <NoteDetailsPage noteId={params.noteId} />;
+export default async function NoteRoute({ params }: NoteRouteProps) {
+  const { noteId } = await params;
+  return <NoteDetailsPage noteId={noteId} />;
 }

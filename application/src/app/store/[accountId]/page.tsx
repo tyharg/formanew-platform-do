@@ -22,8 +22,8 @@ const MIN_APPLICATION_FEE_CENTS = 100; // $1.00
  * NOTE: In a real application, you should use a more user-friendly identifier (like a slug)
  * instead of the raw Stripe Account ID in the URL.
  */
-export default function StorefrontPage({ params }: { params: { accountId: string } }) {
-  const stripeAccountId = params.accountId;
+export default async function StorefrontPage({ params }: { params: Promise<{ accountId: string }> }) {
+  const { accountId: stripeAccountId } = await params;
   const [products, setProducts] = useState<ProductDisplay[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
