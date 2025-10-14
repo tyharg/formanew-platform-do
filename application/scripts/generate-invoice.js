@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
 // Load environment variables from .env file
-require('dotenv').config();
+import 'dotenv/config';
 
-const fs = require('fs');
-const path = require('path');
-const OpenAI = require('openai');
+import fs from 'fs';
+import path from 'path';
+import OpenAI from 'openai';
 
 // DigitalOcean Serverless Inference configuration
 const apiKey = process.env.DO_INFERENCE_API_KEY;
