@@ -31,6 +31,7 @@ export interface Subscription {
 export interface Note {
   id: string;
   userId: string;
+  companyId: string | null;
   title: string;
   content: string;
   createdAt: Date;
@@ -59,6 +60,7 @@ export interface Company {
   contracts?: Contract[];
   contacts?: CompanyContact[];
   notes?: CompanyNote[];
+  finance?: CompanyFinance | null;
 }
 
 export interface Contract {
@@ -98,6 +100,22 @@ export interface CompanyNote {
   authorName: string | null;
   content: string;
   createdAt: Date;
+}
+
+export interface CompanyFinance {
+  id: string;
+  companyId: string;
+  stripeAccountId: string | null;
+  accountOnboardingUrl: string | null;
+  accountOnboardingExpiresAt: Date | null;
+  accountLoginLinkUrl: string | null;
+  detailsSubmitted: boolean;
+  chargesEnabled: boolean;
+  payoutsEnabled: boolean;
+  requirementsDue: string[];
+  requirementsDueSoon: string[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export type UserRole = (typeof USER_ROLES)[keyof typeof USER_ROLES];
