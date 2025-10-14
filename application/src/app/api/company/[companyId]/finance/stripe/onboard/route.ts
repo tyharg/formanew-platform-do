@@ -65,7 +65,7 @@ export async function POST(
     // --- Step 2: Generate Account Link for Onboarding/Updating ---
     
     // The refresh URL is where Stripe redirects the user if the link expires or they click 'back'.
-    // NOTE: The return URL should point to the new dedicated Company Finances page, not the old settings tab.
+    // NOTE: The return URL should point to the new dedicated Company Finances page.
     const refreshUrl = `${BASE_URL}/dashboard/company/finances`;
     
     // The return URL is where Stripe redirects the user after successful completion.
