@@ -5,7 +5,7 @@ import { Box, Tabs, Tab, Typography } from '@mui/material';
 import UpdatePasswordForm from './UpdatePasswordForm/UpdatePasswordForm';
 import ProfileUpdateForm from './ProfileUpdateForm/ProfileUpdateForm';
 import PageContainer from '../Common/PageContainer/PageContainer';
-import CompanyFinanceSettings from './CompanyFinanceSettings/CompanyFinanceSettings';
+// Removed: import CompanyFinanceSettings from './CompanyFinanceSettings/CompanyFinanceSettings';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -42,9 +42,10 @@ function a11yProps(index: number) {
 
 /**
  * User account configuration page.
- * Contains profile update form and password change form, and company finance settings.
+ * Contains profile update form and password change form.
  */
 export default function AccountSettings() {
+  // Keeping tab structure for potential future user-specific tabs, but only showing 'Account' (index 0)
   const [value, setValue] = useState(0);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -57,7 +58,6 @@ export default function AccountSettings() {
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={value} onChange={handleChange} aria-label="settings tabs">
             <Tab label="Account" {...a11yProps(0)} />
-            <Tab label="Finances" {...a11yProps(1)} />
           </Tabs>
         </Box>
         <CustomTabPanel value={value} index={0}>
@@ -71,9 +71,6 @@ export default function AccountSettings() {
             <ProfileUpdateForm />
             <UpdatePasswordForm />
           </Box>
-        </CustomTabPanel>
-        <CustomTabPanel value={value} index={1}>
-          <CompanyFinanceSettings />
         </CustomTabPanel>
       </Box>
     </PageContainer>
