@@ -20,6 +20,7 @@ export default function StripeConnectSetup({ finance, companyId, onRefresh }: St
     setError(null);
     try {
       // 1. Call API to create/retrieve Stripe Account Link
+      // This API call handles both initial onboarding and generating update links for pending requirements.
       const response = await fetch(`/api/company/${companyId}/finance/stripe/onboard`, {
         method: 'POST',
         headers: {
@@ -29,7 +30,7 @@ export default function StripeConnectSetup({ finance, companyId, onRefresh }: St
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to initiate Stripe Connect onboarding.');
+        throw new Error(data.message || 'Failed to initiate Stripe Connect onboarding.');
       }
 
       const { url } = await response.json();
@@ -101,7 +102,6 @@ export default function StripeConnectSetup({ finance, companyId, onRefresh }: St
   }
 
   // If Stripe Account exists
-  const isDetailsSubmitted = finance.detailsSubmitted;
   const isReadyForPayouts = finance.payoutsEnabled && finance.chargesEnabled;
   const requirementsDue = finance.requirementsDue.length > 0;
 

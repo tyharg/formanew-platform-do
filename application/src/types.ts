@@ -116,6 +116,8 @@ export interface CompanyFinance {
   requirementsDueSoon: string[];
   createdAt: Date;
   updatedAt: Date;
+  // Added for the product demo store
+  products: { productId: string, priceId: string }[];
 }
 
 export type UserRole = (typeof USER_ROLES)[keyof typeof USER_ROLES];
