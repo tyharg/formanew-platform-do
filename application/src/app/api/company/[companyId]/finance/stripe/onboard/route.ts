@@ -50,7 +50,7 @@ export async function POST(
         },
         // Optional: Pre-fill information if available (e.g., company email)
         email: company.email || undefined,
-        meta { // FIX: Corrected property name from 'meta' to 'metadata' and added colon
+        meta { // FIX: Corrected property name to 'metadata' and added colon ':'
           companyId: companyId,
         },
       });
@@ -65,11 +65,11 @@ export async function POST(
     // --- Step 2: Generate Account Link for Onboarding/Updating ---
     
     // The refresh URL is where Stripe redirects the user if the link expires or they click 'back'.
-    const refreshUrl = `${BASE_URL}/settings?tab=finances&companyId=${companyId}`;
+    // NOTE: The return URL should point to the new dedicated Company Finances page, not the old settings tab.
+    const refreshUrl = `${BASE_URL}/dashboard/company/finances`;
     
     // The return URL is where Stripe redirects the user after successful completion.
-    // We use a dedicated endpoint to handle the redirect and refresh the UI state.
-    const returnUrl = `${BASE_URL}/settings?tab=finances&companyId=${companyId}&status=success`;
+    const returnUrl = `${BASE_URL}/dashboard/company/finances?status=success`;
 
     // Create the Account Link. This link is single-use and expires quickly.
     const accountLink = await stripe.accountLinks.create({
