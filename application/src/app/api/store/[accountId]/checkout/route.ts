@@ -40,7 +40,7 @@ export async function POST(
         ],
         mode: 'payment',
         // Payment Intent Data is used to specify the application fee
-        payment_intent_ { // FIX: Corrected property name
+        payment_intent_ {
           // The fee is collected by the platform (us) from the total payment amount.
           application_fee_amount: feeInCents,
         },
