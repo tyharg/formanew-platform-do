@@ -5,7 +5,7 @@ services:
     environment_slug: node-js
     source_dir: ./application
     github:
-      repo: digitalocean/sea-notes-saas-starter-kit
+      repo: tyharg/formanew-platform-do
       branch: ${GITHUB_BRANCH}
       deploy_on_push: false
     build_command: "npm install && npm run build"
