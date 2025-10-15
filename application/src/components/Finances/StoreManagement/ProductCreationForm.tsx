@@ -1,17 +1,18 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Box, Button, Typography, Alert, CircularProgress, Stack, TextField, Paper } from '@mui/material';
+import { Box, Button, Typography, Alert, CircularProgress, Stack, TextField } from '@mui/material';
 
 interface ProductCreationFormProps {
   companyId: string;
   stripeAccountId: string;
+  onProductCreated?: () => Promise<void> | void;
 }
 
 /**
  * Form for the connected account owner to create products on their Stripe account.
  */
-export default function ProductCreationForm({ companyId, stripeAccountId }: ProductCreationFormProps) {
+export default function ProductCreationForm({ companyId, stripeAccountId, onProductCreated }: ProductCreationFormProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
@@ -44,6 +45,7 @@ export default function ProductCreationForm({ companyId, stripeAccountId }: Prod
           description,
           price,
           currency,
+          amount: parseFloat(price),
         }),
       });
 
@@ -53,10 +55,18 @@ export default function ProductCreationForm({ companyId, stripeAccountId }: Prod
         throw new Error(data.message || 'Failed to create product.');
       }
 
-      setSuccessMessage(`Product "${name}" created successfully! ID: ${data.productId}. Price ID: ${data.priceId}`);
+      const parts = [`Product "${name}" created successfully!`, `Product ID: ${data.productId}.`];
+      if (data.priceId) {
+        parts.push(`Price ID: ${data.priceId}.`);
+      }
+      setSuccessMessage(parts.join(' '));
       setName('');
       setDescription('');
       setPrice('');
+
+      if (onProductCreated) {
+        await onProductCreated();
+      }
 
     } catch (err) {
       console.error(err);
@@ -67,7 +77,7 @@ export default function ProductCreationForm({ companyId, stripeAccountId }: Prod
   };
 
   return (
-    <Paper elevation={2} sx={{ p: 3, mt: 3 }}>
+    <Box>
       <Typography variant="h6" gutterBottom>
         Create a Product for your Store
       </Typography>
@@ -140,6 +150,6 @@ export default function ProductCreationForm({ companyId, stripeAccountId }: Prod
           </Button>
         </Stack>
       </Box>
-    </Paper>
+    </Box>
   );
 }

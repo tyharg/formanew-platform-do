@@ -34,6 +34,7 @@ import {
   Gavel,
   Business,
   AccountBalance,
+  Storefront,
 } from '@mui/icons-material';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -165,6 +166,13 @@ const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => {
             onClick={onNavigate}
           >
             Finances
+          </SidebarLink>
+          <SidebarLink
+            href="/dashboard/store"
+            icon={<Storefront fontSize="small" />}
+            onClick={onNavigate}
+          >
+            Store
           </SidebarLink>
         </List>
       </Box>

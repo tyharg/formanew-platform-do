@@ -9,6 +9,10 @@ import {
   CompanyContact,
   CompanyNote,
   CompanyFinance,
+  FinanceLineItem,
+  StoredFile,
+  WorkItem,
+  RelevantParty,
 } from 'types';
 import { ServiceConfigStatus, ConfigurableService } from '../status/serviceConfigStatus';
 
@@ -151,6 +155,41 @@ export abstract class DatabaseClient implements ConfigurableService {
       finance: Partial<Omit<CompanyFinance, 'id' | 'companyId' | 'createdAt' | 'updatedAt'>
       >
     ) => Promise<CompanyFinance>;
+  };
+  abstract file: {
+    findByOwner: (ownerType: string, ownerId: string) => Promise<StoredFile[]>;
+    findById: (id: string) => Promise<StoredFile | null>;
+    findByContractId: (contractId: string) => Promise<StoredFile[]>;
+    create: (
+      file: Omit<StoredFile, 'id' | 'createdAt' | 'updatedAt'>
+    ) => Promise<StoredFile>;
+    delete: (id: string) => Promise<void>;
+  };
+  abstract workItem: {
+    findByContractId: (contractId: string) => Promise<WorkItem[]>;
+    findById: (id: string) => Promise<WorkItem | null>;
+    create: (
+      item: Omit<WorkItem, 'id' | 'createdAt' | 'updatedAt'>
+    ) => Promise<WorkItem>;
+    update: (
+      id: string,
+      item: Partial<Omit<WorkItem, 'id' | 'contractId' | 'createdAt' | 'updatedAt'>>
+    ) => Promise<WorkItem>;
+    delete: (id: string) => Promise<void>;
+  };
+  abstract relevantParty: {
+    findByContractId: (contractId: string) => Promise<RelevantParty[]>;
+    findById: (id: string) => Promise<RelevantParty | null>;
+    findByEmail: (email: string) => Promise<RelevantParty[]>;
+    findByIds: (ids: string[]) => Promise<RelevantParty[]>;
+    create: (
+      party: Omit<RelevantParty, 'id' | 'createdAt' | 'updatedAt'>
+    ) => Promise<RelevantParty>;
+    update: (
+      id: string,
+      party: Partial<Omit<RelevantParty, 'id' | 'contractId' | 'createdAt' | 'updatedAt'>>
+    ) => Promise<RelevantParty>;
+    delete: (id: string) => Promise<void>;
   };
   abstract checkConnection(): Promise<boolean>;
 

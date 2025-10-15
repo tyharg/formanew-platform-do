@@ -1,70 +1,51 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { stripe, validateStripeAccountId } from '@/lib/stripe';
-import { getCompanyProducts } from '@/lib/mockDb';
 import Stripe from 'stripe';
+import { stripe, validateStripeAccountId } from '@/lib/stripe';
+import { HTTP_STATUS } from '@/lib/api/http';
 
-/**
- * API Route to fetch products from a connected account for the storefront display.
- */
+const mapProducts = (products: Stripe.Product[]) =>
+  products
+    .map((product) => {
+      const defaultPrice = product.default_price as Stripe.Price | string | null;
+      const priceObject = typeof defaultPrice === 'object' && defaultPrice !== null ? defaultPrice : null;
+
+      return {
+        id: product.id,
+        name: product.name,
+        description: product.description ?? 'No description provided.',
+        priceId: priceObject?.id ?? (typeof defaultPrice === 'string' ? defaultPrice : null),
+        unitAmount: priceObject?.unit_amount ?? null,
+        currency: priceObject?.currency ?? null,
+      };
+    })
+    .filter((product) => product.priceId !== null);
+
 export async function GET(
-  req: NextRequest,
+  _req: NextRequest,
   { params }: { params: Promise<{ accountId: string }> }
 ) {
-  const { accountId: stripeAccountId } = await params;
-
-  if (!validateStripeAccountId(stripeAccountId)) {
-    return NextResponse.json({ message: 'Invalid Stripe Account ID.' }, { status: 400 });
-  }
-
   try {
-    // 1. Retrieve local product IDs associated with this company (mock DB lookup)
-    // We use the accountId here as a proxy for companyId in the mock DB lookup
-    const localProducts = await getCompanyProducts('comp_12345'); // Using MOCK_COMPANY_ID for demo consistency
+    const { accountId } = await params;
 
-    if (localProducts.length === 0) {
-        return NextResponse.json({ products: [] });
+    if (!validateStripeAccountId(accountId)) {
+      return NextResponse.json(
+        { error: 'The accountId in the URL must be a valid Stripe Connect account ID (acct_...).' },
+        { status: HTTP_STATUS.BAD_REQUEST }
+      );
     }
 
-    // 2. Fetch product details from Stripe using the Stripe-Account header
-    const stripeProducts: Stripe.Product[] = [];
-    
-    // Fetching products one by one based on local IDs
-    for (const { productId } of localProducts) {
-        try {
-            // Use the stripeAccount option to retrieve the product from the connected account
-            const product = await stripe.products.retrieve(
-                productId, 
-                { expand: ['default_price'] }, // ProductRetrieveParams (second argument)
-                { stripeAccount: stripeAccountId } // RequestOptions (third argument)
-            );
-            stripeProducts.push(product);
-        } catch {
-            console.warn(`Product ${productId} not found on Stripe account ${stripeAccountId}. Skipping.`);
-        }
-    }
+    const products = await stripe.products.list(
+      { limit: 20, expand: ['data.default_price'] },
+      { stripeAccount: accountId }
+    );
 
-    // 3. Format data for the frontend
-    const productsDisplay = stripeProducts
-        .filter(p => p.default_price && p.active)
-        .map(p => {
-            const price = p.default_price as Stripe.Price;
-            return {
-                id: p.id,
-                name: p.name,
-                description: p.description || 'No description provided.',
-                priceId: price.id,
-                unitAmount: price.unit_amount || 0,
-                currency: price.currency,
-            };
-        });
-
-    return NextResponse.json({ products: productsDisplay });
-
+    return NextResponse.json({ products: mapProducts(products.data) }, { status: HTTP_STATUS.OK });
   } catch (error) {
     console.error('Stripe Product Fetch Error:', error);
-    return NextResponse.json(
-      { message: 'Failed to fetch products from Stripe.', error: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 }
-    );
+    const message =
+      error instanceof Error
+        ? error.message
+        : 'Failed to fetch products from the connected account.';
+    return NextResponse.json({ error: message }, { status: HTTP_STATUS.INTERNAL_SERVER_ERROR });
   }
 }

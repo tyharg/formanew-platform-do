@@ -80,6 +80,9 @@ export interface Contract {
   description: string | null;
   createdAt: Date;
   updatedAt: Date;
+  files?: StoredFile[];
+  workItems?: WorkItem[];
+  relevantParties?: RelevantParty[];
 }
 
 export interface CompanyContact {
@@ -100,6 +103,49 @@ export interface CompanyNote {
   authorName: string | null;
   content: string;
   createdAt: Date;
+}
+
+export interface StoredFile {
+  id: string;
+  ownerType: string;
+  ownerId: string;
+  name: string;
+  description: string | null;
+  contentType: string | null;
+  size: number | null;
+  storageKey: string | null;
+  contractId: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  downloadUrl?: string;
+}
+
+export interface WorkItem {
+  id: string;
+  contractId: string;
+  title: string;
+  description: string | null;
+  status: WorkItemStatus;
+  dueDate: Date | null;
+  completedAt: Date | null;
+  position: number;
+  linkedFileId: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface RelevantParty {
+  id: string;
+  contractId: string;
+  fullName: string;
+  email: string;
+  phone: string | null;
+  role: string | null;
+  magicLinkToken: string | null;
+  magicLinkExpiresAt: Date | null;
+  notes: string | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface CompanyFinance {
@@ -147,4 +193,30 @@ export enum ContractStatus {
   PENDING_SIGNATURE = 'PENDING_SIGNATURE',
   COMPLETED = 'COMPLETED',
   TERMINATED = 'TERMINATED',
+}
+
+export enum FinanceLineItemType {
+  INFLOW = 'INFLOW',
+  OUTFLOW = 'OUTFLOW',
+}
+
+export interface FinanceLineItem {
+  id: string;
+  companyId: string;
+  type: FinanceLineItemType;
+  amount: bigint;
+  currency: string;
+  occurredAt: Date;
+  description: string | null;
+  category: string | null;
+  notes: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export enum WorkItemStatus {
+  NOT_STARTED = 'NOT_STARTED',
+  IN_PROGRESS = 'IN_PROGRESS',
+  BLOCKED = 'BLOCKED',
+  COMPLETED = 'COMPLETED',
 }

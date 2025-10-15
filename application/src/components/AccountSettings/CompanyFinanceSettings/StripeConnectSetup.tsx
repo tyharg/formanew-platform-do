@@ -14,10 +14,16 @@ interface StripeConnectSetupProps {
 export default function StripeConnectSetup({ finance, companyId, onRefresh }: StripeConnectSetupProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [infoMessage, setInfoMessage] = useState<string | null>(null);
+
+  const safeRequirementsDue = finance?.requirementsDue ?? [];
+  const safeRequirementsDueSoon = finance?.requirementsDueSoon ?? [];
 
   const handleConnectClick = async () => {
     setIsLoading(true);
     setError(null);
+    setInfoMessage(null);
+    setInfoMessage(null);
     try {
       // 1. Call API to create/retrieve Stripe Account Link
       // This API call handles both initial onboarding and generating update links for pending requirements.
@@ -49,6 +55,8 @@ export default function StripeConnectSetup({ finance, companyId, onRefresh }: St
   const handleLoginClick = async () => {
     setIsLoading(true);
     setError(null);
+    setInfoMessage(null);
+    setInfoMessage(null);
     try {
       // Call API to create Stripe Login Link
       const response = await fetch(`/api/company/${companyId}/finance/stripe/login`, {
@@ -58,15 +66,18 @@ export default function StripeConnectSetup({ finance, companyId, onRefresh }: St
         },
       });
 
+      const payload = await response.json();
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create Stripe login link.');
+        throw new Error(payload.error || 'Failed to create Stripe login link.');
       }
 
-      const { url } = await response.json();
+      if (payload.message) {
+        setInfoMessage(payload.message);
+      }
 
-      // Redirect user to Stripe Express Dashboard
-      window.location.href = url;
+      if (payload.url) {
+        window.location.href = payload.url;
+      }
       onRefresh();
 
     } catch (err) {
@@ -90,6 +101,11 @@ export default function StripeConnectSetup({ finance, companyId, onRefresh }: St
             {error}
           </Alert>
         )}
+        {infoMessage && (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            {infoMessage}
+          </Alert>
+        )}
         <Button
           variant="contained"
           color="primary"
@@ -104,27 +120,39 @@ export default function StripeConnectSetup({ finance, companyId, onRefresh }: St
   }
 
   // If Stripe Account exists
-  const isReadyForPayouts = finance.payoutsEnabled && finance.chargesEnabled;
-  const requirementsDue = finance.requirementsDue.length > 0;
+  const isReadyForPayouts = Boolean(finance?.payoutsEnabled && finance?.chargesEnabled);
+  const hasRequirementsDue = safeRequirementsDue.length > 0;
 
   return (
     <Box>
       <Typography variant="h6" gutterBottom>
         Stripe Account Status
       </Typography>
+      {infoMessage && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          {infoMessage}
+        </Alert>
+      )}
       <Stack spacing={1} sx={{ mb: 2 }}>
-        <Alert severity={isReadyForPayouts ? 'success' : requirementsDue ? 'warning' : 'info'}>
+        <Alert severity={isReadyForPayouts ? 'success' : hasRequirementsDue ? 'warning' : 'info'}>
           {isReadyForPayouts
             ? 'Stripe account is fully set up and ready for payments and payouts.'
-            : requirementsDue
-            ? `Action required: ${finance.requirementsDue.length} pending requirement(s) need attention.`
+            : hasRequirementsDue
+            ? `Action required: ${safeRequirementsDue.length} pending requirement(s) need attention.`
             : 'Stripe account connected. Details submission pending.'}
         </Alert>
 
-        {finance.requirementsDue.length > 0 && (
+        {safeRequirementsDue.length > 0 && (
           <Alert severity="warning">
             <Typography variant="body2">
-              **Pending Requirements:** {finance.requirementsDue.join(', ')}
+              Pending requirements: {safeRequirementsDue.join(', ')}
+            </Typography>
+          </Alert>
+        )}
+        {safeRequirementsDueSoon.length > 0 && (
+          <Alert severity="info">
+            <Typography variant="body2">
+              Upcoming requirements: {safeRequirementsDueSoon.join(', ')}
             </Typography>
           </Alert>
         )}
@@ -139,11 +167,11 @@ export default function StripeConnectSetup({ finance, companyId, onRefresh }: St
         >
           Manage Stripe Account
         </Button>
-        {requirementsDue && (
+        {hasRequirementsDue && (
           <Button
             variant="contained"
             color="warning"
-            onClick={handleConnectClick} // Re-use connect flow to generate an update link
+            onClick={handleConnectClick}
             disabled={isLoading}
           >
             Complete Setup

@@ -8,9 +8,6 @@ import DashboardPageClient from './DashboardPageClient';
  * @returns Page with centered greeting and session data.
  */
 export default async function DashboardPage() {
-  const session = await auth();
-  return <DashboardPageClient 
-    userEmail={session?.user.email ?? ''} 
-    userName={session?.user.name ?? ''} 
-  />;
+  await auth();
+  return <DashboardPageClient />;
 }

@@ -15,7 +15,8 @@ export const STRIPE_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE
 export const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 
 // The API version requested by the user.
-const API_VERSION: Stripe.StripeConfig['apiVersion'] = '2025-04-30.basil';
+// TODO: Set STRIPE_SECRET_KEY in your environment (e.g., sk_test_123) before running this demo.
+const API_VERSION = '2025-09-30.clover' as Stripe.StripeConfig['apiVersion'];
 
 // --- Initialization ---
 

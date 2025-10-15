@@ -7,87 +7,135 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum FinanceLineItemType {
+  INFLOW
+  OUTFLOW
+}
+
+enum WorkItemStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  BLOCKED
+  COMPLETED
+}
+
+model File {
+  id              String     @id @default(uuid())
+  ownerType       String
+  ownerId         String
+  name            String
+  description     String?
+  contentType     String?
+  size            Int?
+  storageKey      String?
+  contract        Contract?  @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  contractId      String?
+  linkedWorkItems WorkItem[] @relation("WorkItemLinkedFile")
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@index([ownerType, ownerId])
+}
+
+model FinanceLineItem {
+  id          String              @id @default(uuid())
+  company     Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId   String
+  type        FinanceLineItemType
+  amount      BigInt
+  currency    String
+  occurredAt  DateTime
+  description String?
+  category    String?
+  notes       String?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  @@index([companyId, occurredAt(sort: Desc)])
+}
+
 model User {
-  id             String         @id @default(uuid())
-  name           String
-  email          String         @unique
-  passwordHash   String
-  image          String?
+  id           String  @id @default(uuid())
+  name         String
+  email        String  @unique
+  passwordHash String
+  image        String?
 
-  role           Role           @default(USER)
-  createdAt      DateTime       @default(now())
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
 
-  subscription   Subscription?  @relation("UserSubscription")
-  notes          Note[]
-  companies      Company[]
+  subscription Subscription? @relation("UserSubscription")
+  notes        Note[]
+  companies    Company[]
 
-  verificationToken String? // Token for email verification
-  emailVerified     Boolean @default(false) // Email verification status
+  verificationToken String?
+  emailVerified     Boolean @default(false)
 }
 
 model Subscription {
-  id         String   @id @default(uuid())
-  user       User     @relation("UserSubscription", fields: [userId], references: [id])
-  userId     String   @unique
+  id         String              @id @default(uuid())
+  user       User                @relation("UserSubscription", fields: [userId], references: [id])
+  userId     String              @unique
   status     SubscriptionStatus?
   plan       SubscriptionPlan?
   customerId String?
-  createdAt  DateTime @default(now())
+  createdAt  DateTime            @default(now())
 }
 
 model Note {
-  id         String    @id @default(uuid())
-  user       User      @relation(fields: [userId], references: [id])
-  userId     String
-  company    Company?  @relation("CompanyNotes", fields: [companyId], references: [id], onDelete: Cascade)
-  companyId  String?
-  title      String
-  content    String
-  createdAt  DateTime  @default(now())
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  company   Company? @relation("CompanyNotes", fields: [companyId], references: [id], onDelete: Cascade)
+  companyId String?
+  title     String
+  content   String
+  createdAt DateTime @default(now())
 }
 
 model Company {
-  id              String            @id @default(uuid())
-  user            User              @relation(fields: [userId], references: [id])
-  userId          String
+  id     String @id @default(uuid())
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
 
-  legalName       String
-  displayName     String?
-  industry        String?
-  ein             String?
-  formationDate   DateTime?
-  website         String?
-  phone           String?
-  email           String?
-  addressLine1    String?
-  addressLine2    String?
-  city            String?
-  state           String?
-  postalCode      String?
-  country         String?
-  description     String?
+  legalName     String
+  displayName   String?
+  industry      String?
+  ein           String?
+  formationDate DateTime?
+  website       String?
+  phone         String?
+  email         String?
+  addressLine1  String?
+  addressLine2  String?
+  city          String?
+  state         String?
+  postalCode    String?
+  country       String?
+  description   String?
 
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  contracts       Contract[]
-  contacts        CompanyContact[]
-  notes           CompanyNote[]
-  userNotes       Note[]          @relation("CompanyNotes")
-  finance         CompanyFinance?
+  contracts        Contract[]
+  contacts         CompanyContact[]
+  notes            CompanyNote[]
+  userNotes        Note[]            @relation("CompanyNotes")
+  finance          CompanyFinance?
+  financeLineItems FinanceLineItem[]
 }
 
 model Contract {
-  id                String          @id @default(uuid())
-  company           Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  companyId         String
+  id        String  @id @default(uuid())
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId String
 
   title             String
   counterpartyName  String
   counterpartyEmail String?
   contractValue     Float?
-  currency          String?         @default("USD")
-  status            ContractStatus  @default(DRAFT)
+  currency          String?        @default("USD")
+  status            ContractStatus @default(DRAFT)
   startDate         DateTime?
   endDate           DateTime?
   signedDate        DateTime?
@@ -95,52 +143,93 @@ model Contract {
   renewalTerms      String?
   description       String?
 
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  files            File[]
+  workItems        WorkItem[]
+  relevantParties  RelevantParty[]
+}
+
+model WorkItem {
+  id           String         @id @default(uuid())
+  contract     Contract       @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  contractId   String
+  title        String
+  description  String?
+  status       WorkItemStatus @default(NOT_STARTED)
+  dueDate      DateTime?
+  completedAt  DateTime?
+  position     Int            @default(0)
+  linkedFile   File?          @relation("WorkItemLinkedFile", fields: [linkedFileId], references: [id], onDelete: SetNull)
+  linkedFileId String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@index([contractId, position])
+  @@index([status])
+}
+
+model RelevantParty {
+  id                 String    @id @default(uuid())
+  contract           Contract  @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  contractId         String
+  fullName           String
+  email              String
+  phone              String?
+  role               String?
+  magicLinkToken     String?   @unique
+  magicLinkExpiresAt DateTime?
+  notes              String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@index([contractId, email])
+  @@unique([contractId, email])
 }
 
 model CompanyContact {
-  id          String   @id @default(uuid())
-  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  companyId   String
+  id        String  @id @default(uuid())
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId String
 
-  fullName    String
-  title       String?
-  email       String?
-  phone       String?
-  isPrimary   Boolean  @default(false)
+  fullName  String
+  title     String?
+  email     String?
+  phone     String?
+  isPrimary Boolean @default(false)
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model CompanyNote {
-  id          String   @id @default(uuid())
-  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  companyId   String
+  id        String  @id @default(uuid())
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId String
 
-  authorName  String?
-  content     String
-  createdAt   DateTime @default(now())
+  authorName String?
+  content    String
+  createdAt  DateTime @default(now())
 }
 
 model CompanyFinance {
-  id                          String    @id @default(uuid())
-  company                     Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  companyId                   String    @unique
+  id        String  @id @default(uuid())
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId String  @unique
 
-  stripeAccountId             String?
-  accountOnboardingUrl        String?
-  accountOnboardingExpiresAt  DateTime?
-  accountLoginLinkUrl         String?
-  detailsSubmitted            Boolean   @default(false)
-  chargesEnabled              Boolean   @default(false)
-  payoutsEnabled              Boolean   @default(false)
-  requirementsDue             String[]  @default([])
-  requirementsDueSoon         String[]  @default([])
+  stripeAccountId            String?
+  accountOnboardingUrl       String?
+  accountOnboardingExpiresAt DateTime?
+  accountLoginLinkUrl        String?
+  detailsSubmitted           Boolean   @default(false)
+  chargesEnabled             Boolean   @default(false)
+  payoutsEnabled             Boolean   @default(false)
+  requirementsDue            String[]  @default([])
+  requirementsDueSoon        String[]  @default([])
 
-  createdAt                   DateTime  @default(now())
-  updatedAt                   DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model VerificationToken {

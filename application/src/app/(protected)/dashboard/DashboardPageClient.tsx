@@ -1,100 +1,73 @@
 'use client';
 
-import { Typography, Box, useTheme } from '@mui/material';
-import { useEffect, useState, useMemo } from 'react';
-import { StripeClient } from 'lib/api/stripe';
-import { SubscriptionPlanEnum } from 'types';
+import React from 'react';
+import { Alert, Box, Button, CircularProgress, Stack, Typography } from '@mui/material';
+import Link from 'next/link';
+import { useCompanySelection } from '@/context/CompanySelectionContext';
+import CompanyDetailsPage from '@/components/Companies/CompanyDetails/CompanyDetailsPage';
 
-/**
- * DashboardPageClient renders the dashboard UI and allows the user to send a test email to themselves.
- * @param userEmail - The email address of the logged-in user.
- * @param userName - The full name of the logged-in user.
- */
-export default function DashboardPageClient({ userEmail, userName }: { userEmail: string; userName: string }) {
-  const [subscription, setSubscription] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const stripeApi = useMemo(() => new StripeClient(), []);
-  const theme = useTheme();
-  const subscriptionLabel = 'Your current subscription plan is: ';
-  
-  // Extract first name from full name, fallback to email if name is empty
-  const getDisplayName = () => {
-    if (userName && userName.trim()) {
-      return userName.trim().split(' ')[0];
-    }
-    return userEmail.split('@')[0]; // Fallback to email username
-  };
+export default function DashboardPageClient() {
+  const {
+    companies,
+    selectedCompanyId,
+    isLoading,
+    error,
+    selectCompany,
+    refreshCompanies,
+  } = useCompanySelection();
 
-  useEffect(() => {
-    const fetchSubscription = async () => {
-      try {
-        const { subscription } = await stripeApi.getSubscription();
-        // Set to plan name if found, else null
-        setSubscription(subscription.length > 0 ? subscription[0].plan : null);
-      } catch {
-        setSubscription(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchSubscription();
-  }, [stripeApi]);
+  if (isLoading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+        <CircularProgress />
+      </Box>
+    );
+  }
 
-  return (
-    <Box
-      display="flex"
-      flexDirection="column"
-      justifyContent="center"
-      alignItems="center"
-      minHeight="80vh"
-    >
-      <Typography variant="h4">Welcome back, {getDisplayName()}!</Typography>
-      <Typography variant="h5" mt={2}>
-        {loading ? (
-          'Loading subscription...'
-        ) : subscription === SubscriptionPlanEnum.FREE ? (
-          <>
-            {subscriptionLabel}{' '}
-            <span
-              style={{
-                color: '#888',
-                fontWeight: 'bold',
-                textTransform: 'uppercase',
-                letterSpacing: 1.5,
-              }}
-            >
-              {subscription}
-            </span>
-          </>
-        ) : subscription === SubscriptionPlanEnum.PRO ? (
-          <>
-            {subscriptionLabel}{' '}
-            <span
-              style={{
-                fontWeight: 700,
-                textTransform: 'uppercase',
-                letterSpacing: 2,
-                fontSize: '1.2rem',
-                padding: '0.25em 0.75em',
-                borderRadius: '1.5em',
-                background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                color: '#fff',
-                boxShadow: '0 2px 12px 0 rgba(31,162,255,0.15)',
-                border: 'none',
-                outline: 'none',
-                display: 'inline-block',
-                WebkitBackgroundClip: 'padding-box',
-                backgroundClip: 'padding-box',
-                transition: 'box-shadow 0.2s',
-              }}
-            >
-              {subscription}
-            </span>
-          </>
-        ) : (
-          'Your current subscription plan is: None'
-        )}
-      </Typography>
-    </Box>
-  );
+  if (error) {
+    return (
+      <Stack spacing={2} sx={{ maxWidth: 500, mx: 'auto', mt: 6 }}>
+        <Alert severity="error">{error}</Alert>
+        <Button variant="contained" onClick={() => refreshCompanies()}>
+          Retry
+        </Button>
+      </Stack>
+    );
+  }
+
+  if (!companies.length) {
+    return (
+      <Stack spacing={2} sx={{ maxWidth: 480, mx: 'auto', mt: 6 }}>
+        <Typography variant="h5" component="h1">
+          Create your first company
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Launchpad guidance will appear here once you add a company. Start in the Companies section to set
+          up your business profile.
+        </Typography>
+        <Button component={Link} href="/dashboard/companies" variant="contained" color="primary">
+          Go to Companies
+        </Button>
+      </Stack>
+    );
+  }
+
+  if (!selectedCompanyId) {
+    const firstCompany = companies[0];
+    return (
+      <Stack spacing={2} sx={{ maxWidth: 480, mx: 'auto', mt: 6 }}>
+        <Typography variant="h5" component="h1">
+          Select a company to continue
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Pick a company from the sidebar selector to view its launchpad.
+        </Typography>
+        <Button variant="contained" color="primary" onClick={() => selectCompany(firstCompany.id)}>
+          View {firstCompany.displayName || firstCompany.legalName}
+        </Button>
+      </Stack>
+    );
+  }
+
+  return <CompanyDetailsPage key={selectedCompanyId} companyId={selectedCompanyId} />;
 }

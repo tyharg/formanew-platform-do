@@ -1,117 +1,134 @@
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
-import { Box, Typography, Alert, CircularProgress, Paper } from '@mui/material';
-import StripeConnectSetup from './StripeConnectSetup';
-import ProductCreationForm from './ProductCreationForm'; // Import the new form
-import { Company, CompanyFinance } from '@/types'; 
-import { getCompanyById, updateCompanyFinance } from '../../../lib/mockDb'; // Use relative path for mock DB
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
+  Paper,
+  Tabs,
+  Tab,
+  Typography,
+} from '@mui/material';
+import FinanceLineItemsTab from './FinanceLineItemsTab';
+import { CompanyFinance } from '@/types';
+import { useCompanySelection } from '@/context/CompanySelectionContext';
+import Link from 'next/link';
 
-/**
- * Placeholder for fetching the current user's primary company ID.
- * In a real app, this would come from session/context/API.
- */
-const MOCK_COMPANY_ID = 'comp_12345'; // Replace with actual logic
+type TabValue = 'connect' | 'transactions';
 
-// Define the structure for the live Stripe Account status update
-interface LiveAccountStatus {
-  detailsSubmitted: boolean;
-  chargesEnabled: boolean;
-  payoutsEnabled: boolean;
-  requirementsDue: string[];
-  requirementsDueSoon: string[];
+interface FinanceResponse {
+  finance: CompanyFinance | null;
 }
 
-/**
- * Component to display and manage Company Finance settings, primarily Stripe Connect.
- */
+const fetchJson = async <T,>(input: RequestInfo | URL, init?: RequestInit): Promise<T> => {
+  const response = await fetch(input, init);
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({}));
+    const message = typeof payload.error === 'string' ? payload.error : response.statusText;
+    throw new Error(message);
+  }
+  return (await response.json()) as T;
+};
+
 export default function CompanyFinanceSettings() {
-  const [company, setCompany] = useState<Company | null>(null);
+  const { selectedCompanyId, isLoading: companiesLoading } = useCompanySelection();
   const [finance, setFinance] = useState<CompanyFinance | null>(null);
+  const [tab, setTab] = useState<TabValue>('connect');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Function to fetch the live Stripe Account status
-  const fetchLiveAccountStatus = useCallback(async (stripeAccountId: string): Promise<LiveAccountStatus> => {
-    // This API call hits the backend route that calls stripe.accounts.retrieve(stripeAccountId)
-    const response = await fetch(`/api/company/${MOCK_COMPANY_ID}/finance/stripe/status?accountId=${stripeAccountId}`);
-    
-    if (!response.ok) {
-        throw new Error('Failed to retrieve live Stripe account status.');
-    }
-    
-    const status = await response.json();
-    return status;
+  const fetchLiveAccountStatus = useCallback(async (companyId: string, stripeAccountId: string) => {
+    const status = await fetchJson<Partial<CompanyFinance>>(
+      `/api/company/${companyId}/finance/stripe/status?accountId=${stripeAccountId}`,
+      { cache: 'no-store' }
+    );
+    setFinance((previous) => (previous ? { ...previous, ...status } : (status as CompanyFinance)));
   }, []);
 
+  const fetchCompanyFinance = useCallback(async () => {
+    if (!selectedCompanyId) {
+      setFinance(null);
+      setIsLoading(false);
+      return;
+    }
 
-  // Fetch company data and live Stripe status
-  const fetchCompanyData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
+
     try {
-      // 1. Fetch local company data (mocked DB call)
-      const fetchedCompany = await getCompanyById(MOCK_COMPANY_ID);
-      
-      if (!fetchedCompany) {
-        throw new Error('Company profile not found.');
-      }
-      
-      setCompany(fetchedCompany);
-      // Ensure currentFinance is CompanyFinance | null, handling potential undefined from fetchedCompany.finance
-      let currentFinance: CompanyFinance | null = fetchedCompany.finance || null;
+      const payload = await fetchJson<FinanceResponse>(`/api/companies/${selectedCompanyId}/finance`, {
+        cache: 'no-store',
+      });
 
-      if (currentFinance && currentFinance.stripeAccountId) {
-        // 2. If Stripe Account exists, fetch live status from Stripe API
-        const liveStatus = await fetchLiveAccountStatus(currentFinance.stripeAccountId);
-        
-        // 3. Update local finance state with live status (mocked DB update)
-        // This ensures the UI reflects the current state of the Stripe account
-        const updatedFinance = await updateCompanyFinance(MOCK_COMPANY_ID, liveStatus);
-        // Ensure the result is CompanyFinance | null
-        currentFinance = updatedFinance || null;
-      }
-
+      const currentFinance = payload.finance ?? null;
       setFinance(currentFinance);
 
+      if (currentFinance?.stripeAccountId) {
+        await fetchLiveAccountStatus(selectedCompanyId, currentFinance.stripeAccountId);
+      }
     } catch (err) {
-      console.error(err);
-      setError(err instanceof Error ? err.message : 'Could not load company finance details.');
+      console.error('Failed to load company finance details', err);
+      setError(err instanceof Error ? err.message : 'Unable to load Stripe Connect status.');
     } finally {
       setIsLoading(false);
     }
-  }, [fetchLiveAccountStatus]);
+  }, [selectedCompanyId, fetchLiveAccountStatus]);
 
   useEffect(() => {
-    fetchCompanyData();
-  }, [fetchCompanyData]);
+    if (!companiesLoading) {
+      fetchCompanyFinance();
+    }
+  }, [companiesLoading, fetchCompanyFinance]);
 
-  if (isLoading) {
-    return (
-      <Box display="flex" justifyContent="center" p={4}>
-        <CircularProgress />
-      </Box>
-    );
-  }
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: TabValue) => {
+    setTab(newValue);
+  };
 
-  if (error) {
+  const renderConnectTab = () => {
+    if (!selectedCompanyId) {
+      return <Alert severity="info">Select a company to start onboarding with Stripe.</Alert>;
+    }
+
+    if (isLoading) {
+      return (
+        <Box display="flex" justifyContent="center" py={4}>
+          <CircularProgress size={32} />
+        </Box>
+      );
+    }
+
+    const hasStripeAccount = Boolean(finance?.stripeAccountId);
+    const isReady = Boolean(finance?.chargesEnabled && finance?.payoutsEnabled);
+
     return (
-      <Alert severity="error">
-        {error}
+      <Alert
+        severity={isReady ? 'success' : hasStripeAccount ? 'warning' : 'info'}
+        sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}
+        action={
+          <Button variant="contained" color="primary" component={Link} href="/dashboard/store">
+            Open Store Settings
+          </Button>
+        }
+      >
+        Manage Stripe Connect configuration from the Store page Settings tab.
       </Alert>
     );
-  }
+  };
 
-  if (!company) {
+  const renderTransactionsTab = () => {
+    if (!selectedCompanyId) {
+      return <Alert severity="info">Select a company to view cash movements.</Alert>;
+    }
+
     return (
-      <Alert severity="info">
-        No company profile found. Please create a company profile first.
-      </Alert>
+      <FinanceLineItemsTab
+        companyId={selectedCompanyId}
+        currencyHint={finance?.stripeAccountId ? 'usd' : null}
+      />
     );
-  }
-
-  // Check if the account is connected and enabled for charges
-  const isReadyForProducts = finance?.stripeAccountId && finance.chargesEnabled;
+  };
 
   return (
     <Paper elevation={1} sx={{ p: 3 }}>
@@ -119,22 +136,21 @@ export default function CompanyFinanceSettings() {
         Company Finances
       </Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-        Manage your payment processing and payout settings via Stripe Connect.
+        Manage Stripe Connect and keep track of money flowing in and out of your business.
       </Typography>
 
-      <StripeConnectSetup 
-        finance={finance} 
-        companyId={company.id}
-        onRefresh={fetchCompanyData}
-      />
-      
-      {/* Show Product Creation Form only if Stripe is connected and charges are enabled */}
-      {isReadyForProducts && (
-        <ProductCreationForm 
-          companyId={company.id} 
-          stripeAccountId={finance.stripeAccountId!} 
-        />
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
       )}
+
+      <Tabs value={tab} onChange={handleTabChange} sx={{ mb: 3 }}>
+        <Tab value="connect" label="Stripe Connect" />
+        <Tab value="transactions" label="Transactions" />
+      </Tabs>
+
+      {tab === 'connect' ? renderConnectTab() : renderTransactionsTab()}
     </Paper>
   );
 }

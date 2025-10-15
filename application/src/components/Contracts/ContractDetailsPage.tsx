@@ -18,8 +18,13 @@ import {
   CircularProgress,
   Stack,
   Typography,
+  Tabs,
+  Tab,
 } from '@mui/material';
 import { useCompanySelection } from 'context/CompanySelectionContext';
+import ContractFilesTab from './ContractFiles/ContractFilesTab';
+import ContractWorkItemsTab from './ContractWorkItems/ContractWorkItemsTab';
+import ContractRelevantPartiesTab from './ContractRelevantParties/ContractRelevantPartiesTab';
 
 const contractsClient = new ContractsApiClient();
 
@@ -38,6 +43,7 @@ const ContractDetailsPage: React.FC<ContractDetailsPageProps> = ({ contractId })
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'details' | 'workItems' | 'relevantParties' | 'files'>('details');
 
   const [toastOpen, setToastOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
@@ -101,6 +107,7 @@ const ContractDetailsPage: React.FC<ContractDetailsPageProps> = ({ contractId })
       const updated = await contractsClient.updateContract(contractId, payload);
       setContract(updated);
       showToast('Contract updated.');
+      setActiveTab('details');
     } catch (err) {
       console.error('Failed to update contract', err);
       showToast('Unable to save contract. Try again.', 'error');
@@ -180,13 +187,32 @@ const ContractDetailsPage: React.FC<ContractDetailsPageProps> = ({ contractId })
           </Stack>
         </Stack>
 
-        <ContractForm
-          mode="edit"
-          initialValues={formInitialValues}
-          onSubmit={handleUpdateContract}
-          onCancel={() => router.push('/dashboard/contracts')}
-          isSubmitting={isSaving}
-        />
+        <Tabs
+          value={activeTab}
+          onChange={(_event, value) => setActiveTab(value)}
+          aria-label="Contract sections"
+        >
+          <Tab value="details" label="Details" />
+          <Tab value="workItems" label="Work Items" />
+          <Tab value="relevantParties" label="Relevant Parties" />
+          <Tab value="files" label="Files" />
+        </Tabs>
+
+        {activeTab === 'details' ? (
+          <ContractForm
+            mode="edit"
+            initialValues={formInitialValues}
+            onSubmit={handleUpdateContract}
+            onCancel={() => router.push('/dashboard/contracts')}
+            isSubmitting={isSaving}
+          />
+        ) : activeTab === 'workItems' ? (
+          <ContractWorkItemsTab contractId={contract.id} />
+        ) : activeTab === 'relevantParties' ? (
+          <ContractRelevantPartiesTab contractId={contract.id} />
+        ) : (
+          <ContractFilesTab contractId={contract.id} />
+        )}
       </Stack>
 
       <ConfirmationDialog

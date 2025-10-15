@@ -11,6 +11,10 @@ import {
   CompanyContact,
   CompanyNote,
   CompanyFinance,
+  FinanceLineItem,
+  StoredFile,
+  WorkItem,
+  RelevantParty,
 } from 'types';
 import { Prisma, PrismaClient } from '@prisma/client';
 import { ServiceConfigStatus } from '../status/serviceConfigStatus';
@@ -27,6 +31,96 @@ export class SqlDatabaseService extends DatabaseClient {
   // Required config items with their corresponding env var names and descriptions
   private static requiredConfig = {
     databaseUrl: { envVar: 'DATABASE_URL', description: 'PostgreSQL connection string' },
+  };
+  file = {
+    findByOwner: async (ownerType: string, ownerId: string): Promise<StoredFile[]> => {
+      return prisma.file.findMany({
+        where: { ownerType, ownerId },
+        orderBy: { createdAt: 'desc' },
+      }) as unknown as StoredFile[];
+    },
+    findById: async (id: string): Promise<StoredFile | null> => {
+      return (await prisma.file.findUnique({ where: { id } })) as unknown as StoredFile | null;
+    },
+    findByContractId: async (contractId: string): Promise<StoredFile[]> => {
+      return prisma.file.findMany({
+        where: { contractId },
+        orderBy: { createdAt: 'desc' },
+      }) as unknown as StoredFile[];
+    },
+    create: async (
+      file: Omit<StoredFile, 'id' | 'createdAt' | 'updatedAt'>
+    ): Promise<StoredFile> => {
+      return prisma.file.create({ data: file }) as unknown as StoredFile;
+    },
+    delete: async (id: string): Promise<void> => {
+      await prisma.file.delete({ where: { id } });
+    },
+  };
+  workItem = {
+    findByContractId: async (contractId: string): Promise<WorkItem[]> => {
+      return prisma.workItem.findMany({
+        where: { contractId },
+        orderBy: [{ position: 'asc' }, { createdAt: 'asc' }],
+      }) as unknown as WorkItem[];
+    },
+    findById: async (id: string): Promise<WorkItem | null> => {
+      return (await prisma.workItem.findUnique({ where: { id } })) as unknown as WorkItem | null;
+    },
+    create: async (
+      item: Omit<WorkItem, 'id' | 'createdAt' | 'updatedAt'>
+    ): Promise<WorkItem> => {
+      return prisma.workItem.create({ data: item }) as unknown as WorkItem;
+    },
+    update: async (
+      id: string,
+      item: Partial<Omit<WorkItem, 'id' | 'contractId' | 'createdAt' | 'updatedAt'>>
+    ): Promise<WorkItem> => {
+      return prisma.workItem.update({ where: { id }, data: item }) as unknown as WorkItem;
+    },
+    delete: async (id: string): Promise<void> => {
+      await prisma.workItem.delete({ where: { id } });
+    },
+  };
+  relevantParty = {
+    findByContractId: async (contractId: string): Promise<RelevantParty[]> => {
+      return prisma.relevantParty.findMany({
+        where: { contractId },
+        orderBy: [{ createdAt: 'asc' }],
+      }) as unknown as RelevantParty[];
+    },
+    findById: async (id: string): Promise<RelevantParty | null> => {
+      return (await prisma.relevantParty.findUnique({ where: { id } })) as unknown as RelevantParty | null;
+    },
+    findByEmail: async (email: string): Promise<RelevantParty[]> => {
+      return prisma.relevantParty.findMany({
+        where: { email: { equals: email, mode: 'insensitive' } },
+        orderBy: [{ createdAt: 'desc' }],
+      }) as unknown as RelevantParty[];
+    },
+    findByIds: async (ids: string[]): Promise<RelevantParty[]> => {
+      if (ids.length === 0) {
+        return [];
+      }
+
+      return prisma.relevantParty.findMany({
+        where: { id: { in: ids } },
+      }) as unknown as RelevantParty[];
+    },
+    create: async (
+      party: Omit<RelevantParty, 'id' | 'createdAt' | 'updatedAt'>
+    ): Promise<RelevantParty> => {
+      return prisma.relevantParty.create({ data: party }) as unknown as RelevantParty;
+    },
+    update: async (
+      id: string,
+      party: Partial<Omit<RelevantParty, 'id' | 'contractId' | 'createdAt' | 'updatedAt'>>
+    ): Promise<RelevantParty> => {
+      return prisma.relevantParty.update({ where: { id }, data: party }) as unknown as RelevantParty;
+    },
+    delete: async (id: string): Promise<void> => {
+      await prisma.relevantParty.delete({ where: { id } });
+    },
   };
   private lastConnectionError: string = '';
 

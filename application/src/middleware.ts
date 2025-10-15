@@ -4,8 +4,8 @@ import { UserRole } from 'types';
 import { USER_ROLES } from 'lib/auth/roles';
 
 const ROLE_HOME_URL: Record<UserRole, string> = {
-  [USER_ROLES.USER]: '/dashboard/notes',
-  [USER_ROLES.ADMIN]: '/dashboard/notes',
+  [USER_ROLES.USER]: '/dashboard',
+  [USER_ROLES.ADMIN]: '/dashboard',
 };
 
 /**
@@ -27,7 +27,10 @@ export async function middleware(request: NextRequest) {
   // 2. Redirect from generic /dashboard to role-based dashboard
   // This handles backward compatibility and direct /dashboard access
   if (pathname === '/dashboard' && isLoggedIn && role) {
-    return NextResponse.redirect(new URL(ROLE_HOME_URL[role] ?? '/', request.url));
+    const destination = ROLE_HOME_URL[role] ?? '/';
+    if (destination !== '/dashboard') {
+      return NextResponse.redirect(new URL(destination, request.url));
+    }
   }
 
   // 3. Protect dashboard routes - redirect unauthenticated users to login

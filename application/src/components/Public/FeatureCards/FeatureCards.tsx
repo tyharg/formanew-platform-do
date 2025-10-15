@@ -4,40 +4,40 @@ import PublicIcon from '@mui/icons-material/Public';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import FingerprintIcon from '@mui/icons-material/Fingerprint';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
-import ManageSearchIcon from '@mui/icons-material/ManageSearch';
-import QueryStatsIcon from '@mui/icons-material/QueryStats';
 import AutorenewIcon from '@mui/icons-material/Autorenew';
 import DescriptionIcon from '@mui/icons-material/Description';
-import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
+import ManageSearchIcon from '@mui/icons-material/ManageSearch';
+import StorefrontIcon from '@mui/icons-material/Storefront';
+import QueryStatsIcon from '@mui/icons-material/QueryStats';
 import { FEATURES, DIMENSIONS } from 'constants/landing';
 
 const featureIcons = {
-  'LLC Formation in Any State': (
+  'Guided LLC Formation': (
     <PublicIcon sx={{ fontSize: DIMENSIONS.iconSize.large, color: FEATURES[0].color }} />
   ),
-  'Registered Agent Included': (
+  'Registered Agent Service': (
     <AssignmentIndIcon sx={{ fontSize: DIMENSIONS.iconSize.large, color: FEATURES[1].color }} />
   ),
-  'Fast EIN Setup': (
+  'EIN & IRS Setup': (
     <FingerprintIcon sx={{ fontSize: DIMENSIONS.iconSize.large, color: FEATURES[2].color }} />
   ),
-  'Bank + Payments Setup': (
+  'Banking & Payments Integration': (
     <AccountBalanceIcon sx={{ fontSize: DIMENSIONS.iconSize.large, color: FEATURES[3].color }} />
   ),
-  'Business Name Check': (
-    <ManageSearchIcon sx={{ fontSize: DIMENSIONS.iconSize.large, color: FEATURES[4].color }} />
-  ),
-  'State Fee & Timeline Estimator': (
-    <QueryStatsIcon sx={{ fontSize: DIMENSIONS.iconSize.large, color: FEATURES[5].color }} />
-  ),
   'Compliance Autopilot': (
-    <AutorenewIcon sx={{ fontSize: DIMENSIONS.iconSize.large, color: FEATURES[6].color }} />
+    <AutorenewIcon sx={{ fontSize: DIMENSIONS.iconSize.large, color: FEATURES[4].color }} />
   ),
-  'Contracts & E-Sign': (
-    <DescriptionIcon sx={{ fontSize: DIMENSIONS.iconSize.large, color: FEATURES[7].color }} />
+  'Digital Contracts & E-Signatures': (
+    <DescriptionIcon sx={{ fontSize: DIMENSIONS.iconSize.large, color: FEATURES[5].color }} />
   ),
-  'Invoicing & Payouts': (
-    <RequestQuoteIcon sx={{ fontSize: DIMENSIONS.iconSize.large, color: FEATURES[8].color }} />
+  'Client Portal': (
+    <ManageSearchIcon sx={{ fontSize: DIMENSIONS.iconSize.large, color: FEATURES[6].color }} />
+  ),
+  'Nanomarket — Website & Store Builder': (
+    <StorefrontIcon sx={{ fontSize: DIMENSIONS.iconSize.large, color: FEATURES[7].color }} />
+  ),
+  'Business Dashboard & Analytics': (
+    <QueryStatsIcon sx={{ fontSize: DIMENSIONS.iconSize.large, color: FEATURES[8].color }} />
   ),
 };
 

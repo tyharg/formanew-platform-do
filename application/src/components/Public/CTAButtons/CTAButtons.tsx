@@ -45,6 +45,24 @@ const CTAButtons = () => {
       >
         Get Started
       </Button>
+      <Button
+        component={Link}
+        href="/client-portal"
+        variant="outlined"
+        size="large"
+        sx={{
+          borderColor: COLORS.deploy,
+          color: COLORS.deploy,
+          px: 4,
+          py: 1.5,
+          '&:hover': {
+            borderColor: COLORS.deployHover,
+            backgroundColor: 'rgba(35, 197, 142, 0.08)',
+          },
+        }}
+      >
+        Client Portal
+      </Button>
     </Stack>
   );
 };

@@ -1,57 +1,62 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe, validateStripeAccountId } from '@/lib/stripe';
-import { getCompanyById } from '@/lib/mockDb';
+import { HTTP_STATUS } from '@/lib/api/http';
+import { createDatabaseService } from 'services/database/databaseFactory';
 
-/**
- * API Route to retrieve the live status of a connected Stripe Account.
- * This is called by the frontend to ensure the displayed status is always current.
- */
 export async function GET(
-  req: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ companyId: string }> }
 ) {
-  const { companyId } = await params;
-  const searchParams = req.nextUrl.searchParams;
-  const requestedStripeAccountId = searchParams.get('accountId');
-
-  if (!requestedStripeAccountId || !validateStripeAccountId(requestedStripeAccountId)) {
-    return NextResponse.json({ message: 'Invalid Stripe Account ID provided.' }, { status: 400 });
-  }
-
   try {
-    // 1. Verify that the requested Stripe Account ID belongs to the Company ID in the path
-    const company = await getCompanyById(companyId);
-    const actualStripeAccountId = company?.finance?.stripeAccountId;
+    const { companyId } = await params;
+    const searchParams = request.nextUrl.searchParams;
 
-    if (!company || actualStripeAccountId !== requestedStripeAccountId) {
-        // This prevents one company from querying the status of another company's Stripe account
-        return NextResponse.json({ message: 'Stripe account ID mismatch or company not found.' }, { status: 403 });
+    const db = await createDatabaseService();
+    const finance = await db.companyFinance.findByCompanyId(companyId);
+
+    if (!finance?.stripeAccountId) {
+      return NextResponse.json(
+        { error: 'This company has not been connected to Stripe yet.' },
+        { status: HTTP_STATUS.BAD_REQUEST }
+      );
     }
 
-    // --- Step 2: Retrieve the Account object directly from Stripe ---
-    // Note: When retrieving an account by ID, the Stripe-Account header is not required.
-    const account = await stripe.accounts.retrieve(requestedStripeAccountId);
+    const requestedAccountId = searchParams.get('accountId') ?? finance.stripeAccountId;
 
-    // --- Step 3: Extract relevant status fields ---
-    const requirements = account.requirements;
+    if (!validateStripeAccountId(requestedAccountId)) {
+      return NextResponse.json(
+        { error: 'Provide a valid Stripe Connect account ID (acct_...).' },
+        { status: HTTP_STATUS.BAD_REQUEST }
+      );
+    }
 
-    const status = {
+    if (requestedAccountId !== finance.stripeAccountId) {
+      return NextResponse.json(
+        { error: 'The requested account ID does not belong to this company.' },
+        { status: HTTP_STATUS.FORBIDDEN }
+      );
+    }
+
+    const account = await stripe.accounts.retrieve(requestedAccountId);
+
+    const statusPayload = {
+      stripeAccountId: account.id,
       detailsSubmitted: account.details_submitted,
       chargesEnabled: account.charges_enabled,
       payoutsEnabled: account.payouts_enabled,
-      // List of requirements that are currently due
-      requirementsDue: requirements?.currently_due || [],
-      // List of requirements that will become due soon
-      requirementsDueSoon: requirements?.eventually_due || [],
+      requirementsDue: account.requirements?.currently_due ?? [],
+      requirementsDueSoon: account.requirements?.eventually_due ?? [],
     };
 
-    return NextResponse.json(status);
+    await db.companyFinance.update(companyId, statusPayload);
 
+    return NextResponse.json(statusPayload, { status: HTTP_STATUS.OK });
   } catch (error) {
-    console.error(`Error retrieving Stripe account status for ${requestedStripeAccountId}:`, error);
-    return NextResponse.json(
-      { message: 'Failed to retrieve live Stripe account status.', error: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 }
-    );
+    console.error('Failed to retrieve live Stripe account status:', error);
+    const message =
+      error instanceof Error
+        ? error.message
+        : 'Unable to retrieve the Stripe Connect account status.';
+    return NextResponse.json({ error: message }, { status: HTTP_STATUS.INTERNAL_SERVER_ERROR });
   }
 }

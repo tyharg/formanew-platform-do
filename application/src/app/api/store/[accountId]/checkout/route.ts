@@ -1,37 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe, validateStripeAccountId } from '@/lib/stripe';
+import { HTTP_STATUS } from '@/lib/api/http';
 
-// Define the base URL for redirects
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+const APPLICATION_FEE_PERCENT = 0.1;
+const MIN_APPLICATION_FEE_CENTS = 100;
 
-/**
- * API Route to create a Stripe Checkout Session for a Direct Charge with Application Fee.
- * This route is called by the customer viewing the storefront.
- */
+const getBaseUrl = (): string => {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  if (!baseUrl) {
+    throw new Error('NEXT_PUBLIC_BASE_URL is not set. Define it so Checkout can redirect after payment.');
+  }
+  return baseUrl;
+};
+
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ accountId: string }> }
 ) {
-  const { accountId: stripeAccountId } = await params;
-  const { priceId, applicationFeeAmount } = await req.json();
-
-  if (!validateStripeAccountId(stripeAccountId)) {
-    return NextResponse.json({ message: 'Invalid Stripe Account ID.' }, { status: 400 });
-  }
-  if (!priceId || !applicationFeeAmount) {
-    return NextResponse.json({ message: 'Missing priceId or applicationFeeAmount.' }, { status: 400 });
-  }
-
   try {
-    // Convert application fee from dollars/units to cents/smallest currency unit
-    const feeInCents = Math.round(parseFloat(applicationFeeAmount) * 100);
+    const { accountId } = await params;
+    if (!validateStripeAccountId(accountId)) {
+      return NextResponse.json({ error: 'Invalid Stripe account ID.' }, { status: HTTP_STATUS.BAD_REQUEST });
+    }
 
-    // --- Step 1: Create Checkout Session ---
-    // We create the session on the platform's secret key, but specify the connected account
-    // using the stripeAccount option. This results in a Direct Charge.
+    const { priceId } = await req.json();
+    if (typeof priceId !== 'string' || priceId.length === 0) {
+      return NextResponse.json({ error: 'Provide the connected account price ID to sell.' }, { status: HTTP_STATUS.BAD_REQUEST });
+    }
+
+    const baseUrl = getBaseUrl();
+
+    const price = await stripe.prices.retrieve(priceId, { stripeAccount: accountId });
+    const unitAmount = price.unit_amount ?? 0;
+    const applicationFee = Math.max(Math.round(unitAmount * APPLICATION_FEE_PERCENT), MIN_APPLICATION_FEE_CENTS);
+
     const session = await stripe.checkout.sessions.create(
       {
-        // Line items must reference a Price ID existing on the connected account
         line_items: [
           {
             price: priceId,
@@ -39,30 +43,22 @@ export async function POST(
           },
         ],
         mode: 'payment',
-        // Payment Intent Data is used to specify the application fee
         payment_intent_data: {
-          // The fee is collected by the platform (us) from the total payment amount.
-          application_fee_amount: feeInCents,
+          application_fee_amount: applicationFee,
         },
-        // Redirect URLs
-        success_url: `${BASE_URL}/success?session_id={CHECKOUT_SESSION_ID}&accountId=${stripeAccountId}`,
-        cancel_url: `${BASE_URL}/store/${stripeAccountId}`,
+        success_url: `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}&accountId=${accountId}`,
+        cancel_url: `${baseUrl}/store/${accountId}`,
       },
-      {
-        // IMPORTANT: Directs the charge to the connected account.
-        // The connected account receives the payment minus the Stripe fees and the application fee.
-        stripeAccount: stripeAccountId,
-      }
+      { stripeAccount: accountId }
     );
 
-    // --- Step 2: Return the session URL for redirection ---
-    return NextResponse.json({ url: session.url });
-
+    return NextResponse.json({ url: session.url }, { status: HTTP_STATUS.OK });
   } catch (error) {
     console.error('Stripe Checkout Session Error:', error);
-    return NextResponse.json(
-      { message: 'Failed to create checkout session.', error: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 }
-    );
+    const message =
+      error instanceof Error
+        ? error.message
+        : 'Failed to create a Checkout session. Check the server logs for details.';
+    return NextResponse.json({ error: message }, { status: HTTP_STATUS.INTERNAL_SERVER_ERROR });
   }
 }

@@ -35,6 +35,10 @@ export interface ServerConfig {
     siteKey?: string;
     enabled: boolean;
   };
+  ClientPortal: {
+    jwtSecret?: string;
+    tokenExpiryMinutes: number;
+  };
 }
 
 export const serverConfig: ServerConfig = {
@@ -75,6 +79,10 @@ export const serverConfig: ServerConfig = {
     secretKey: process.env.TURNSTILE_SECRET_KEY,
     siteKey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
     enabled: Boolean(process.env.TURNSTILE_SECRET_KEY && process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY),
+  },
+  ClientPortal: {
+    jwtSecret: process.env.CLIENT_PORTAL_JWT_SECRET || process.env.AUTH_SECRET,
+    tokenExpiryMinutes: Number(process.env.CLIENT_PORTAL_JWT_EXPIRY_MINUTES || 60),
   },
 };
 

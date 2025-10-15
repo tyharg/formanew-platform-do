@@ -1,7 +1,11 @@
 import React from 'react';
-import { Typography, Box, Container, Stack, Card } from '@mui/material';
-import { Button } from '@mui/material';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import { Typography, Box, Container, Stack, Card, Button, Chip, Divider } from '@mui/material';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
+import PendingActionsIcon from '@mui/icons-material/PendingActions';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import TimelineIcon from '@mui/icons-material/Timeline';
+import TaskIcon from '@mui/icons-material/Task';
 import { DIMENSIONS } from 'constants/landing';
 import BrandLogo from 'components/Common/BrandLogo/BrandLogo';
 
@@ -76,21 +80,20 @@ const ApplicationPreview = () => {
                       textColor="primary.main"
                     />
                     <Box sx={{ height: 1, bgcolor: 'divider', my: 1 }} />
-                    <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>
-                      Dashboard
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                      Corporations
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                      Contracts
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                      Subscription
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                      Account
-                    </Typography>
+                    {[ 'Dashboard', 'Contracts', 'Filings', 'Finance', 'Documents', 'Client Portal', 'Settings' ].map(
+                      (item, index) => (
+                        <Typography
+                          key={item}
+                          variant="body2"
+                          sx={{
+                            color: index === 0 ? 'primary.main' : 'text.secondary',
+                            fontWeight: index === 0 ? 600 : 500,
+                          }}
+                        >
+                          {item}
+                        </Typography>
+                      )
+                    )}
                   </Stack>
                 </Box>
                 
@@ -98,72 +101,230 @@ const ApplicationPreview = () => {
                 <Box sx={{ flex: 1, p: DIMENSIONS.spacing.stack }}>
                   <Stack spacing={DIMENSIONS.spacing.stack}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Typography variant="h5" fontWeight="bold">
-                        Contracts
-                      </Typography>
-                      <Button variant="contained" size="small" sx={{ bgcolor: 'primary.main' }}>
-                        Add Contract
+                      <div>
+                        <Typography variant="h5" fontWeight="bold">
+                          Company Dashboard
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          Daily briefing for FormaNew Labs LLC
+                        </Typography>
+                      </div>
+                      <Button variant="contained" size="small" sx={{ textTransform: 'none' }}>
+                        New contract
                       </Button>
                     </Box>
-                    
-                    <Box sx={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-                      gap: DIMENSIONS.spacing.small
-                    }}>
-                      {/* Note cards */}
+
+                    {/* KPI cards */}
+                    <Box
+                      sx={{
+                        display: 'grid',
+                        gridTemplateColumns: {
+                          xs: 'repeat(1, 1fr)',
+                          sm: 'repeat(2, 1fr)',
+                          md: 'repeat(4, 1fr)',
+                        },
+                        gap: DIMENSIONS.spacing.small,
+                      }}
+                    >
                       {[
                         {
-                          title: 'Data Labeling',
-                          content: 'CrowdGen',
-                          date: 'Last visited: 2 hours ago',
-                          isContract: true,
-                        },
-                                                {
-                          title: 'Content Moderation',
-                          content: 'TikTok',
-                          date: 'Last visited: 3 days ago',
-                          isContract: true,
+                          label: 'Monthly revenue',
+                          value: '$82,400',
+                          delta: '+18.3% MoM',
+                          icon: <AssessmentIcon fontSize="small" />,
                         },
                         {
-                          title: 'Payment API Integration',
-                          content: 'Oak Cliff Investment Inc.',
-                          date: 'Last visited: 1 day ago',
-                          isContract: true,
+                          label: 'Active contracts',
+                          value: '27',
+                          delta: '4 expiring soon',
+                          icon: <BusinessCenterIcon fontSize="small" />,
                         },
-                                                {
-                          title: 'Subject Matter Expert',
-                          content: 'DataAnnotation',
-                          date: 'Last visited: 3 days ago',
-                          isContract: true,
-                        }
-                      ].map((note, index) => (
-                        <Card key={index} sx={{ p: DIMENSIONS.spacing.small, cursor: 'pointer', '&:hover': { bgcolor: 'grey.50' } }}>
-                          <Typography variant="h6" fontWeight="bold" sx={{ mb: 1 }}>
-                            {note.title}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                            {note.content}
-                          </Typography>
-                          {note.isContract ? (
-                            <>
-                              <Button
-                                size="small"
-                                variant="outlined"
-                                endIcon={<OpenInNewIcon fontSize="small" />}
-                                sx={{ textTransform: 'none', mb: 1 }}
-                              >
-                                Work
-                              </Button>
-                              <br />
-                            </>
-                          ) : null}
-                          <Typography variant="caption" color="text.secondary">
-                            {note.date}
-                          </Typography>
+                        {
+                          label: 'Pending signatures',
+                          value: '6',
+                          delta: 'Average turnaround 2.1 days',
+                          icon: <PendingActionsIcon fontSize="small" />,
+                        },
+                        {
+                          label: 'Cash on hand',
+                          value: '$312k',
+                          delta: 'Next payout: Aug 28',
+                          icon: <AccountBalanceWalletIcon fontSize="small" />,
+                        },
+                      ].map((metric) => (
+                        <Card key={metric.label} sx={{ p: DIMENSIONS.spacing.small }}>
+                          <Stack spacing={1}>
+                            <Chip
+                              icon={metric.icon}
+                              label={metric.label}
+                              size="small"
+                              sx={{ alignSelf: 'flex-start', textTransform: 'uppercase', fontSize: 10 }}
+                            />
+                            <Typography variant="h5" fontWeight="bold">
+                              {metric.value}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              {metric.delta}
+                            </Typography>
+                          </Stack>
                         </Card>
                       ))}
                     </Box>
+
+                    <Box
+                      sx={{
+                        display: 'grid',
+                        gridTemplateColumns: {
+                          xs: '1fr',
+                          md: '2fr 1.2fr',
+                        },
+                        gap: DIMENSIONS.spacing.stack,
+                      }}
+                    >
+                      <Card sx={{ p: DIMENSIONS.spacing.stack }}>
+                        <Stack spacing={DIMENSIONS.spacing.small}>
+                          <Stack direction="row" spacing={1} alignItems="center">
+                            <TimelineIcon fontSize="small" color="primary" />
+                            <Typography variant="subtitle1" fontWeight="bold">
+                              Revenue pace
+                            </Typography>
+                          </Stack>
+                          <Typography variant="body2" color="text.secondary">
+                            Projected run rate $960k • Stripe processing fees $2.1k this month
+                          </Typography>
+                          <Box
+                            sx={{
+                              mt: DIMENSIONS.spacing.small,
+                              height: 140,
+                              borderRadius: 2,
+                              background:
+                                'linear-gradient(135deg, rgba(59,130,246,0.18) 0%, rgba(16,185,129,0.22) 100%)',
+                              position: 'relative',
+                              overflow: 'hidden',
+                            }}
+                          >
+                            <Box
+                              sx={{
+                                position: 'absolute',
+                                inset: 16,
+                                borderRadius: 2,
+                                border: '1px solid rgba(255,255,255,0.4)',
+                                backdropFilter: 'blur(6px)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: 'common.white',
+                                fontSize: 13,
+                                fontWeight: 600,
+                              }}
+                            >
+                              Forecast trend ↑ 12% QoQ
+                            </Box>
+                          </Box>
+                        </Stack>
+                      </Card>
+
+                      <Card sx={{ p: DIMENSIONS.spacing.stack }}>
+                        <Stack spacing={DIMENSIONS.spacing.small}>
+                          <Stack direction="row" spacing={1} alignItems="center">
+                            <TaskIcon fontSize="small" color="primary" />
+                            <Typography variant="subtitle1" fontWeight="bold">
+                              Compliance autopilot
+                            </Typography>
+                          </Stack>
+                          <Divider />
+                          {[
+                            {
+                              title: 'Wyoming annual report',
+                              due: 'Due in 6 days',
+                              status: 'Ready to file',
+                            },
+                            {
+                              title: 'Registered agent renewal',
+                              due: 'Scheduled Sep 30',
+                              status: 'Auto-renew enabled',
+                            },
+                            {
+                              title: 'Mercury beneficial ownership update',
+                              due: 'Completed Aug 12',
+                              status: 'Filed',
+                            },
+                          ].map((item) => (
+                            <Box key={item.title} sx={{ py: 1 }}>
+                              <Typography variant="body2" fontWeight={600}>
+                                {item.title}
+                              </Typography>
+                              <Typography variant="caption" color="text.secondary">
+                                {item.due} • {item.status}
+                              </Typography>
+                            </Box>
+                          ))}
+                        </Stack>
+                      </Card>
+                    </Box>
+
+                    <Card sx={{ p: DIMENSIONS.spacing.stack }}>
+                      <Stack spacing={DIMENSIONS.spacing.small}>
+                        <Typography variant="subtitle1" fontWeight="bold">
+                          Contracts moving today
+                        </Typography>
+                        <Divider />
+                        <Box
+                          sx={{
+                            display: 'grid',
+                            gridTemplateColumns: {
+                              xs: 'repeat(1, 1fr)',
+                              sm: 'repeat(2, 1fr)',
+                            },
+                            gap: DIMENSIONS.spacing.small,
+                          }}
+                        >
+                          {[
+                            {
+                              title: 'CrowdGen Labeling SOW',
+                              stage: 'Awaiting counter-signature',
+                              value: '$48,000 • Net 30',
+                            },
+                            {
+                              title: 'Mercury Treasury Advisory',
+                              stage: 'Legal review complete',
+                              value: '$7,500 monthly retainer',
+                            },
+                            {
+                              title: 'Oak Cliff Implementation',
+                              stage: 'Kickoff tomorrow, 10:00 AM',
+                              value: 'Milestone 1: $12,500',
+                            },
+                            {
+                              title: 'DataAnnotation Expert Bench',
+                              stage: 'Updated scope shared with client',
+                              value: 'Task order pending approval',
+                            },
+                          ].map((item) => (
+                            <Box
+                              key={item.title}
+                              sx={{
+                                border: '1px solid',
+                                borderColor: 'divider',
+                                borderRadius: 2,
+                                p: DIMENSIONS.spacing.small,
+                                backgroundColor: 'white',
+                              }}
+                            >
+                              <Typography variant="body2" fontWeight={600}>
+                                {item.title}
+                              </Typography>
+                              <Typography variant="caption" color="text.secondary">
+                                {item.stage}
+                              </Typography>
+                              <Typography variant="caption" color="text.secondary" display="block" mt={0.5}>
+                                {item.value}
+                              </Typography>
+                            </Box>
+                          ))}
+                        </Box>
+                      </Stack>
+                    </Card>
                   </Stack>
                 </Box>
               </Box>

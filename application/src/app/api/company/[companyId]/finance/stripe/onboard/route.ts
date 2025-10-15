@@ -1,98 +1,89 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
-import { getCompanyById, updateCompanyFinance } from '@/lib/mockDb';
+import { HTTP_STATUS } from '@/lib/api/http';
+import { createDatabaseService } from 'services/database/databaseFactory';
 
-// Define the base URL for redirects (must be configured for your environment)
-// NOTE: Replace 'http://localhost:3000' with your actual application root URL.
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+const ensureBaseUrl = (): string => {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  if (!baseUrl) {
+    throw new Error(
+      'NEXT_PUBLIC_BASE_URL is not set. Define it so Stripe can redirect users back to your application after onboarding.'
+    );
+  }
+  return baseUrl;
+};
 
-/**
- * API Route to handle Stripe Connect onboarding.
- * 1. Retrieves or creates a Stripe Connected Account.
- * 2. Generates an Account Link URL for the user to complete onboarding.
- * 3. Stores the Stripe Account ID in the database (mocked here).
- */
 export async function POST(
-  req: NextRequest,
+  _req: NextRequest,
   { params }: { params: Promise<{ companyId: string }> }
 ) {
-  const { companyId } = await params;
-
   try {
-    // 1. Fetch company data to check existing Stripe Account ID
-    const company = await getCompanyById(companyId);
+    const { companyId } = await params;
+    const baseUrl = ensureBaseUrl();
+
+    const db = await createDatabaseService();
+    const company = await db.company.findById(companyId);
+
     if (!company) {
-      return NextResponse.json({ message: 'Company not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Company not found.' }, { status: HTTP_STATUS.NOT_FOUND });
     }
 
-    let stripeAccountId = company.finance?.stripeAccountId;
+    let finance = await db.companyFinance.findByCompanyId(companyId);
+    if (!finance) {
+      finance = await db.companyFinance.create({ companyId });
+    }
 
-    // --- Step 1: Create Connected Account if it doesn't exist ---
+    let { stripeAccountId } = finance;
+
     if (!stripeAccountId) {
-      console.log(`Creating new Stripe account for Company ID: ${companyId}`);
-      
-      // Create the account using the required controller properties.
-      // This creates a Connect Account managed by the platform.
       const account = await stripe.accounts.create({
         controller: {
-          // Platform controls fee collection - connected account pays fees
           fees: {
             payer: 'account',
           },
-          // Stripe handles payment disputes and losses
           losses: {
             payments: 'stripe',
           },
-          // Connected account gets full access to Stripe dashboard
           stripe_dashboard: {
             type: 'full',
           },
         },
-        // Optional: Pre-fill information if available (e.g., company email)
-        email: company.email || undefined,
+        email: company.email ?? undefined,
         metadata: {
           companyId,
         },
       });
 
       stripeAccountId = account.id;
-
-      // Update the mock database with the new Stripe Account ID
-      await updateCompanyFinance(companyId, { stripeAccountId });
-      console.log(`Stripe Account created: ${stripeAccountId}`);
+      finance = await db.companyFinance.update(companyId, { stripeAccountId });
     }
 
-    // --- Step 2: Generate Account Link for Onboarding/Updating ---
-    
-    // The refresh URL is where Stripe redirects the user if the link expires or they click 'back'.
-    // NOTE: The return URL should point to the new dedicated Company Finances page.
-    const refreshUrl = `${BASE_URL}/dashboard/company/finances`;
-    
-    // The return URL is where Stripe redirects the user after successful completion.
-    const returnUrl = `${BASE_URL}/dashboard/company/finances?status=success`;
-
-    // Create the Account Link. This link is single-use and expires quickly.
     const accountLink = await stripe.accountLinks.create({
       account: stripeAccountId,
-      refresh_url: refreshUrl,
-      return_url: returnUrl,
-      type: 'account_onboarding', // Use 'account_onboarding' for initial setup or updates
+      refresh_url: `${baseUrl}/dashboard/company/finances`,
+      return_url: `${baseUrl}/dashboard/company/finances?accountId=${companyId}`,
+      type: 'account_onboarding',
     });
 
-    // Update the mock database with the link details (optional, but good practice)
-    await updateCompanyFinance(companyId, {
+    await db.companyFinance.update(companyId, {
       accountOnboardingUrl: accountLink.url,
       accountOnboardingExpiresAt: new Date(accountLink.expires_at * 1000),
     });
 
-    // --- Step 3: Return the URL to the client for redirection ---
-    return NextResponse.json({ url: accountLink.url });
-
+    return NextResponse.json(
+      {
+        accountId: stripeAccountId,
+        url: accountLink.url,
+        expiresAt: accountLink.expires_at,
+      },
+      { status: HTTP_STATUS.OK }
+    );
   } catch (error) {
     console.error('Stripe Connect Onboarding Error:', error);
-    return NextResponse.json(
-      { message: 'Failed to initiate Stripe Connect onboarding.', error: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 }
-    );
+    const message =
+      error instanceof Error
+        ? error.message
+        : 'Failed to initiate Stripe Connect onboarding.';
+    return NextResponse.json({ error: message }, { status: HTTP_STATUS.INTERNAL_SERVER_ERROR });
   }
 }

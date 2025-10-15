@@ -96,48 +96,48 @@ export const TERMINAL = {
 // Feature Data
 export const FEATURES = [
   {
-    title: 'LLC Formation in Any State',
-    description: 'File your company with streamlined steps and transparent, state-specific fees.',
+    title: 'Guided LLC Formation',
+    description: 'Step-by-step state filing with name checks and auto-filled forms — no paperwork maze.',
     color: COLORS.llcFormation,
   },
   {
-    title: 'Registered Agent Included',
-    description: '50-state RA coverage with same-day activation and document forwarding.',
+    title: 'Registered Agent Service',
+    description: 'Stay compliant in all 50 states with same-day document forwarding and privacy protection.',
     color: COLORS.registeredAgent,
   },
   {
-    title: 'Fast EIN Setup',
-    description: 'We guide your IRS EIN application so you can open accounts and invoice.',
+    title: 'EIN & IRS Setup',
+    description: 'We handle your EIN registration so you can open a business bank account and start invoicing immediately.',
     color: COLORS.einSetup,
   },
   {
-    title: 'Bank + Payments Setup',
-    description: 'Get a business bank account and Stripe connected so you can accept money day one.',
+    title: 'Banking & Payments Integration',
+    description: 'Connect to Mercury and Stripe to manage accounts, accept ACH and card payments, and track revenue in one dashboard.',
     color: COLORS.banking,
   },
   {
-    title: 'Business Name Check',
-    description: 'Instant state-level availability check plus smart name suggestions.',
+    title: 'Compliance Autopilot',
+    description: 'Automatic annual report reminders and filing status checks so you never miss a deadline.',
     color: COLORS.nameCheck,
   },
   {
-    title: 'State Fee & Timeline Estimator',
-    description: 'See total costs and average turnaround times before you file.',
+    title: 'Digital Contracts & E-Signatures',
+    description: 'Send, track, and sign legally binding agreements directly inside your FormaNew portal.',
     color: COLORS.estimator,
   },
   {
-    title: 'Compliance Autopilot',
-    description: 'Annual reports, RA renewals, deadlines—tracked and reminded automatically.',
+    title: 'Client Portal',
+    description: 'A secure workspace where clients can view proposals, sign contracts, pay invoices, and exchange files — all branded to your LLC.',
     color: COLORS.compliance,
   },
   {
-    title: 'Contracts & E-Sign',
-    description: 'Click-to-use templates (MSA, SOW, NDA) with built-in e-signature and storage.',
+    title: 'Nanomarket — Website & Store Builder',
+    description: 'Launch a custom website, and sell services or products through your own white-label commerce platform.',
     color: COLORS.contracts,
   },
   {
-    title: 'Invoicing & Payouts',
-    description: 'Create invoices, accept cards/ACH, and track who’s paid—recurring or one-off.',
+    title: 'Business Dashboard & Analytics',
+    description: 'Unified view of your filings, invoices, and contracts with performance insights built in.',
     color: COLORS.invoicing,
   },
 ] as const;
