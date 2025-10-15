@@ -156,6 +156,14 @@ export abstract class DatabaseClient implements ConfigurableService {
       >
     ) => Promise<CompanyFinance>;
   };
+  abstract financeLineItem: {
+    findMany: (companyId: string) => Promise<FinanceLineItem[]>;
+    create: (
+      companyId: string,
+      lineItem: Omit<FinanceLineItem, 'id' | 'companyId' | 'createdAt' | 'updatedAt'>
+    ) => Promise<FinanceLineItem>;
+    delete: (companyId: string, lineItemId: string) => Promise<void>;
+  };
   abstract file: {
     findByOwner: (ownerType: string, ownerId: string) => Promise<StoredFile[]>;
     findById: (id: string) => Promise<StoredFile | null>;

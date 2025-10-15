@@ -10,7 +10,6 @@ import {
   CircularProgress,
   Container,
   Divider,
-  Grid,
   Stack,
   TextField,
   Typography,
@@ -204,106 +203,106 @@ const ClientPortal: React.FC = () => {
           const href = token
             ? `/client-portal/${contract.id}?token=${encodeURIComponent(token)}`
             : `/client-portal/${contract.id}`;
+          const counterpartyDetails = contract.counterpartyEmail
+            ? `${contract.counterpartyName} (${contract.counterpartyEmail})`
+            : contract.counterpartyName;
+
+          const overviewRows = [
+            { label: 'Status', value: contract.status },
+            { label: 'Contract Value', value: formatCurrency(contract.contractValue, contract.currency) },
+            { label: 'Counterparty', value: counterpartyDetails },
+            { label: 'Your Role', value: contract.relevantParty?.role || 'Relevant party' },
+            { label: 'Start Date', value: formatDate(contract.startDate) },
+            { label: 'End Date', value: formatDate(contract.endDate) },
+          ];
+
           return (
             <Card key={contract.id} variant="outlined">
-            <CardContent>
-              <Stack spacing={2}>
-                <Box>
-                  <Typography variant="h5" component="h2" fontWeight="bold">
-                    {contract.title}
-                  </Typography>
-                  {contract.company && (
-                    <Typography variant="subtitle1" color="text.secondary">
-                      {contract.company.displayName || contract.company.legalName}
+              <CardContent>
+                <Stack spacing={2}>
+                  <Box>
+                    <Typography variant="h5" component="h2" fontWeight="bold">
+                      {contract.title}
                     </Typography>
-                  )}
-                </Box>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} md={6}>
-                    <Typography variant="subtitle2" color="text.secondary">
-                      Status
-                    </Typography>
-                    <Typography variant="body1">{contract.status}</Typography>
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <Typography variant="subtitle2" color="text.secondary">
-                      Contract Value
-                    </Typography>
-                    <Typography variant="body1">
-                      {formatCurrency(contract.contractValue, contract.currency)}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <Typography variant="subtitle2" color="text.secondary">
-                      Counterparty
-                    </Typography>
-                    <Typography variant="body1">
-                      {contract.counterpartyName}
-                      {contract.counterpartyEmail ? ` (${contract.counterpartyEmail})` : ''}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <Typography variant="subtitle2" color="text.secondary">
-                      Your Role
-                    </Typography>
-                    <Typography variant="body1">
-                      {contract.relevantParty?.role || 'Relevant party'}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <Typography variant="subtitle2" color="text.secondary">
-                      Start Date
-                    </Typography>
-                    <Typography variant="body1">{formatDate(contract.startDate)}</Typography>
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <Typography variant="subtitle2" color="text.secondary">
-                      End Date
-                    </Typography>
-                    <Typography variant="body1">{formatDate(contract.endDate)}</Typography>
-                  </Grid>
-                </Grid>
-                {contract.description && (
-                  <>
-                    <Divider />
-                    <Box>
-                      <Typography variant="subtitle2" color="text.secondary">
-                        Description
+                    {contract.company && (
+                      <Typography variant="subtitle1" color="text.secondary">
+                        {contract.company.displayName || contract.company.legalName}
                       </Typography>
-                      <Typography variant="body1">{contract.description}</Typography>
+                    )}
+                  </Box>
+
+                  <Box
+                    sx={{
+                      display: 'grid',
+                      gap: DIMENSIONS.spacing.small,
+                      gridTemplateColumns: {
+                        xs: '1fr',
+                        md: 'repeat(2, minmax(0, 1fr))',
+                      },
+                    }}
+                  >
+                    {overviewRows.map((row) => (
+                      <Stack key={row.label} spacing={0.5}>
+                        <Typography variant="subtitle2" color="text.secondary">
+                          {row.label}
+                        </Typography>
+                        <Typography variant="body1">{row.value}</Typography>
+                      </Stack>
+                    ))}
+                  </Box>
+
+                  {contract.description && (
+                    <>
+                      <Divider />
+                      <Box>
+                        <Typography variant="subtitle2" color="text.secondary">
+                          Description
+                        </Typography>
+                        <Typography variant="body1">{contract.description}</Typography>
+                      </Box>
+                    </>
+                  )}
+
+                  {(contract.paymentTerms || contract.renewalTerms) && (
+                    <Box
+                      sx={{
+                        display: 'grid',
+                        gap: DIMENSIONS.spacing.small,
+                        gridTemplateColumns: {
+                          xs: '1fr',
+                          md: 'repeat(2, minmax(0, 1fr))',
+                        },
+                      }}
+                    >
+                      {contract.paymentTerms && (
+                        <Stack spacing={0.5}>
+                          <Typography variant="subtitle2" color="text.secondary">
+                            Payment Terms
+                          </Typography>
+                          <Typography variant="body1">{contract.paymentTerms}</Typography>
+                        </Stack>
+                      )}
+                      {contract.renewalTerms && (
+                        <Stack spacing={0.5}>
+                          <Typography variant="subtitle2" color="text.secondary">
+                            Renewal Terms
+                          </Typography>
+                          <Typography variant="body1">{contract.renewalTerms}</Typography>
+                        </Stack>
+                      )}
                     </Box>
-                  </>
-                )}
-                {(contract.paymentTerms || contract.renewalTerms) && (
-                  <Grid container spacing={2}>
-                    {contract.paymentTerms && (
-                      <Grid item xs={12} md={6}>
-                        <Typography variant="subtitle2" color="text.secondary">
-                          Payment Terms
-                        </Typography>
-                        <Typography variant="body1">{contract.paymentTerms}</Typography>
-                      </Grid>
-                    )}
-                    {contract.renewalTerms && (
-                      <Grid item xs={12} md={6}>
-                        <Typography variant="subtitle2" color="text.secondary">
-                          Renewal Terms
-                        </Typography>
-                        <Typography variant="body1">{contract.renewalTerms}</Typography>
-                      </Grid>
-                    )}
-                  </Grid>
-                )}
-                <Typography variant="caption" color="text.secondary">
-                  Last updated {formatDate(contract.updatedAt)}
-                </Typography>
-                <Box display="flex" justifyContent="flex-end">
-                  <Button component={Link} href={href} variant="outlined">
-                    View contract
-                  </Button>
-                </Box>
-              </Stack>
-            </CardContent>
+                  )}
+
+                  <Typography variant="caption" color="text.secondary">
+                    Last updated {formatDate(contract.updatedAt)}
+                  </Typography>
+                  <Box display="flex" justifyContent="flex-end">
+                    <Button component={Link} href={href} variant="outlined">
+                      View contract
+                    </Button>
+                  </Box>
+                </Stack>
+              </CardContent>
             </Card>
           );
         })}

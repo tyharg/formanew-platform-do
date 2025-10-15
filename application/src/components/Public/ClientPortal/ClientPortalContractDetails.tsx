@@ -7,7 +7,6 @@ import {
   CircularProgress,
   Container,
   Divider,
-  Grid,
   Paper,
   Stack,
   Typography,
@@ -216,8 +215,17 @@ const ClientPortalContractDetails: React.FC<ContractDetailsProps> = ({ contractI
 
                 <Divider />
 
-                <Grid container spacing={3}>
-                  <Grid item xs={12} md={6}>
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gap: DIMENSIONS.spacing.small,
+                    gridTemplateColumns: {
+                      xs: '1fr',
+                      md: 'repeat(2, minmax(0, 1fr))',
+                    },
+                  }}
+                >
+                  <Stack spacing={0.5}>
                     <Typography variant="subtitle2" color="text.secondary">
                       Counterparty
                     </Typography>
@@ -227,32 +235,32 @@ const ClientPortalContractDetails: React.FC<ContractDetailsProps> = ({ contractI
                         {contract.counterpartyEmail}
                       </Typography>
                     )}
-                  </Grid>
-                  <Grid item xs={12} md={6}>
+                  </Stack>
+                  <Stack spacing={0.5}>
                     <Typography variant="subtitle2" color="text.secondary">
                       Contract Value
                     </Typography>
                     <Typography variant="body1">
                       {formatCurrency(contract.contractValue, contract.currency)}
                     </Typography>
-                  </Grid>
-                  <Grid item xs={12} md={6}>
+                  </Stack>
+                  <Stack spacing={0.5}>
                     <Typography variant="subtitle2" color="text.secondary">
                       Term
                     </Typography>
                     <Typography variant="body1">
                       {formatDate(contract.startDate)} – {formatDate(contract.endDate)}
                     </Typography>
-                  </Grid>
-                  <Grid item xs={12} md={6}>
+                  </Stack>
+                  <Stack spacing={0.5}>
                     <Typography variant="subtitle2" color="text.secondary">
                       Organization Address
                     </Typography>
                     <Typography variant="body1" whiteSpace="pre-line">
                       {formatAddress(contract.company)}
                     </Typography>
-                  </Grid>
-                </Grid>
+                  </Stack>
+                </Box>
 
                 {contract.description && (
                   <Box>
@@ -264,24 +272,33 @@ const ClientPortalContractDetails: React.FC<ContractDetailsProps> = ({ contractI
                 )}
 
                 {(contract.paymentTerms || contract.renewalTerms) && (
-                  <Grid container spacing={3}>
+                  <Box
+                    sx={{
+                      display: 'grid',
+                      gap: DIMENSIONS.spacing.small,
+                      gridTemplateColumns: {
+                        xs: '1fr',
+                        md: 'repeat(2, minmax(0, 1fr))',
+                      },
+                    }}
+                  >
                     {contract.paymentTerms && (
-                      <Grid item xs={12} md={6}>
+                      <Stack spacing={0.5}>
                         <Typography variant="subtitle2" color="text.secondary">
                           Payment Terms
                         </Typography>
                         <Typography variant="body1">{contract.paymentTerms}</Typography>
-                      </Grid>
+                      </Stack>
                     )}
                     {contract.renewalTerms && (
-                      <Grid item xs={12} md={6}>
+                      <Stack spacing={0.5}>
                         <Typography variant="subtitle2" color="text.secondary">
                           Renewal Terms
                         </Typography>
                         <Typography variant="body1">{contract.renewalTerms}</Typography>
-                      </Grid>
+                      </Stack>
                     )}
-                  </Grid>
+                  </Box>
                 )}
 
                 <Box>

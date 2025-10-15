@@ -467,6 +467,32 @@ export class SqlDatabaseService extends DatabaseClient {
       return { products: [], ...updated } as unknown as CompanyFinance;
     },
   };
+  financeLineItem = {
+    findMany: async (companyId: string): Promise<FinanceLineItem[]> => {
+      const records = await prisma.financeLineItem.findMany({
+        where: { companyId },
+        orderBy: { occurredAt: 'desc' },
+      });
+      return records as unknown as FinanceLineItem[];
+    },
+    create: async (
+      companyId: string,
+      lineItem: Omit<FinanceLineItem, 'id' | 'companyId' | 'createdAt' | 'updatedAt'>
+    ): Promise<FinanceLineItem> => {
+      const created = await prisma.financeLineItem.create({
+        data: {
+          companyId,
+          ...lineItem,
+        },
+      });
+      return created as unknown as FinanceLineItem;
+    },
+    delete: async (companyId: string, lineItemId: string): Promise<void> => {
+      await prisma.financeLineItem.deleteMany({
+        where: { id: lineItemId, companyId },
+      });
+    },
+  };
   verificationToken = {
     create: async (data: { identifier: string; token: string; expires: Date }) => {
       await prisma.verificationToken.create({ data });

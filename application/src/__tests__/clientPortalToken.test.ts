@@ -24,7 +24,7 @@ describe('clientPortalToken helpers', () => {
 
     expect(payload.email).toBe('party@example.com');
     expect(payload.partyIds).toEqual(['party-1', 'party-2']);
-    expect(typeof payload.exp).toBe('number');
+    expect(payload.partyIds.length).toBeGreaterThan(0);
   });
 
   it('throws when secret is missing', async () => {

@@ -9,12 +9,12 @@ import { StoredFile } from 'types';
 
 const STORAGE_FOLDER = 'contracts';
 
-type FileWithDates = Omit<StoredFile, 'createdAt' | 'updatedAt'> & {
+type FileWithDates = Omit<StoredFile, 'createdAt' | 'updatedAt' | 'downloadUrl'> & {
   createdAt: string | Date;
   updatedAt: string | Date;
 };
 
-type SerializableFile = FileWithDates & { downloadUrl: string | null };
+type SerializableFile = FileWithDates & { downloadUrl?: string | null };
 
 const mapFileWithUrl = async (
   file: FileWithDates,
@@ -38,11 +38,14 @@ const mapFileWithUrl = async (
   }
 };
 
-const serializeFile = (file: StoredFile): FileWithDates => ({
-  ...file,
-  createdAt: file.createdAt instanceof Date ? file.createdAt.toISOString() : file.createdAt,
-  updatedAt: file.updatedAt instanceof Date ? file.updatedAt.toISOString() : file.updatedAt,
-});
+const serializeFile = (file: StoredFile): FileWithDates => {
+  const { downloadUrl: _downloadUrl, ...rest } = file;
+  return {
+    ...rest,
+    createdAt: file.createdAt instanceof Date ? file.createdAt.toISOString() : file.createdAt,
+    updatedAt: file.updatedAt instanceof Date ? file.updatedAt.toISOString() : file.updatedAt,
+  };
+};
 
 const getContractFiles = async (
   _request: NextRequest,

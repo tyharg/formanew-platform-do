@@ -1,4 +1,4 @@
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import jwt, { JwtPayload, SignOptions } from 'jsonwebtoken';
 import { serverConfig } from 'settings';
 
 export interface ClientPortalTokenPayload extends JwtPayload {
@@ -25,7 +25,11 @@ export const createClientPortalToken = (payload: {
   partyIds: string[];
 }): string => {
   const secret = getSecret();
-  const expiresIn = `${getExpiryMinutes()}m`;
+  const expiresInSeconds = getExpiryMinutes() * 60;
+
+  const signOptions: SignOptions = {
+    expiresIn: expiresInSeconds,
+  };
 
   return jwt.sign(
     {
@@ -33,7 +37,7 @@ export const createClientPortalToken = (payload: {
       partyIds: payload.partyIds,
     },
     secret,
-    { expiresIn }
+    signOptions
   );
 };
 

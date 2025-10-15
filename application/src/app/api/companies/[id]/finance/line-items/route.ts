@@ -2,8 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import { withAuth } from 'lib/auth/withAuth';
 import { HTTP_STATUS } from 'lib/api/http';
 import { createDatabaseService } from 'services/database/databaseFactory';
+import { FinanceLineItemType } from 'types';
 
-const parseLineItemPayload = (body: unknown) => {
+const parseLineItemPayload = (body: unknown): {
+  type: FinanceLineItemType;
+  amount: number;
+  currency: string;
+  occurredAt: string;
+  description?: string;
+  category?: string;
+  notes?: string;
+} => {
   if (!body || typeof body !== 'object') {
     throw new Error('Missing request body.');
   }
@@ -36,7 +45,7 @@ const parseLineItemPayload = (body: unknown) => {
   const notes = typeof input.notes === 'string' ? input.notes.trim() : undefined;
 
   return {
-    type,
+    type: type as FinanceLineItemType,
     amount,
     currency,
     occurredAt: occurredAt.toISOString(),
