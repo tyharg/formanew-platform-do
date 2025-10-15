@@ -9,7 +9,7 @@ interface ClientPortalIndexPageProps {
  * Renders the magic link request form for accessing the client portal
  * associated with a specific company.
  */
-const ClientPortalIndexPage = ({ params }: ClientPortalIndexPageProps) => {
+const ClientPortalIndexPage = async ({ params }: ClientPortalIndexPageProps) => {
   return <ClientPortalMagicLinkRequestForm companyId={params.companyId} />;
 };
 
