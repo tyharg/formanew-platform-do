@@ -13,13 +13,17 @@ import {
   StoredFile,
   WorkItem,
   RelevantParty,
+  Incorporation,
+  BusinessAddress,
+  RegisteredAgent,
+  IncorporationCompanyDetails,
+  Attestation,
 } from 'types';
 import { ServiceConfigStatus, ConfigurableService } from '../status/serviceConfigStatus';
 
 export type DatabaseProvider = 'Postgres';
 
 export type QueryParams = unknown[];
-
 /**
  * Abstract base class for database clients.
  * Provides a common interface for database operations across different database providers.
@@ -152,8 +156,7 @@ export abstract class DatabaseClient implements ConfigurableService {
     ) => Promise<CompanyFinance>;
     update: (
       companyId: string,
-      finance: Partial<Omit<CompanyFinance, 'id' | 'companyId' | 'createdAt' | 'updatedAt'>
-      >
+      finance: Partial<Omit<CompanyFinance, 'id' | 'companyId' | 'createdAt' | 'updatedAt'>>
     ) => Promise<CompanyFinance>;
   };
   abstract financeLineItem: {
@@ -198,6 +201,16 @@ export abstract class DatabaseClient implements ConfigurableService {
       party: Partial<Omit<RelevantParty, 'id' | 'contractId' | 'createdAt' | 'updatedAt'>>
     ) => Promise<RelevantParty>;
     delete: (id: string) => Promise<void>;
+  };
+  abstract incorporation: {
+    findByCompanyId: (companyId: string) => Promise<Incorporation | null>;
+    create: (
+      incorporation: Omit<Incorporation, 'id' | 'createdAt' | 'updatedAt'>
+    ) => Promise<Incorporation>;
+    update: (
+      id: string,
+      incorporation: Partial<Omit<Incorporation, 'id' | 'createdAt' | 'updatedAt' | 'companyId'>>
+    ) => Promise<Incorporation>;
   };
   abstract checkConnection(): Promise<boolean>;
 

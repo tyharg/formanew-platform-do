@@ -24,6 +24,7 @@ export interface StoreProduct {
   unitAmount: number | null;
   currency: string | null;
   active: boolean;
+  displayOnStorefront: boolean;
 }
 
 interface ProductListProps {
@@ -31,7 +32,7 @@ interface ProductListProps {
   isLoading: boolean;
   error: string | null;
   onRefresh: () => Promise<void> | void;
-  onToggleActive: (productId: string, nextActive: boolean) => Promise<void> | void;
+  onProductClick: (product: StoreProduct) => void;
   updatingId: string | null;
 }
 
@@ -47,15 +48,10 @@ const ProductList: React.FC<ProductListProps> = ({
   isLoading,
   error,
   onRefresh,
-  onToggleActive,
-  updatingId,
+  onProductClick,
 }) => {
   const handleRefreshClick = () => {
     void onRefresh();
-  };
-
-  const handleToggleClick = (productId: string, nextActive: boolean) => {
-    void onToggleActive(productId, nextActive);
   };
 
   return (
@@ -78,7 +74,7 @@ const ProductList: React.FC<ProductListProps> = ({
           <CircularProgress />
         </Box>
       ) : products.length === 0 ? (
-        <Alert severity="info">No products created yet. Start by adding your first product.</Alert>
+        <Alert severity="info">No products found.</Alert>
       ) : (
         <Table size="small" sx={{ minWidth: 650 }}>
           <TableHead>
@@ -88,12 +84,16 @@ const ProductList: React.FC<ProductListProps> = ({
               <TableCell>Price</TableCell>
               <TableCell>Stripe IDs</TableCell>
               <TableCell>Status</TableCell>
-              <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {products.map((product) => (
-              <TableRow key={product.id} hover>
+              <TableRow
+                key={product.id}
+                hover
+                onClick={() => onProductClick(product)}
+                sx={{ cursor: 'pointer' }}
+              >
                 <TableCell width="20%">
                   <Typography variant="subtitle2">{product.name}</Typography>
                 </TableCell>
@@ -117,20 +117,6 @@ const ProductList: React.FC<ProductListProps> = ({
                     label={product.active ? 'Active' : 'Archived'}
                     color={product.active ? 'success' : 'default'}
                   />
-                </TableCell>
-                <TableCell align="right" width="15%">
-                  <Button
-                    size="small"
-                    color="inherit"
-                    onClick={() => handleToggleClick(product.id, !product.active)}
-                    disabled={updatingId === product.id}
-                  >
-                    {updatingId === product.id
-                      ? 'Updating…'
-                      : product.active
-                      ? 'Archive'
-                      : 'Activate'}
-                  </Button>
                 </TableCell>
               </TableRow>
             ))}

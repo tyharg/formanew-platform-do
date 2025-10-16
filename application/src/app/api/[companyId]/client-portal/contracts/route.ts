@@ -6,7 +6,10 @@ import { prisma } from 'lib/prisma';
 
 const toIsoString = (value: Date | null) => (value ? value.toISOString() : null);
 
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { companyId: string } }
+) {
   try {
     const token = request.nextUrl.searchParams.get('token');
 
@@ -20,7 +23,7 @@ export async function GET(request: NextRequest) {
     let payload;
     try {
       payload = verifyClientPortalToken(token);
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         { error: 'Invalid or expired token' },
         { status: HTTP_STATUS.UNAUTHORIZED }
@@ -61,7 +64,7 @@ export async function GET(request: NextRequest) {
     const contractIds = Array.from(new Set(relevantParties.map((party) => party.contractId)));
 
     const contracts = await prisma.contract.findMany({
-      where: { id: { in: contractIds } },
+      where: { id: { in: contractIds }, companyId: params.companyId },
       include: {
         company: {
           select: {

@@ -132,6 +132,24 @@ export const updateContract = async (
       updates.description = nullableString(body.description);
     }
 
+    if (Object.prototype.hasOwnProperty.call(body, 'isBillingEnabled')) {
+      if (typeof body.isBillingEnabled === 'boolean') {
+        updates.isBillingEnabled = body.isBillingEnabled;
+      }
+    }
+
+    if (Object.prototype.hasOwnProperty.call(body, 'stripePriceId')) {
+      updates.stripePriceId = nullableString(body.stripePriceId);
+    }
+
+    if (Object.prototype.hasOwnProperty.call(body, 'billingAmount')) {
+      updates.billingAmount = parseOptionalNumber(body.billingAmount);
+    }
+
+    if (Object.prototype.hasOwnProperty.call(body, 'billingCurrency')) {
+      updates.billingCurrency = nullableString(body.billingCurrency);
+    }
+
     if (Object.keys(updates).length === 0) {
       return NextResponse.json(
         { error: 'No valid fields provided for update' },

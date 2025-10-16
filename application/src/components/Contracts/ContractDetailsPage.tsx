@@ -25,6 +25,7 @@ import { useCompanySelection } from 'context/CompanySelectionContext';
 import ContractFilesTab from './ContractFiles/ContractFilesTab';
 import ContractWorkItemsTab from './ContractWorkItems/ContractWorkItemsTab';
 import ContractRelevantPartiesTab from './ContractRelevantParties/ContractRelevantPartiesTab';
+import ContractBillingTab from './ContractBilling/ContractBillingTab';
 
 const contractsClient = new ContractsApiClient();
 
@@ -43,7 +44,9 @@ const ContractDetailsPage: React.FC<ContractDetailsPageProps> = ({ contractId })
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'details' | 'workItems' | 'relevantParties' | 'files'>('details');
+  const [activeTab, setActiveTab] = useState<'details' | 'workItems' | 'relevantParties' | 'files' | 'billing'>(
+    'details'
+  );
 
   const [toastOpen, setToastOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
@@ -196,6 +199,7 @@ const ContractDetailsPage: React.FC<ContractDetailsPageProps> = ({ contractId })
           <Tab value="workItems" label="Work Items" />
           <Tab value="relevantParties" label="Relevant Parties" />
           <Tab value="files" label="Files" />
+          <Tab value="billing" label="Billing" />
         </Tabs>
 
         {activeTab === 'details' ? (
@@ -210,6 +214,8 @@ const ContractDetailsPage: React.FC<ContractDetailsPageProps> = ({ contractId })
           <ContractWorkItemsTab contractId={contract.id} />
         ) : activeTab === 'relevantParties' ? (
           <ContractRelevantPartiesTab contractId={contract.id} />
+        ) : activeTab === 'billing' ? (
+          <ContractBillingTab contract={contract} onUpdate={setContract} />
         ) : (
           <ContractFilesTab contractId={contract.id} />
         )}

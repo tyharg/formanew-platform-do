@@ -22,10 +22,12 @@ import type { ChipProps } from '@mui/material/Chip';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { DIMENSIONS } from 'constants/landing';
 import Link from 'next/link';
+import DownloadIcon from '@mui/icons-material/Download';
 
 interface ContractDetailsProps {
   contractId: string;
   token: string;
+  companyId: string;
 }
 
 interface RelevantPartySummary {
@@ -47,7 +49,7 @@ interface WorkItemSummary {
 }
 
 interface CompanySummary {
-  id: string;
+  id:string;
   legalName: string;
   displayName: string | null;
   addressLine1: string | null;
@@ -56,6 +58,15 @@ interface CompanySummary {
   state: string | null;
   postalCode: string | null;
   country: string | null;
+}
+
+interface FileSummary {
+  id: string;
+  name: string;
+  description: string | null;
+  contentType: string | null;
+  size: number | null;
+  createdAt: string;
 }
 
 interface ContractDetailsResponse {
@@ -77,13 +88,17 @@ interface ContractDetailsResponse {
   company: CompanySummary | null;
   relevantParties: RelevantPartySummary[];
   workItems: WorkItemSummary[];
+  files: FileSummary[];
+  isBillingEnabled: boolean;
+  stripePriceId: string | null;
+  billingAmount: number | null;
+  billingCurrency: string | null;
 }
 
 const formatDate = (value: string | null) => {
   if (!value) return 'Not specified';
   return new Date(value).toLocaleDateString();
 };
-
 const formatCurrency = (value: number | null, currency: string | null) => {
   if (value === null) return 'Not specified';
   try {
@@ -91,7 +106,7 @@ const formatCurrency = (value: number | null, currency: string | null) => {
       style: 'currency',
       currency: currency || 'USD',
     }).format(value);
-  } catch (error) {
+  } catch {
     return `${value} ${currency ?? ''}`.trim();
   }
 };
@@ -102,6 +117,14 @@ const formatAddress = (company: CompanySummary | null) => {
   const filtered = parts.filter(Boolean).join(', ');
   const postal = [company.postalCode, company.country].filter(Boolean).join(' ');
   return [filtered, postal].filter(Boolean).join('\n') || 'Not specified';
+};
+
+const formatFileSize = (bytes: number | null) => {
+  if (bytes === null || bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
 
 const statusColor = (status: string): ChipProps['color'] => {
@@ -119,10 +142,11 @@ const statusColor = (status: string): ChipProps['color'] => {
   }
 };
 
-const ClientPortalContractDetails: React.FC<ContractDetailsProps> = ({ contractId, token }) => {
+const ClientPortalContractDetails: React.FC<ContractDetailsProps> = ({ contractId, token, companyId }) => {
   const [contract, setContract] = useState<ContractDetailsResponse | null>(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(Boolean(token));
+  const [isPaying, setIsPaying] = useState(false);
 
   useEffect(() => {
     if (!token) {
@@ -139,7 +163,7 @@ const ClientPortalContractDetails: React.FC<ContractDetailsProps> = ({ contractI
 
       try {
         const response = await fetch(
-          `/api/client-portal/contracts/${contractId}?token=${encodeURIComponent(token)}`,
+          `/api/${companyId}/client-portal/contracts/${contractId}?token=${encodeURIComponent(token)}`,
           {
             method: 'GET',
             signal: controller.signal,
@@ -169,14 +193,46 @@ const ClientPortalContractDetails: React.FC<ContractDetailsProps> = ({ contractI
     loadContract();
 
     return () => controller.abort();
-  }, [contractId, token]);
+  }, [contractId, token, companyId]);
 
   const workItems = useMemo(() => {
     if (!contract) return [];
     return [...contract.workItems].sort((a, b) => a.position - b.position);
   }, [contract]);
 
-  const backHref = token ? `/client-portal?token=${encodeURIComponent(token)}` : '/client-portal';
+  const handlePayment = async () => {
+    if (!contract || (!contract.stripePriceId && !contract.billingAmount)) {
+      setError('This contract is not configured for payments correctly.');
+      return;
+    }
+    setIsPaying(true);
+    setError('');
+
+    try {
+      const response = await fetch(
+        `/api/${companyId}/client-portal/contracts/${contractId}/checkout?token=${encodeURIComponent(token)}`,
+        {
+          method: 'POST',
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create checkout session');
+      }
+
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      }
+    } catch (err) {
+      console.error('Payment failed', err);
+      setError((err as Error).message || 'Failed to initiate payment. Please try again.');
+      setIsPaying(false);
+    }
+  };
+
+  const backHref = token ? `/${companyId}/client-portal?token=${encodeURIComponent(token)}` : `/${companyId}/client-portal`;
 
   return (
     <Box component="section" bgcolor="grey.100" minHeight="100vh" py={DIMENSIONS.spacing.section}>
@@ -212,6 +268,27 @@ const ClientPortalContractDetails: React.FC<ContractDetailsProps> = ({ contractI
                     Agreement effective {formatDate(contract.startDate)}
                   </Typography>
                 </Stack>
+
+                {contract.isBillingEnabled && (
+                  <>
+                    <Divider />
+                    <Stack spacing={1} alignItems="center">
+                      <Typography variant="h6">Payment due</Typography>
+                      <Typography variant="body1">
+                        A payment is required for this contract. Please use the button below to complete the payment.
+                      </Typography>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        size="large"
+                        onClick={handlePayment}
+                        disabled={isPaying}
+                      >
+                        {isPaying ? <CircularProgress size={24} /> : 'Pay Now'}
+                      </Button>
+                    </Stack>
+                  </>
+                )}
 
                 <Divider />
 
@@ -265,9 +342,14 @@ const ClientPortalContractDetails: React.FC<ContractDetailsProps> = ({ contractI
                 {contract.description && (
                   <Box>
                     <Typography variant="subtitle2" color="text.secondary">
-                      Executive Summary
+                      Details
                     </Typography>
-                    <Typography variant="body1">{contract.description}</Typography>
+                    <Typography
+                      variant="body1"
+                      sx={{ whiteSpace: 'pre-wrap', overflowX: 'auto' }}
+                    >
+                      {contract.description}
+                    </Typography>
                   </Box>
                 )}
 
@@ -287,7 +369,12 @@ const ClientPortalContractDetails: React.FC<ContractDetailsProps> = ({ contractI
                         <Typography variant="subtitle2" color="text.secondary">
                           Payment Terms
                         </Typography>
-                        <Typography variant="body1">{contract.paymentTerms}</Typography>
+                        <Typography
+                          variant="body1"
+                          sx={{ whiteSpace: 'pre-wrap', overflowX: 'auto' }}
+                        >
+                          {contract.paymentTerms}
+                        </Typography>
                       </Stack>
                     )}
                     {contract.renewalTerms && (
@@ -295,7 +382,12 @@ const ClientPortalContractDetails: React.FC<ContractDetailsProps> = ({ contractI
                         <Typography variant="subtitle2" color="text.secondary">
                           Renewal Terms
                         </Typography>
-                        <Typography variant="body1">{contract.renewalTerms}</Typography>
+                        <Typography
+                          variant="body1"
+                          sx={{ whiteSpace: 'pre-wrap', overflowX: 'auto' }}
+                        >
+                          {contract.renewalTerms}
+                        </Typography>
                       </Stack>
                     )}
                   </Box>
@@ -353,6 +445,44 @@ const ClientPortalContractDetails: React.FC<ContractDetailsProps> = ({ contractI
                     </Table>
                   )}
                 </Box>
+
+                {contract.files && contract.files.length > 0 && (
+                  <Box>
+                    <Typography variant="subtitle2" color="text.secondary">
+                      Contract Files
+                    </Typography>
+                    <Table size="small" sx={{ mt: 2 }}>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>File Name</TableCell>
+                          <TableCell>Size</TableCell>
+                          <TableCell>Actions</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {contract.files.map((file) => (
+                          <TableRow key={file.id} hover>
+                            <TableCell>{file.name}</TableCell>
+                            <TableCell>{formatFileSize(file.size)}</TableCell>
+                            <TableCell>
+                              <Button
+                                variant="text"
+                                size="small"
+                                startIcon={<DownloadIcon />}
+                                href={`/api/${companyId}/client-portal/contracts/${contractId}/files/${
+                                  file.id
+                                }?token=${encodeURIComponent(token)}`}
+                                download
+                              >
+                                Download
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </Box>
+                )}
 
                 <Divider />
 

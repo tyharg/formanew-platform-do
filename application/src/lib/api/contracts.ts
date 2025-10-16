@@ -22,6 +22,10 @@ export interface Contract {
   description: string | null;
   createdAt: string;
   updatedAt: string;
+  isBillingEnabled: boolean;
+  stripePriceId: string | null;
+  billingAmount: number | null;
+  billingCurrency: string | null;
 }
 
 export interface CreateContractPayload {
@@ -40,7 +44,12 @@ export interface CreateContractPayload {
   description?: string | null;
 }
 
-export type UpdateContractPayload = Partial<CreateContractPayload>;
+export type UpdateContractPayload = Partial<CreateContractPayload> & {
+  isBillingEnabled?: boolean;
+  stripePriceId?: string | null;
+  billingAmount?: number | null;
+  billingCurrency?: string | null;
+};
 
 export const CONTRACT_STATUS_OPTIONS: ContractStatus[] = [
   'DRAFT',

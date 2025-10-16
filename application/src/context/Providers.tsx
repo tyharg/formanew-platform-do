@@ -4,6 +4,7 @@ import { UserProvider } from './UserContext';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import { NavigatingProvider } from './Navigation';
 import { CompanySelectionProvider } from './CompanySelectionContext';
+import { ToastProvider } from './ToastContext';
 
 /**
  * Global wrapper that groups all context providers used in the application.
@@ -15,11 +16,13 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
   return (
     <SessionProvider>
       <AppRouterCacheProvider options={{ enableCssLayer: true }}>
-        <UserProvider>
-          <CompanySelectionProvider>
-            <NavigatingProvider>{children}</NavigatingProvider>
-          </CompanySelectionProvider>
-        </UserProvider>
+        <ToastProvider>
+          <UserProvider>
+            <CompanySelectionProvider>
+              <NavigatingProvider>{children}</NavigatingProvider>
+            </CompanySelectionProvider>
+          </UserProvider>
+        </ToastProvider>
       </AppRouterCacheProvider>
     </SessionProvider>
   );

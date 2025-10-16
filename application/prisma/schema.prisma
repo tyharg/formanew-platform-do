@@ -123,6 +123,7 @@ model Company {
   userNotes        Note[]            @relation("CompanyNotes")
   finance          CompanyFinance?
   financeLineItems FinanceLineItem[]
+  incorporation    Incorporation?
 }
 
 model Contract {
@@ -142,6 +143,10 @@ model Contract {
   paymentTerms      String?
   renewalTerms      String?
   description       String?
+  isBillingEnabled  Boolean        @default(false)
+  stripePriceId     String?
+  billingAmount     Int?
+  billingCurrency   String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -230,6 +235,86 @@ model CompanyFinance {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Incorporation {
+  id                  String                       @id @default(uuid())
+  company             Company                      @relation(fields: [companyId], references: [id])
+  companyId           String                       @unique
+  businessSubType     String?
+  nameReserved        Boolean?
+  llcName             String?
+  confirmLlcName      String?
+  consentToUseName    String?
+  dbaDifferent        Boolean?
+  businessAddress     BusinessAddress?             @relation(fields: [businessAddressId], references: [id])
+  businessAddressId   String?                      @unique
+  registeredAgent     RegisteredAgent?             @relation(fields: [registeredAgentId], references: [id])
+  registeredAgentId   String?                      @unique
+  companyDetails      IncorporationCompanyDetails? @relation(fields: [companyDetailsId], references: [id])
+  companyDetailsId    String?                      @unique
+  attestation         Attestation?                 @relation(fields: [attestationId], references: [id])
+  attestationId       String?                      @unique
+  createdAt           DateTime                     @default(now())
+  updatedAt           DateTime                     @updatedAt
+}
+
+model BusinessAddress {
+  id                  String         @id @default(uuid())
+  incorporation       Incorporation? @relation
+  principalAddress    String?
+  principalSteAptFl   String?
+  principalAttention  String?
+  principalCity       String?
+  principalState      String?
+  principalZip        String?
+  principalCountry    String?
+  mailingAddress      String?
+  mailingSteAptFl     String?
+  mailingAttention    String?
+  mailingCity         String?
+  mailingState        String?
+  mailingZip          String?
+  mailingCountry      String?
+  businessPhone       String?
+  businessEmail       String?
+}
+
+model RegisteredAgent {
+  id               String         @id @default(uuid())
+  incorporation    Incorporation? @relation
+  name             String?
+  address          String?
+  city             String?
+  state            String?
+  zipCode          String?
+  country          String?
+  certified        Boolean?
+  acceptanceForm   String?
+  formationLocale  String?
+}
+
+model IncorporationCompanyDetails {
+  id               String         @id @default(uuid())
+  incorporation    Incorporation? @relation
+  durationType     String?
+  durationDate     DateTime?
+  purposeStatement String?
+}
+
+model Attestation {
+  id               String         @id @default(uuid())
+  incorporation    Incorporation? @relation
+  infoIsPublic     Boolean?
+  authorizedToFile Boolean?
+  swornTrue        Boolean?
+  organizerTitle   String?
+  organizerName    String?
+  organizerAddress String?
+  signerCapacity   String?
+  onBehalfOf       String?
+  signature        String?
+  dateSigned       DateTime?
 }
 
 model VerificationToken {

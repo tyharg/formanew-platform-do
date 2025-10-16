@@ -20,6 +20,7 @@ import CompanyContactForm from '../CompanyContactForm/CompanyContactForm';
 import CompanyNotesCard from '../CompanyNotesCard/CompanyNotesCard';
 import CompanyLaunchpad from '../CompanyLaunchpad/CompanyLaunchpad';
 import CompanyNoteForm from '../CompanyNoteForm/CompanyNoteForm';
+import IncorporationTab from '../Incorporation/IncorporationTab';
 import {
   CompaniesApiClient,
   Company,
@@ -33,7 +34,7 @@ import {
 
 const companiesClient = new CompaniesApiClient();
 
-type TabKey = 'launchpad' | 'settings' | 'contacts' | 'notes' | 'contracts';
+type TabKey = 'launchpad' | 'settings' | 'contacts' | 'notes' | 'contracts' | 'incorporation';
 
 interface CompanyDetailsPageProps {
   companyId: string;
@@ -41,6 +42,7 @@ interface CompanyDetailsPageProps {
 
 const tabConfig: { key: TabKey; label: string }[] = [
   { key: 'launchpad', label: 'Launchpad' },
+  { key: 'incorporation', label: 'Incorporation' },
   { key: 'settings', label: 'Settings' },
   { key: 'contacts', label: 'Contacts' },
   { key: 'notes', label: 'Notes' },
@@ -283,6 +285,8 @@ const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = ({ companyId }) =>
             }}
           />
         )}
+
+        {activeTab === 'incorporation' && <IncorporationTab company={company} />}
 
         {activeTab === 'contacts' && (
           <CompanyContactsCard

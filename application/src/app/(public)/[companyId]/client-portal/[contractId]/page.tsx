@@ -1,16 +1,18 @@
+'use client';
+
 import React from 'react';
 import ClientPortalContractDetails from 'components/Public/ClientPortal/ClientPortalContractDetails';
+import { useParams, useSearchParams } from 'next/navigation';
 
-interface ClientPortalContractPageProps {
-  params: { companyId: string; contractId: string };
-  searchParams: Record<string, string | string[] | undefined>;
-}
+const ClientPortalContractPage = () => {
+  const params = useParams();
+  const searchParams = useSearchParams();
 
-const ClientPortalContractPage = ({ params, searchParams }: ClientPortalContractPageProps) => {
-  const tokenParam = searchParams?.token;
-  const token = Array.isArray(tokenParam) ? tokenParam[0] : tokenParam || '';
+  const contractId = Array.isArray(params.contractId) ? params.contractId[0] : params.contractId ?? '';
+  const companyId = Array.isArray(params.companyId) ? params.companyId[0] : params.companyId ?? '';
+  const token = searchParams.get('token') ?? '';
 
-  return <ClientPortalContractDetails contractId={params.contractId} token={token} />;
+  return <ClientPortalContractDetails contractId={contractId} token={token} companyId={companyId} />;
 };
 
 export default ClientPortalContractPage;

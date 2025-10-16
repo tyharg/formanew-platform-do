@@ -1,28 +1,35 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Alert,
   Box,
   Button,
   Card,
   CardContent,
+  Chip,
   CircularProgress,
   Container,
   Divider,
   Stack,
+  Tab,
+  Tabs,
   TextField,
   Typography,
 } from '@mui/material';
 import { DIMENSIONS } from 'constants/landing';
-import { useSearchParams } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { ContractStatus } from 'lib/api/contracts';
 
 interface ContractSummary {
   id: string;
   title: string;
-  status: string;
+  status: ContractStatus;
   counterpartyName: string;
   counterpartyEmail: string | null;
   contractValue: number | null;
@@ -68,9 +75,84 @@ const formatCurrency = (value: number | null, currency: string | null) => {
       style: 'currency',
       currency: currency || 'USD',
     }).format(value);
-  } catch (error) {
+  } catch {
     return `${value} ${currency ?? ''}`.trim();
   }
+};
+
+const ContractCard: React.FC<{ contract: ContractSummary; companyId: string | string[]; token: string }> = ({
+  contract,
+  companyId,
+  token,
+}) => {
+  const href = token
+    ? `/${companyId}/client-portal/${contract.id}?token=${encodeURIComponent(token)}`
+    : `/${companyId}/client-portal/${contract.id}`;
+
+  return (
+    <Card variant="outlined">
+      <CardContent>
+        <Stack spacing={2}>
+          <Box>
+            <Typography variant="h6" component="h3" fontWeight="bold">
+              {contract.title}
+            </Typography>
+            {contract.company && (
+              <Typography variant="body2" color="text.secondary">
+                {contract.company.displayName || contract.company.legalName}
+              </Typography>
+            )}
+          </Box>
+          <Stack direction="row" spacing={1}>
+            <Chip label={contract.status.replace(/_/g, ' ')} size="small" />
+          </Stack>
+          <Divider />
+          <Box
+            sx={{
+              display: 'grid',
+              gap: DIMENSIONS.spacing.small,
+              gridTemplateColumns: {
+                xs: '1fr',
+                sm: 'repeat(2, 1fr)',
+              },
+            }}
+          >
+            <Stack>
+              <Typography variant="caption" color="text.secondary">
+                Counterparty
+              </Typography>
+              <Typography variant="body2">{contract.counterpartyName}</Typography>
+            </Stack>
+            <Stack>
+              <Typography variant="caption" color="text.secondary">
+                Contract Value
+              </Typography>
+              <Typography variant="body2">
+                {formatCurrency(contract.contractValue, contract.currency)}
+              </Typography>
+            </Stack>
+            <Stack>
+              <Typography variant="caption" color="text.secondary">
+                Start Date
+              </Typography>
+              <Typography variant="body2">{formatDate(contract.startDate)}</Typography>
+            </Stack>
+            <Stack>
+              <Typography variant="caption" color="text.secondary">
+                End Date
+              </Typography>
+              <Typography variant="body2">{formatDate(contract.endDate)}</Typography>
+            </Stack>
+          </Box>
+          <Box display="flex" justifyContent="flex-end">
+            <Button component={Link} href={href} variant="outlined" size="small">
+              View Details
+            </Button>
+          </Box>
+        </Stack>
+      </CardContent>
+    </Card>
+  );
 };
 
 const ClientPortal: React.FC = () => {
@@ -78,8 +160,9 @@ const ClientPortal: React.FC = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [requestState, setRequestState] = useState(initialRequestState);
+  const [activeTab, setActiveTab] = useState('contracts');
   const searchParams = useSearchParams();
-  const { data: session } = useSession();
+  const { companyId } = useParams();
   const token = searchParams.get('token') ?? '';
 
   useEffect(() => {
@@ -96,7 +179,7 @@ const ClientPortal: React.FC = () => {
       setError('');
 
       try {
-        const response = await fetch(`/api/client-portal/contracts?token=${encodeURIComponent(token)}`, {
+        const response = await fetch(`/api/${companyId}/client-portal/contracts?token=${encodeURIComponent(token)}`, {
           method: 'GET',
           signal: controller.signal,
           cache: 'no-store',
@@ -124,7 +207,7 @@ const ClientPortal: React.FC = () => {
     loadContracts();
 
     return () => controller.abort();
-  }, [token]);
+  }, [token, companyId]);
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRequestState((prev) => ({ ...prev, email: event.target.value }));
@@ -141,7 +224,7 @@ const ClientPortal: React.FC = () => {
     setRequestState((prev) => ({ ...prev, error: '', success: '', isSubmitting: true }));
 
     try {
-      const response = await fetch('/api/client-portal/send-link', {
+      const response = await fetch(`/api/${companyId}/client-portal/send-link`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -171,6 +254,24 @@ const ClientPortal: React.FC = () => {
     }
   };
 
+  const { proposals, active, completed } = useMemo(() => {
+    const proposals: ContractSummary[] = [];
+    const active: ContractSummary[] = [];
+    const completed: ContractSummary[] = [];
+
+    contracts.forEach((contract) => {
+      if (['DRAFT', 'PENDING_SIGNATURE'].includes(contract.status)) {
+        proposals.push(contract);
+      } else if (['ACTIVE'].includes(contract.status)) {
+        active.push(contract);
+      } else {
+        completed.push(contract);
+      }
+    });
+
+    return { proposals, active, completed };
+  }, [contracts]);
+
   const renderContractsContent = () => {
     if (!token) {
       return (
@@ -198,117 +299,71 @@ const ClientPortal: React.FC = () => {
     }
 
     return (
-      <Stack spacing={3}>
-        {contracts.map((contract) => {
-          const href = token
-            ? `/client-portal/${contract.id}?token=${encodeURIComponent(token)}`
-            : `/client-portal/${contract.id}`;
-          const counterpartyDetails = contract.counterpartyEmail
-            ? `${contract.counterpartyName} (${contract.counterpartyEmail})`
-            : contract.counterpartyName;
-
-          const overviewRows = [
-            { label: 'Status', value: contract.status },
-            { label: 'Contract Value', value: formatCurrency(contract.contractValue, contract.currency) },
-            { label: 'Counterparty', value: counterpartyDetails },
-            { label: 'Your Role', value: contract.relevantParty?.role || 'Relevant party' },
-            { label: 'Start Date', value: formatDate(contract.startDate) },
-            { label: 'End Date', value: formatDate(contract.endDate) },
-          ];
-
-          return (
-            <Card key={contract.id} variant="outlined">
-              <CardContent>
-                <Stack spacing={2}>
-                  <Box>
-                    <Typography variant="h5" component="h2" fontWeight="bold">
-                      {contract.title}
-                    </Typography>
-                    {contract.company && (
-                      <Typography variant="subtitle1" color="text.secondary">
-                        {contract.company.displayName || contract.company.legalName}
-                      </Typography>
-                    )}
-                  </Box>
-
-                  <Box
-                    sx={{
-                      display: 'grid',
-                      gap: DIMENSIONS.spacing.small,
-                      gridTemplateColumns: {
-                        xs: '1fr',
-                        md: 'repeat(2, minmax(0, 1fr))',
-                      },
-                    }}
-                  >
-                    {overviewRows.map((row) => (
-                      <Stack key={row.label} spacing={0.5}>
-                        <Typography variant="subtitle2" color="text.secondary">
-                          {row.label}
-                        </Typography>
-                        <Typography variant="body1">{row.value}</Typography>
-                      </Stack>
-                    ))}
-                  </Box>
-
-                  {contract.description && (
-                    <>
-                      <Divider />
-                      <Box>
-                        <Typography variant="subtitle2" color="text.secondary">
-                          Description
-                        </Typography>
-                        <Typography variant="body1">{contract.description}</Typography>
-                      </Box>
-                    </>
-                  )}
-
-                  {(contract.paymentTerms || contract.renewalTerms) && (
-                    <Box
-                      sx={{
-                        display: 'grid',
-                        gap: DIMENSIONS.spacing.small,
-                        gridTemplateColumns: {
-                          xs: '1fr',
-                          md: 'repeat(2, minmax(0, 1fr))',
-                        },
-                      }}
-                    >
-                      {contract.paymentTerms && (
-                        <Stack spacing={0.5}>
-                          <Typography variant="subtitle2" color="text.secondary">
-                            Payment Terms
-                          </Typography>
-                          <Typography variant="body1">{contract.paymentTerms}</Typography>
-                        </Stack>
-                      )}
-                      {contract.renewalTerms && (
-                        <Stack spacing={0.5}>
-                          <Typography variant="subtitle2" color="text.secondary">
-                            Renewal Terms
-                          </Typography>
-                          <Typography variant="body1">{contract.renewalTerms}</Typography>
-                        </Stack>
-                      )}
-                    </Box>
-                  )}
-
-                  <Typography variant="caption" color="text.secondary">
-                    Last updated {formatDate(contract.updatedAt)}
-                  </Typography>
-                  <Box display="flex" justifyContent="flex-end">
-                    <Button component={Link} href={href} variant="outlined">
-                      View contract
-                    </Button>
-                  </Box>
-                </Stack>
-              </CardContent>
-            </Card>
-          );
-        })}
+      <Stack spacing={2}>
+        <Accordion defaultExpanded>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant="h6">Proposals ({proposals.length})</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Stack spacing={2}>
+              {proposals.length > 0 ? (
+                proposals.map((contract) => (
+                  <ContractCard key={contract.id} contract={contract} companyId={companyId} token={token} />
+                ))
+              ) : (
+                <Typography variant="body2" color="text.secondary">
+                  No proposals found.
+                </Typography>
+              )}
+            </Stack>
+          </AccordionDetails>
+        </Accordion>
+        <Accordion defaultExpanded>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant="h6">Active ({active.length})</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Stack spacing={2}>
+              {active.length > 0 ? (
+                active.map((contract) => (
+                  <ContractCard key={contract.id} contract={contract} companyId={companyId} token={token} />
+                ))
+              ) : (
+                <Typography variant="body2" color="text.secondary">
+                  No active contracts found.
+                </Typography>
+              )}
+            </Stack>
+          </AccordionDetails>
+        </Accordion>
+        <Accordion>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant="h6">Completed ({completed.length})</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Stack spacing={2}>
+              {completed.length > 0 ? (
+                completed.map((contract) => (
+                  <ContractCard key={contract.id} contract={contract} companyId={companyId} token={token} />
+                ))
+              ) : (
+                <Typography variant="body2" color="text.secondary">
+                  No completed contracts found.
+                </Typography>
+              )}
+            </Stack>
+          </AccordionDetails>
+        </Accordion>
       </Stack>
     );
   };
+
+  const companyName = useMemo(() => {
+    if (contracts.length > 0) {
+      return contracts[0].company?.displayName || contracts[0].company?.legalName;
+    }
+    return null;
+  }, [contracts]);
 
   return (
     <Box component="section" bgcolor="grey.50" minHeight="100vh" py={DIMENSIONS.spacing.section}>
@@ -323,15 +378,12 @@ const ClientPortal: React.FC = () => {
           }}
         >
           <Stack spacing={DIMENSIONS.spacing.container}>
-            <Stack spacing={2} textAlign="center" alignItems="center">
+            <Stack spacing={1} textAlign="center" alignItems="center">
               <Typography variant="h4" component="h1" fontWeight="bold">
-                Client Portal
-              </Typography>
-              <Typography variant="body1" color="text.secondary">
-                Request a secure magic link and review the contracts you&apos;re listed on as a relevant party.
+                {companyName ? `${companyName} - Client Portal` : 'Client Portal'}
               </Typography>
             </Stack>
-            {!session && (
+            {!token && (
               <Box
                 component="form"
                 onSubmit={handleRequestSubmit}
@@ -366,16 +418,18 @@ const ClientPortal: React.FC = () => {
                 </Box>
               </Box>
             )}
-            <Divider />
-            <Stack spacing={2}>
-              <Typography variant="h5" component="h2" fontWeight="bold">
-                Your Contracts
-              </Typography>
-              <Typography variant="body1" color="text.secondary">
-                Contracts that include you as a relevant party appear below once you open a valid portal link.
-              </Typography>
-              {renderContractsContent()}
-            </Stack>
+            <Tabs value={activeTab} onChange={(_e, value) => setActiveTab(value)} sx={{ borderBottom: 1, borderColor: 'divider' }}>
+              <Tab label="Contracts" value="contracts" />
+              <Tab label="Invoices" value="invoices" />
+            </Tabs>
+            {activeTab === 'contracts' && <Box sx={{ pt: 3 }}>{renderContractsContent()}</Box>}
+            {activeTab === 'invoices' && (
+              <Box sx={{ pt: 3 }}>
+                <Typography variant="body1" color="text.secondary">
+                  The invoices feature is coming soon.
+                </Typography>
+              </Box>
+            )}
           </Stack>
         </Box>
       </Container>

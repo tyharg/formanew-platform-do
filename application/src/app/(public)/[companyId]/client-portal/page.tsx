@@ -1,16 +1,8 @@
 import React from 'react';
-import ClientPortalMagicLinkRequestForm from 'components/Public/ClientPortal/ClientPortalMagicLinkRequestForm';
+import ClientPortal from 'components/Public/ClientPortal/ClientPortal';
 
-interface ClientPortalIndexPageProps {
-  params: { companyId: string };
-}
-
-/**
- * Renders the magic link request form for accessing the client portal
- * associated with a specific company.
- */
-const ClientPortalIndexPage = async ({ params }: ClientPortalIndexPageProps) => {
-  return <ClientPortalMagicLinkRequestForm companyId={params.companyId} />;
+const ClientPortalPage = () => {
+  return <ClientPortal />;
 };
 
-export default ClientPortalIndexPage;
+export default ClientPortalPage;

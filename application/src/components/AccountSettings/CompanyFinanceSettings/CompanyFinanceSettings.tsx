@@ -16,7 +16,7 @@ import { CompanyFinance } from '@/types';
 import { useCompanySelection } from '@/context/CompanySelectionContext';
 import Link from 'next/link';
 
-type TabValue = 'connect' | 'transactions';
+type TabValue = 'transactions';
 
 interface FinanceResponse {
   finance: CompanyFinance | null;
@@ -35,7 +35,7 @@ const fetchJson = async <T,>(input: RequestInfo | URL, init?: RequestInit): Prom
 export default function CompanyFinanceSettings() {
   const { selectedCompanyId, isLoading: companiesLoading } = useCompanySelection();
   const [finance, setFinance] = useState<CompanyFinance | null>(null);
-  const [tab, setTab] = useState<TabValue>('connect');
+  const [tab, setTab] = useState<TabValue>('transactions');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -86,37 +86,6 @@ export default function CompanyFinanceSettings() {
     setTab(newValue);
   };
 
-  const renderConnectTab = () => {
-    if (!selectedCompanyId) {
-      return <Alert severity="info">Select a company to start onboarding with Stripe.</Alert>;
-    }
-
-    if (isLoading) {
-      return (
-        <Box display="flex" justifyContent="center" py={4}>
-          <CircularProgress size={32} />
-        </Box>
-      );
-    }
-
-    const hasStripeAccount = Boolean(finance?.stripeAccountId);
-    const isReady = Boolean(finance?.chargesEnabled && finance?.payoutsEnabled);
-
-    return (
-      <Alert
-        severity={isReady ? 'success' : hasStripeAccount ? 'warning' : 'info'}
-        sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}
-        action={
-          <Button variant="contained" color="primary" component={Link} href="/dashboard/store">
-            Open Store Settings
-          </Button>
-        }
-      >
-        Manage Stripe Connect configuration from the Store page Settings tab.
-      </Alert>
-    );
-  };
-
   const renderTransactionsTab = () => {
     if (!selectedCompanyId) {
       return <Alert severity="info">Select a company to view cash movements.</Alert>;
@@ -146,11 +115,10 @@ export default function CompanyFinanceSettings() {
       )}
 
       <Tabs value={tab} onChange={handleTabChange} sx={{ mb: 3 }}>
-        <Tab value="connect" label="Stripe Connect" />
         <Tab value="transactions" label="Transactions" />
       </Tabs>
 
-      {tab === 'connect' ? renderConnectTab() : renderTransactionsTab()}
+      {renderTransactionsTab()}
     </Paper>
   );
 }

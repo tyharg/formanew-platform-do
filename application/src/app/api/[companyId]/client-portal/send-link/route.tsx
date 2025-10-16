@@ -14,7 +14,7 @@ const normalizeEmail = (value: unknown): string | null => {
   return value.trim().toLowerCase();
 };
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest, { params }: { params: { companyId: string } }) {
   try {
     const body = await request.json().catch(() => ({}));
     const email = normalizeEmail(body.email);
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     });
 
     const origin = serverConfig.baseURL || request.nextUrl.origin;
-    const portalUrl = `${origin}/client-portal?token=${encodeURIComponent(token)}`;
+    const portalUrl = `${origin}/${params.companyId}/client-portal?token=${encodeURIComponent(token)}`;
 
     const emailService = await createEmailService();
 

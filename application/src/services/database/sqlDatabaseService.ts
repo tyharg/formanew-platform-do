@@ -325,11 +325,46 @@ export class SqlDatabaseService extends DatabaseClient {
         'id' | 'createdAt' | 'updatedAt' | 'contracts' | 'contacts' | 'notes' | 'finance'
       >
     ): Promise<Company> => {
-      const created = await prisma.company.create({
-        data: company as unknown as Prisma.CompanyCreateInput,
-        include: { contracts: true, contacts: true, notes: true, finance: true },
+      return prisma.$transaction(async (prisma) => {
+        const newCompany = await prisma.company.create({
+          data: company as unknown as Prisma.CompanyCreateInput,
+        });
+
+        const businessAddress = await prisma.businessAddress.create({ data: {} });
+        const registeredAgent = await prisma.registeredAgent.create({ data: {} });
+        const companyDetails = await prisma.incorporationCompanyDetails.create({ data: {} });
+        const attestation = await prisma.attestation.create({ data: {} });
+
+        await prisma.incorporation.create({
+          data: {
+            companyId: newCompany.id,
+            businessAddressId: businessAddress.id,
+            registeredAgentId: registeredAgent.id,
+            companyDetailsId: companyDetails.id,
+            attestationId: attestation.id,
+          },
+        });
+
+        const created = await prisma.company.findUnique({
+          where: { id: newCompany.id },
+          include: {
+            contracts: true,
+            contacts: true,
+            notes: true,
+            finance: true,
+            incorporation: {
+              include: {
+                businessAddress: true,
+                registeredAgent: true,
+                companyDetails: true,
+                attestation: true,
+              },
+            },
+          },
+        });
+
+        return created as unknown as Company;
       });
-      return created as unknown as Company;
     },
     update: async (
       id: string,

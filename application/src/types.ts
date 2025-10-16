@@ -220,3 +220,74 @@ export enum WorkItemStatus {
   BLOCKED = 'BLOCKED',
   COMPLETED = 'COMPLETED',
 }
+
+export interface Incorporation {
+  id: string;
+  companyId: string;
+  businessSubType: string | null;
+  nameReserved: boolean | null;
+  llcName: string | null;
+  confirmLlcName: string | null;
+  consentToUseName: string | null;
+  dbaDifferent: boolean | null;
+  businessAddressId: string | null;
+  registeredAgentId: string | null;
+  companyDetailsId: string | null;
+  attestationId: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface BusinessAddress {
+  id: string;
+  principalAddress: string | null;
+  principalSteAptFl: string | null;
+  principalAttention: string | null;
+  principalCity: string | null;
+  principalState: string | null;
+  principalZip: string | null;
+  principalCountry: string | null;
+  mailingAddress: string | null;
+  mailingSteAptFl: string | null;
+  mailingAttention: string | null;
+  mailingCity: string | null;
+  mailingState: string | null;
+  mailingZip: string | null;
+  mailingCountry: string | null;
+  businessPhone: string | null;
+  businessEmail: string | null;
+}
+
+export interface RegisteredAgent {
+  id: string;
+  name: string | null;
+  address: string | null;
+  city: string | null;
+  state: string | null;
+  zipCode: string | null;
+  country: string | null;
+  certified: boolean | null;
+  acceptanceForm: string | null;
+  formationLocale: string | null;
+}
+
+export interface IncorporationCompanyDetails {
+  id: string;
+  durationType: string | null;
+  durationDate: Date | null;
+  purposeStatement: string | null;
+}
+
+export interface Attestation {
+  id: string;
+  infoIsPublic: boolean | null;
+  authorizedToFile: boolean | null;
+  swornTrue: boolean | null;
+  organizerTitle: string | null;
+  organizerName: string | null;
+  organizerAddress: string | null;
+  signerCapacity: string | null;
+  onBehalfOf: string | null;
+  signature: string | null;
+  dateSigned: Date | null;
+}

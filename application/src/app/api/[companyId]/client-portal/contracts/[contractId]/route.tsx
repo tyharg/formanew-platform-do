@@ -6,7 +6,10 @@ import { prisma } from 'lib/prisma';
 
 const toIsoString = (value: Date | null) => (value ? value.toISOString() : null);
 
-export async function GET(request: NextRequest, { params }: { params: { contractId: string } }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { contractId: string; companyId: string } }
+) {
   try {
     const token = request.nextUrl.searchParams.get('token');
 
@@ -20,7 +23,7 @@ export async function GET(request: NextRequest, { params }: { params: { contract
     let payload;
     try {
       payload = verifyClientPortalToken(token);
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         { error: 'Invalid or expired token' },
         { status: HTTP_STATUS.UNAUTHORIZED }
@@ -82,6 +85,9 @@ export async function GET(request: NextRequest, { params }: { params: { contract
         workItems: {
           orderBy: [{ position: 'asc' }, { createdAt: 'asc' }],
         },
+        files: {
+          orderBy: { createdAt: 'asc' },
+        },
       },
     });
 
@@ -131,6 +137,18 @@ export async function GET(request: NextRequest, { params }: { params: { contract
         completedAt: toIsoString(item.completedAt),
         position: item.position,
       })),
+      files: contract.files.map((file) => ({
+        id: file.id,
+        name: file.name,
+        description: file.description,
+        contentType: file.contentType,
+        size: file.size,
+        createdAt: file.createdAt.toISOString(),
+      })),
+      isBillingEnabled: contract.isBillingEnabled,
+      stripePriceId: contract.stripePriceId,
+      billingAmount: contract.billingAmount,
+      billingCurrency: contract.billingCurrency,
     };
 
     return NextResponse.json({ contract: response });

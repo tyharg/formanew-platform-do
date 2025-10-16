@@ -43,14 +43,6 @@ export async function PATCH(
   try {
     const { companyId, productId } = await params;
     const body = await request.json().catch(() => ({}));
-    const active = typeof body.active === 'boolean' ? body.active : null;
-
-    if (active === null) {
-      return NextResponse.json(
-        { error: 'Provide an "active" boolean flag when updating a product.' },
-        { status: HTTP_STATUS.BAD_REQUEST }
-      );
-    }
 
     const db = await createDatabaseService();
     const finance = await db.companyFinance.findByCompanyId(companyId);
@@ -62,9 +54,36 @@ export async function PATCH(
       );
     }
 
+    const updatePayload: {
+      name?: string;
+      description?: string;
+      active?: boolean;
+      metadata?: { [key: string]: string };
+    } = {};
+
+    if (body.name !== undefined) {
+      updatePayload.name = body.name;
+    }
+    if (body.description !== undefined) {
+      updatePayload.description = body.description;
+    }
+    if (body.active !== undefined) {
+      updatePayload.active = body.active;
+    }
+    if (body.displayOnStorefront !== undefined) {
+      updatePayload.metadata = { displayOnStorefront: String(body.displayOnStorefront) };
+    }
+
+    if (Object.keys(updatePayload).length === 0) {
+      return NextResponse.json(
+        { error: 'Provide at least one field to update (name, description, or active).' },
+        { status: HTTP_STATUS.BAD_REQUEST }
+      );
+    }
+
     const product = await stripe.products.update(
       productId,
-      { active },
+      updatePayload,
       { stripeAccount: finance.stripeAccountId }
     );
 

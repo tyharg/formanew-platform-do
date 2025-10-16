@@ -23,7 +23,7 @@ const ClientPortalMagicLinkRequestForm: React.FC<ClientPortalMagicLinkRequestFor
           Client Portal Access
         </Typography>
         <Typography variant="body1" gutterBottom>
-          Enter your email address associated with this company's client portal to receive a secure access link.
+          Enter your email address associated with this company&apos;s client portal to receive a secure access link.
         </Typography>
         <TextField
           label="Email Address"

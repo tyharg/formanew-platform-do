@@ -5,6 +5,7 @@ import { HTTP_STATUS } from '@/lib/api/http';
 
 const mapProducts = (products: Stripe.Product[]) =>
   products
+    .filter((product) => product.metadata.displayOnStorefront === 'true')
     .map((product) => {
       const defaultPrice = product.default_price as Stripe.Price | string | null;
       const priceObject = typeof defaultPrice === 'object' && defaultPrice !== null ? defaultPrice : null;

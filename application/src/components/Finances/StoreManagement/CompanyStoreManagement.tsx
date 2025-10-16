@@ -19,6 +19,7 @@ import { CompanyFinance } from '@/types';
 import ProductCreationForm from './ProductCreationForm';
 import ProductList, { StoreProduct } from './ProductList';
 import StripeConnectSetup from '@/components/AccountSettings/CompanyFinanceSettings/StripeConnectSetup';
+import ProductEditModal from './ProductEditModal';
 
 interface FinanceResponse {
   finance: CompanyFinance | null;
@@ -38,29 +39,33 @@ const mapProducts = (products: Array<Record<string, unknown>>): StoreProduct[] =
   products
     .map((rawProduct) => {
       const id = typeof rawProduct.id === 'string' ? rawProduct.id : null;
-      const defaultPriceId =
-        typeof rawProduct.defaultPriceId === 'string' ? rawProduct.defaultPriceId : null;
+      const price = rawProduct.price as {
+        id: string;
+        amount: number;
+        currency: string;
+      } | null;
 
-      if (!id || !defaultPriceId) {
+      if (!id || !price) {
         return null;
       }
 
       const name = typeof rawProduct.name === 'string' ? rawProduct.name : 'Untitled product';
       const description =
         typeof rawProduct.description === 'string' ? rawProduct.description : '';
-      const unitAmount =
-        typeof rawProduct.unitAmount === 'number' ? rawProduct.unitAmount : null;
-      const currency = typeof rawProduct.currency === 'string' ? rawProduct.currency : null;
       const active = typeof rawProduct.active === 'boolean' ? rawProduct.active : true;
+      const displayOnStorefront =
+        (rawProduct.metadata as { displayOnStorefront?: 'true' | 'false' })
+          ?.displayOnStorefront === 'true';
 
       return {
         id,
         name,
         description,
-        defaultPriceId,
-        unitAmount,
-        currency,
+        defaultPriceId: price.id,
+        unitAmount: price.amount,
+        currency: price.currency,
         active,
+        displayOnStorefront,
       } satisfies StoreProduct;
     })
     .filter((product): product is StoreProduct => Boolean(product));
@@ -76,6 +81,17 @@ export default function CompanyStoreManagement() {
   const [productsError, setProductsError] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [tab, setTab] = useState<'products' | 'settings'>('products');
+  const [productTab, setProductTab] = useState<'active' | 'archived'>('active');
+
+  const [selectedProduct, setSelectedProduct] = useState<StoreProduct | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  const { activeProducts, archivedProducts } = useMemo(() => {
+    const active: StoreProduct[] = [];
+    const archived: StoreProduct[] = [];
+    products.forEach((p) => (p.active ? active.push(p) : archived.push(p)));
+    return { activeProducts: active, archivedProducts: archived };
+  }, [products]);
 
   const isReadyForStore = useMemo(
     () => Boolean(finance?.stripeAccountId && finance?.chargesEnabled),
@@ -173,33 +189,81 @@ export default function CompanyStoreManagement() {
     }
   };
 
-  const handleToggleProductActive = useCallback(
-    async (productId: string, nextActive: boolean) => {
-      if (!selectedCompanyId) {
-        return;
-      }
-      setUpdatingId(productId);
-      setProductsError(null);
-      try {
-        await fetchJson<{ success: true }>(
-          `/api/company/${selectedCompanyId}/finance/stripe/products/${productId}`,
-          {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ active: nextActive }),
-          }
-        );
-        await fetchProducts(selectedCompanyId);
-      } catch (error) {
-        console.error('Failed to update product status', error);
-        setProductsError(error instanceof Error ? error.message : 'Unable to update product status.');
-      } finally {
-        setUpdatingId(null);
-      }
-    },
-    [selectedCompanyId, fetchProducts]
-  );
+  const handleProductTabChange = (_event: React.SyntheticEvent, value: string) => {
+    if (value === 'active' || value === 'archived') {
+      setProductTab(value);
+    }
+  };
 
+  const handleProductClick = (product: StoreProduct) => {
+    setSelectedProduct(product);
+    setIsEditModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedProduct(null);
+    setIsEditModalOpen(false);
+  };
+
+  const handleSaveProduct = async (
+    productId: string,
+    payload: { name: string; description: string; displayOnStorefront: boolean }
+  ) => {
+    if (!selectedCompanyId) return;
+    setUpdatingId(productId);
+    try {
+      await fetchJson(`/api/company/${selectedCompanyId}/finance/stripe/products/${productId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      await fetchProducts(selectedCompanyId);
+      handleCloseModal();
+    } catch (error) {
+      console.error('Failed to save product', error);
+      // You might want to show a toast here
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const handleArchiveProduct = async (productId: string) => {
+    if (!selectedCompanyId) return;
+    setUpdatingId(productId);
+    try {
+      await fetchJson(`/api/company/${selectedCompanyId}/finance/stripe/products/${productId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ active: false }),
+      });
+      await fetchProducts(selectedCompanyId);
+      handleCloseModal();
+    } catch (error) {
+      console.error('Failed to archive product', error);
+      // You might want to show a toast here
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const handleUnarchiveProduct = async (productId: string) => {
+    if (!selectedCompanyId) return;
+    setUpdatingId(productId);
+    try {
+      await fetchJson(`/api/company/${selectedCompanyId}/finance/stripe/products/${productId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ active: true }),
+      });
+      await fetchProducts(selectedCompanyId);
+      handleCloseModal();
+    } catch (error) {
+      console.error('Failed to unarchive product', error);
+      // You might want to show a toast here
+    } finally {
+      setUpdatingId(null);
+    }
+  };
   const handleStripeRefresh = useCallback(() => {
     void loadFinance();
   }, [loadFinance]);
@@ -253,12 +317,17 @@ export default function CompanyStoreManagement() {
 
         <Divider />
 
+        <Tabs value={productTab} onChange={handleProductTabChange}>
+          <Tab value="active" label={`Active (${activeProducts.length})`} />
+          <Tab value="archived" label={`Archived (${archivedProducts.length})`} />
+        </Tabs>
+
         <ProductList
-          products={products}
+          products={productTab === 'active' ? activeProducts : archivedProducts}
           isLoading={isProductsLoading}
           error={productsError}
           onRefresh={handleRefreshProducts}
-          onToggleActive={handleToggleProductActive}
+          onProductClick={handleProductClick}
           updatingId={updatingId}
         />
       </Stack>
@@ -315,6 +384,18 @@ export default function CompanyStoreManagement() {
 
         {tab === 'products' ? renderProductsTab() : renderSettingsTab()}
       </Paper>
+
+      {selectedProduct && (
+        <ProductEditModal
+          open={isEditModalOpen}
+          product={selectedProduct}
+          onClose={handleCloseModal}
+          onSave={handleSaveProduct}
+          onArchive={handleArchiveProduct}
+          onUnarchive={handleUnarchiveProduct}
+          isUpdating={Boolean(updatingId)}
+        />
+      )}
     </Stack>
   );
 }
