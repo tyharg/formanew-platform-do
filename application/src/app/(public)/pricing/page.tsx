@@ -199,15 +199,23 @@ export default function PricingPage() {
 
 
                   <List sx={{ pt: 1, pb: 0 }}>
-                    {plan.features.map((feature) => (
+                    {plan.features.map((feature, index) => (
                       <ListItem key={feature} sx={{ px: 0, py: 0.75 }}>
-                        <ListItemIcon sx={{ minWidth: 36 }}>
-                          <CheckIcon sx={{ color: '#4f3cf0' }} />
-                        </ListItemIcon>
-                        <ListItemText
-                          primaryTypographyProps={{ variant: 'body1', fontWeight: 500 }}
-                          primary={feature}
-                        />
+                        {index === 0 ? (
+                          <Typography variant="h6" sx={{ fontWeight: 700, color: '#4f3cf0' }}>
+                            {feature}
+                          </Typography>
+                        ) : (
+                          <>
+                            <ListItemIcon sx={{ minWidth: 36 }}>
+                              <CheckIcon sx={{ color: '#4f3cf0' }} />
+                            </ListItemIcon>
+                            <ListItemText
+                              primaryTypographyProps={{ variant: 'body1', fontWeight: 500 }}
+                              primary={feature}
+                            />
+                          </>
+                        )}
                       </ListItem>
                     ))}
                   </List>
