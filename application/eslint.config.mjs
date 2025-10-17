@@ -27,7 +27,6 @@ const config = [
           jsx: true,
         },
       },
-      '@typescript-eslint/no-explicit-any': 'warn',
     },
     plugins: {
       jsdoc: jsdocPlugin,
@@ -52,6 +51,7 @@ const config = [
 
       'jsdoc/check-tag-names': 'warn',
       'jsdoc/check-alignment': 'warn',
+      '@typescript-eslint/no-explicit-any': 'warn',
 
       '@typescript-eslint/no-unused-vars': [
         'warn',
