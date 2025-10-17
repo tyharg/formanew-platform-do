@@ -221,9 +221,15 @@ export enum WorkItemStatus {
   COMPLETED = 'COMPLETED',
 }
 
+export enum IncorporationStatus {
+  DRAFT = 'DRAFT',
+  SUBMITTED = 'SUBMITTED',
+}
+
 export interface Incorporation {
   id: string;
   companyId: string;
+  status: IncorporationStatus;
   businessSubType: string | null;
   nameReserved: boolean | null;
   llcName: string | null;
@@ -234,6 +240,7 @@ export interface Incorporation {
   registeredAgentId: string | null;
   companyDetailsId: string | null;
   attestationId: string | null;
+  submittedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
