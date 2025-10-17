@@ -27,6 +27,7 @@ const config = [
           jsx: true,
         },
       },
+      '@typescript-eslint/no-explicit-any': 'warn',
     },
     plugins: {
       jsdoc: jsdocPlugin,
