@@ -54,9 +54,6 @@ const plans: Plan[] = [
   {
     name: 'Creator Plus',
     description: 'For creators who want a full online business presence.',
-    buttonLabel: 'Coming Soon',
-    buttonVariant: 'contained',
-    buttonHref: '#',
     features: [
       'Includes everything in Incorporation, plus:',
       'Professional storefront',
@@ -70,9 +67,6 @@ const plans: Plan[] = [
   {
     name: 'Developer Pro',
     description: 'For developers ready to deploy real products and SaaS apps.',
-    buttonLabel: 'Coming Soon',
-    buttonVariant: 'outlined',
-    buttonHref: '#',
     features: [
       'Includes everything in Creator Plus, plus:',
       'Jamstack app hosting platform (deploy apps, APIs, or web tools)',
@@ -80,7 +74,8 @@ const plans: Plan[] = [
       'API key management & environment variables',
       'Priority technical support',
     ],
-    supportingText: 'Coming Soon',
+    highlight: true,
+    badgeText: 'Coming Soon',
   },
 ];
 
