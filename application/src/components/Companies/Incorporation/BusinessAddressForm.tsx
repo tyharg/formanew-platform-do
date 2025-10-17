@@ -2,10 +2,11 @@
 
 import { Stack, TextField, Typography } from '@mui/material';
 import { BusinessAddress } from 'types';
+import { FormFieldValue } from './types';
 
 interface BusinessAddressFormProps {
   formData: Partial<BusinessAddress>;
-  onFormChange: (field: keyof BusinessAddress, value: any) => void;
+  onFormChange: (field: keyof BusinessAddress, value: FormFieldValue) => void;
 }
 
 const BusinessAddressForm: React.FC<BusinessAddressFormProps> = ({
