@@ -4,6 +4,8 @@ import { createStorageService } from 'services/storage/storageFactory';
 import { HTTP_STATUS } from 'lib/api/http';
 import { verifyClientPortalToken } from 'lib/auth/clientPortalToken';
 
+const STORAGE_FOLDER = 'contracts';
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { contractId: string; fileId: string } }
@@ -71,7 +73,11 @@ export async function GET(
     }
 
     const storage = await createStorageService();
-    const downloadUrl = await storage.getDownloadUrl(file.storageKey);
+    const downloadUrl = await storage.getFileUrl(
+      STORAGE_FOLDER,
+      file.storageKey,
+      60 * 15
+    );
 
     return NextResponse.redirect(downloadUrl);
   } catch (error) {

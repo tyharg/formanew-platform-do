@@ -98,6 +98,10 @@ export const createContract = async (
       paymentTerms: nullableString(body.paymentTerms),
       renewalTerms: nullableString(body.renewalTerms),
       description: nullableString(body.description),
+      isBillingEnabled: typeof body.isBillingEnabled === 'boolean' ? body.isBillingEnabled : false,
+      stripePriceId: nullableString(body.stripePriceId),
+      billingAmount: parseOptionalNumber(body.billingAmount),
+      billingCurrency: nullableString(body.billingCurrency),
     });
 
     return NextResponse.json({ contract }, { status: HTTP_STATUS.CREATED });

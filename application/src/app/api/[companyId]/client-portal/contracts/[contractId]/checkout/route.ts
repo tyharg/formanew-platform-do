@@ -3,6 +3,7 @@ import { createDatabaseService } from 'services/database/databaseFactory';
 import { HTTP_STATUS } from 'lib/api/http';
 import { verifyClientPortalToken } from 'lib/auth/clientPortalToken';
 import { stripe } from 'lib/stripe';
+import type Stripe from 'stripe';
 import { serverConfig } from 'settings';
 
 export async function POST(
@@ -60,7 +61,7 @@ export async function POST(
 
     if (
       !contract.isBillingEnabled ||
-      (!contract.stripePriceId && !contract.billingAmount)
+      (!contract.stripePriceId && contract.billingAmount == null)
     ) {
       return NextResponse.json(
         { error: 'This contract is not configured for payments' },
@@ -83,20 +84,30 @@ export async function POST(
       token
     )}`;
 
-    const lineItems = contract.stripePriceId
-      ? [{ price: contract.stripePriceId, quantity: 1 }]
-      : [
-          {
-            price_data: {
-              currency: contract.billingCurrency || 'USD',
-              product_data: {
-                name: contract.title,
-              },
-              unit_amount: contract.billingAmount,
+    let lineItems: Stripe.Checkout.SessionCreateParams.LineItem[];
+    if (contract.stripePriceId) {
+      lineItems = [{ price: contract.stripePriceId, quantity: 1 }];
+    } else {
+      if (contract.billingAmount == null) {
+        return NextResponse.json(
+          { error: 'This contract is not configured for payments' },
+          { status: HTTP_STATUS.BAD_REQUEST }
+        );
+      }
+
+      lineItems = [
+        {
+          price_data: {
+            currency: contract.billingCurrency || 'USD',
+            product_data: {
+              name: contract.title,
             },
-            quantity: 1,
+            unit_amount: contract.billingAmount,
           },
-        ];
+          quantity: 1,
+        },
+      ];
+    }
 
     const session = await stripe.checkout.sessions.create(
       {

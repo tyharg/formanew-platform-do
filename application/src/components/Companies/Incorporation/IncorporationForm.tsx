@@ -102,12 +102,7 @@ const IncorporationForm: React.FC<IncorporationFormProps> = ({ company }) => {
   };
 
   const handleFormChange = (field: keyof Incorporation, value: any) => {
-    setFormData((prev) => {
-      if (field === 'dateSigned' && value) {
-        value = new Date(value).toISOString();
-      }
-      return { ...prev, [field]: value };
-    });
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleNestedFormChange = (

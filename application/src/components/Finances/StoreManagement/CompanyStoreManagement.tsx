@@ -35,40 +35,52 @@ const fetchJson = async <T,>(input: RequestInfo | URL, init?: RequestInit): Prom
   return (await response.json()) as T;
 };
 
-const mapProducts = (products: Array<Record<string, unknown>>): StoreProduct[] =>
-  products
-    .map((rawProduct) => {
-      const id = typeof rawProduct.id === 'string' ? rawProduct.id : null;
-      const price = rawProduct.price as {
-        id: string;
-        amount: number;
-        currency: string;
-      } | null;
+const mapProducts = (products: Array<Record<string, unknown>>): StoreProduct[] => {
+  const mapped: StoreProduct[] = [];
 
-      if (!id || !price) {
-        return null;
-      }
+  products.forEach((rawProduct) => {
+    const id = typeof rawProduct.id === 'string' ? rawProduct.id : null;
+    const price =
+      rawProduct && typeof rawProduct === 'object' && 'price' in rawProduct
+        ? (rawProduct.price as Record<string, unknown> | null)
+        : null;
 
-      const name = typeof rawProduct.name === 'string' ? rawProduct.name : 'Untitled product';
-      const description =
-        typeof rawProduct.description === 'string' ? rawProduct.description : '';
-      const active = typeof rawProduct.active === 'boolean' ? rawProduct.active : true;
-      const displayOnStorefront =
-        (rawProduct.metadata as { displayOnStorefront?: 'true' | 'false' })
-          ?.displayOnStorefront === 'true';
+    if (!id || !price || typeof price !== 'object') {
+      return;
+    }
 
-      return {
-        id,
-        name,
-        description,
-        defaultPriceId: price.id,
-        unitAmount: price.amount,
-        currency: price.currency,
-        active,
-        displayOnStorefront,
-      } satisfies StoreProduct;
-    })
-    .filter((product): product is StoreProduct => Boolean(product));
+    const priceId = typeof price.id === 'string' ? price.id : null;
+    const amount = typeof price.amount === 'number' ? price.amount : null;
+    const currency = typeof price.currency === 'string' ? price.currency : null;
+
+    if (!priceId) {
+      return;
+    }
+
+    const name = typeof rawProduct.name === 'string' ? rawProduct.name : 'Untitled product';
+    const description =
+      typeof rawProduct.description === 'string' ? rawProduct.description : '';
+    const active = typeof rawProduct.active === 'boolean' ? rawProduct.active : true;
+    const metadata =
+      typeof rawProduct.metadata === 'object' && rawProduct.metadata !== null
+        ? (rawProduct.metadata as { displayOnStorefront?: 'true' | 'false' })
+        : undefined;
+    const displayOnStorefront = metadata?.displayOnStorefront === 'true';
+
+    mapped.push({
+      id,
+      name,
+      description,
+      defaultPriceId: priceId,
+      unitAmount: amount,
+      currency,
+      active,
+      displayOnStorefront,
+    });
+  });
+
+  return mapped;
+};
 
 export default function CompanyStoreManagement() {
   const { selectedCompanyId, isLoading: companiesLoading } = useCompanySelection();
