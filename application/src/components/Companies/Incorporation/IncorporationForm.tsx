@@ -75,7 +75,8 @@ const IncorporationForm: React.FC<IncorporationFormProps> = ({ company }) => {
         setFormData(data.incorporation);
         setActiveStep((prevActiveStep) => prevActiveStep + 1);
       } else {
-        console.error('Failed to save incorporation data');
+        const errorText = await response.text();
+        console.error(`Failed to save incorporation data: ${response.status} - ${errorText}`);
       }
     } catch (error) {
       console.error('Failed to save incorporation data', error);
