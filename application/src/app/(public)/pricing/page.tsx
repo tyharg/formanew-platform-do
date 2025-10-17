@@ -152,20 +152,6 @@ export default function PricingPage() {
                     <Typography variant="h3" sx={{ fontWeight: 700, fontSize: '1.75rem', mb: 1 }}>
                       {plan.name}
                     </Typography>
-                    {plan.badgeText && (
-                      <Chip
-                        label={plan.badgeText}
-                        color="secondary"
-                        size="small"
-                        sx={{
-                          alignSelf: 'flex-start',
-                          fontWeight: 600,
-                          bgcolor: '#f6f1ff',
-                          color: '#4f3cf0',
-                          my: 2,
-                        }}
-                      />
-                    )}
                     <Typography variant="body1" color="text.secondary">
                       {plan.description}
                     </Typography>
@@ -178,13 +164,34 @@ export default function PricingPage() {
                       </Typography>
                     ) : (
                       <>
-                        <Typography variant="h4" sx={{ fontWeight: 700, fontSize: '2.5rem', lineHeight: 1 }}>
-                          {plan.price}
-                        </Typography>
-                        {plan.cadence && (
-                          <Typography variant="subtitle2" color="text.secondary">
-                            {plan.cadence}
-                          </Typography>
+                        {plan.price ? (
+                          <>
+                            <Typography variant="h4" sx={{ fontWeight: 700, fontSize: '2.5rem', lineHeight: 1 }}>
+                              {plan.price}
+                            </Typography>
+                            {plan.cadence && (
+                              <Typography variant="subtitle2" color="text.secondary">
+                                {plan.cadence}
+                              </Typography>
+                            )}
+                          </>
+                        ) : (
+                          plan.badgeText && (
+                            <Chip
+                              label={plan.badgeText}
+                              color="secondary"
+                              size="small"
+                              sx={{
+                                alignSelf: 'flex-start',
+                                fontWeight: 600,
+                                bgcolor: '#f6f1ff',
+                                color: '#4f3cf0',
+                                height: '2.5rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                              }}
+                            />
+                          )
                         )}
                       </>
                     )}
