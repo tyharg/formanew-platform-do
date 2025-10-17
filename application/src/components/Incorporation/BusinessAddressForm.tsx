@@ -36,9 +36,9 @@ const BusinessAddressForm: React.FC = () => {
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-semibold text-gray-800 mb-6">
+      <Typography variant="h5" gutterBottom>
         Business Address
-      </h2>
+      </Typography>
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 gap-6">
           <div>

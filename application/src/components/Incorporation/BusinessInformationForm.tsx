@@ -26,7 +26,9 @@ const BusinessInformationForm: React.FC<BusinessInformationFormProps> = ({
 
   return (
     <Stack spacing={3}>
-      <Typography variant="h6">Business Information</Typography>
+      <Typography variant="h5" gutterBottom>
+        Business Information
+      </Typography>
       <Typography variant="body2" color="text.secondary">
         These Articles are filed pursuant to{' '}
         <Link

@@ -168,7 +168,7 @@ const IncorporationForm: React.FC<IncorporationFormProps> = ({ company }) => {
           </Step>
         ))}
       </Stepper>
-      <Box sx={{ mt: 4 }}>
+      <Box sx={{ mt: 6 }}>
         {activeStep === steps.length ? (
           <Box>
             <Typography sx={{ mt: 2, mb: 1 }}>
@@ -188,7 +188,7 @@ const IncorporationForm: React.FC<IncorporationFormProps> = ({ company }) => {
                 Back
               </Button>
               <Box sx={{ flex: '1 1 auto' }} />
-              <Button onClick={handleNext} disabled={isSaving}>
+              <Button variant="contained" onClick={handleNext} disabled={isSaving}>
                 {isSaving ? (
                   <CircularProgress size={24} />
                 ) : activeStep === steps.length - 1 ? (

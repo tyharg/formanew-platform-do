@@ -14,8 +14,8 @@ const AttestationForm: React.FC<AttestationFormProps> = ({ formData, onFormChang
   };
 
   return (
-    <Box sx={{ mt: 3 }}>
-      <Typography variant="h6" gutterBottom>
+    <Box sx={{ mt: 4 }}>
+      <Typography variant="h5" gutterBottom>
         Attestation
       </Typography>
       <FormControlLabel

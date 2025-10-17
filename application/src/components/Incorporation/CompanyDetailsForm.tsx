@@ -27,7 +27,9 @@ const CompanyDetailsForm: React.FC<CompanyDetailsFormProps> = ({
 
   return (
     <Stack spacing={3}>
-      <Typography variant="h6">Duration of the Company</Typography>
+      <Typography variant="h5" gutterBottom>
+        Duration of the Company
+      </Typography>
       <Typography variant="body2" color="text.secondary">
         Provide the duration the company will be transacting business.
       </Typography>
