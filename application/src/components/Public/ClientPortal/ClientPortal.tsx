@@ -162,7 +162,7 @@ const ClientPortal: React.FC = () => {
   const [requestState, setRequestState] = useState(initialRequestState);
   const [activeTab, setActiveTab] = useState('contracts');
   const searchParams = useSearchParams();
-  const { companyId } = useParams();
+  const { companyId } = useParams<{ companyId: string }>();
   const token = searchParams.get('token') ?? '';
 
   useEffect(() => {

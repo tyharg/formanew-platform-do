@@ -41,6 +41,7 @@ const mockDatabaseService = {
   file: {} as unknown as DatabaseClient['file'],
   workItem: {} as unknown as DatabaseClient['workItem'],
   relevantParty: {} as unknown as DatabaseClient['relevantParty'],
+  incorporation: {} as unknown as DatabaseClient['incorporation'],
 } as jest.Mocked<DatabaseClient>;
 
 const mockBillingService = {

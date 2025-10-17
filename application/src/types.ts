@@ -80,6 +80,10 @@ export interface Contract {
   description: string | null;
   createdAt: Date;
   updatedAt: Date;
+  isBillingEnabled: boolean;
+  stripePriceId: string | null;
+  billingAmount: number | null;
+  billingCurrency: string | null;
   files?: StoredFile[];
   workItems?: WorkItem[];
   relevantParties?: RelevantParty[];
@@ -241,6 +245,11 @@ export interface Incorporation {
   registeredAgentId: string | null;
   companyDetailsId: string | null;
   attestationId: string | null;
+  businessAddress?: BusinessAddress | null;
+  registeredAgent?: RegisteredAgent | null;
+  companyDetails?: IncorporationCompanyDetails | null;
+  attestation?: Attestation | null;
+  isComplete?: boolean;
   primaryContactId: string | null;
   submittedAt: Date | null;
   createdAt: Date;

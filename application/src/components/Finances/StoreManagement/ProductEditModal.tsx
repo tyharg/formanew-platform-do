@@ -100,7 +100,9 @@ const ProductEditModal: React.FC<ProductEditModalProps> = ({
               Price cannot be changed after creation. To change the price, create a new product.
             </Typography>
             <Typography variant="body1" fontWeight={500}>
-              {(product.unitAmount / 100).toFixed(2)} {product.currency?.toUpperCase()}
+              {product.unitAmount !== null && product.currency
+                ? `${(product.unitAmount / 100).toFixed(2)} ${product.currency.toUpperCase()}`
+                : '—'}
             </Typography>
           </Box>
         </Stack>
