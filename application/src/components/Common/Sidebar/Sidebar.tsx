@@ -99,12 +99,17 @@ const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => {
   const isInitialCompanyLoad = isLoadingCompanies && companies.length === 0;
 
   useEffect(() => {
-    setCompany(selectedCompany);
+    setCompany(selectedCompany ? { ...selectedCompany, formationDate: selectedCompany.formationDate ? new Date(selectedCompany.formationDate) : null } : null);
   }, [selectedCompany, setCompany]);
 
   useEffect(() => {
     if (session) {
-      setUser(session.user);
+      setUser({
+        ...session.user,
+        passwordHash: '',
+        createdAt: new Date(),
+        emailVerified: null,
+      });
     }
   }, [session, setUser]);
 

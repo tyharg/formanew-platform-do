@@ -126,8 +126,8 @@ const IncorporationForm: React.FC<IncorporationFormProps> = ({ company }) => {
       case 1:
         return (
           <BusinessAddressForm
-            formData={{}}
-            onFormChange={(field, value) =>
+            formData={{} as any}
+            onFormChange={(field: string, value: string | boolean) =>
               handleNestedFormChange('businessAddressId', field, value)
             }
           />
