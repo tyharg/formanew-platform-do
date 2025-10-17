@@ -130,6 +130,8 @@ export default function PricingPage() {
 
             return (
               <ButtonBase
+                component={plan.buttonHref ? Link : 'div'}
+                href={plan.buttonHref || undefined}
                 key={plan.name}
                 sx={{
                   position: 'relative',
