@@ -1,7 +1,6 @@
 'use client';
 
 import {
-  Box,
   FormControlLabel,
   Link,
   Stack,
@@ -13,7 +12,10 @@ import { Incorporation } from 'types';
 
 interface BusinessInformationFormProps {
   formData: Partial<Incorporation>;
-  onFormChange: (field: keyof Incorporation, value: any) => void;
+  onFormChange: <Field extends keyof Incorporation>(
+    field: Field,
+    value: Incorporation[Field]
+  ) => void;
 }
 
 const BusinessInformationForm: React.FC<BusinessInformationFormProps> = ({
@@ -22,7 +24,14 @@ const BusinessInformationForm: React.FC<BusinessInformationFormProps> = ({
 }) => {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = event.target;
-    onFormChange(name as keyof Incorporation, type === 'checkbox' ? checked : value);
+    const field = name as keyof Incorporation;
+
+    if (type === 'checkbox') {
+      onFormChange(field, checked as Incorporation[typeof field]);
+      return;
+    }
+
+    onFormChange(field, value as Incorporation[typeof field]);
   };
 
   return (

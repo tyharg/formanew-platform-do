@@ -11,7 +11,10 @@ import { Attestation } from 'types';
 
 interface AttestationFormProps {
   formData: Partial<Attestation>;
-  onFormChange: (field: keyof Attestation, value: any) => void;
+  onFormChange: <Field extends keyof Attestation>(
+    field: Field,
+    value: Attestation[Field]
+  ) => void;
 }
 
 const AttestationForm: React.FC<AttestationFormProps> = ({
@@ -20,8 +23,24 @@ const AttestationForm: React.FC<AttestationFormProps> = ({
 }) => {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = event.target;
-    onFormChange(name as keyof Attestation, type === 'checkbox' ? checked : value);
+    const field = name as keyof Attestation;
+
+    if (type === 'checkbox') {
+      onFormChange(field, checked as Attestation[typeof field]);
+      return;
+    }
+
+    if (type === 'date') {
+      const nextValue = value ? new Date(value) : null;
+      onFormChange(field, nextValue as Attestation[typeof field]);
+      return;
+    }
+
+    onFormChange(field, value as Attestation[typeof field]);
   };
+
+  const formatDateInputValue = (date?: Date | string | null) =>
+    date ? new Date(date).toISOString().split('T')[0] : '';
 
   return (
     <Stack spacing={3}>
@@ -114,7 +133,7 @@ const AttestationForm: React.FC<AttestationFormProps> = ({
         name="dateSigned"
         label="Date"
         type="date"
-        value={formData.dateSigned || ''}
+        value={formatDateInputValue(formData.dateSigned)}
         onChange={handleChange}
         fullWidth
         InputLabelProps={{

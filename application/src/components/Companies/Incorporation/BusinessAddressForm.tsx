@@ -5,7 +5,10 @@ import { BusinessAddress } from 'types';
 
 interface BusinessAddressFormProps {
   formData: Partial<BusinessAddress>;
-  onFormChange: (field: keyof BusinessAddress, value: any) => void;
+  onFormChange: <Field extends keyof BusinessAddress>(
+    field: Field,
+    value: BusinessAddress[Field]
+  ) => void;
 }
 
 const BusinessAddressForm: React.FC<BusinessAddressFormProps> = ({
@@ -14,7 +17,8 @@ const BusinessAddressForm: React.FC<BusinessAddressFormProps> = ({
 }) => {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
-    onFormChange(name as keyof BusinessAddress, value);
+    const field = name as keyof BusinessAddress;
+    onFormChange(field, value as BusinessAddress[typeof field]);
   };
 
   return (

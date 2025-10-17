@@ -3,6 +3,7 @@ import { withAuth } from 'lib/auth/withAuth';
 import { createDatabaseService } from 'services/database/databaseFactory';
 import { stripe } from 'lib/stripe';
 import { HTTP_STATUS } from 'lib/api/http';
+import type Stripe from 'stripe';
 
 export const GET = withAuth(
   async (
@@ -34,19 +35,27 @@ export const GET = withAuth(
         { stripeAccount: finance.stripeAccountId }
       );
 
-      const productOptions = products.data.map((product) => ({
-        id: product.id,
-        name: product.name,
-        description: product.description,
-        active: product.active,
-        price: product.default_price
-          ? {
-              id: (product.default_price as any).id,
-              amount: (product.default_price as any).unit_amount,
-              currency: (product.default_price as any).currency,
-            }
-          : null,
-      }));
+      const productOptions = products.data.map((product) => {
+        const defaultPrice = product.default_price;
+        const expandedPrice: Stripe.Price | null =
+          typeof defaultPrice === 'object' && defaultPrice
+            ? defaultPrice
+            : null;
+
+        return {
+          id: product.id,
+          name: product.name,
+          description: product.description,
+          active: product.active,
+          price: expandedPrice
+            ? {
+                id: expandedPrice.id,
+                amount: expandedPrice.unit_amount,
+                currency: expandedPrice.currency,
+              }
+            : null,
+        };
+      });
 
             return NextResponse.json({ products: productOptions });
 

@@ -101,19 +101,27 @@ const IncorporationForm: React.FC<IncorporationFormProps> = ({ company }) => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
-  const handleFormChange = (field: keyof Incorporation, value: any) => {
+  const handleFormChange = <Field extends keyof Incorporation>(
+    field: Field,
+    value: Incorporation[Field]
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleNestedFormChange = (
-    model: keyof Incorporation,
-    field: string,
-    value: any
+  type NestedModelKey = 'businessAddress' | 'companyDetails' | 'attestation';
+
+  const handleNestedFormChange = <
+    ModelKey extends NestedModelKey,
+    Field extends keyof NonNullable<Incorporation[ModelKey]>
+  >(
+    model: ModelKey,
+    field: Field,
+    value: NonNullable<Incorporation[ModelKey]>[Field]
   ) => {
     setFormData((prev) => ({
       ...prev,
       [model]: {
-        ...(prev[model] as object),
+        ...((prev[model] ?? {}) as NonNullable<Incorporation[ModelKey]>),
         [field]: value,
       },
     }));

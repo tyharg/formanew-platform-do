@@ -13,7 +13,10 @@ import { IncorporationCompanyDetails } from 'types';
 
 interface CompanyDetailsFormProps {
   formData: Partial<IncorporationCompanyDetails>;
-  onFormChange: (field: keyof IncorporationCompanyDetails, value: any) => void;
+  onFormChange: <Field extends keyof IncorporationCompanyDetails>(
+    field: Field,
+    value: IncorporationCompanyDetails[Field]
+  ) => void;
 }
 
 const CompanyDetailsForm: React.FC<CompanyDetailsFormProps> = ({
@@ -21,9 +24,20 @@ const CompanyDetailsForm: React.FC<CompanyDetailsFormProps> = ({
   onFormChange,
 }) => {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    onFormChange(name as keyof IncorporationCompanyDetails, value);
+    const { name, value, type } = event.target;
+    const field = name as keyof IncorporationCompanyDetails;
+
+    if (type === 'date') {
+      const nextValue = value ? new Date(value) : null;
+      onFormChange(field, nextValue as IncorporationCompanyDetails[typeof field]);
+      return;
+    }
+
+    onFormChange(field, value as IncorporationCompanyDetails[typeof field]);
   };
+
+  const formatDateInputValue = (date?: Date | string | null) =>
+    date ? new Date(date).toISOString().split('T')[0] : '';
 
   return (
     <Stack spacing={3}>
@@ -46,7 +60,7 @@ const CompanyDetailsForm: React.FC<CompanyDetailsFormProps> = ({
           name="durationDate"
           label="Duration Date"
           type="date"
-          value={formData.durationDate || ''}
+          value={formatDateInputValue(formData.durationDate)}
           onChange={handleChange}
           fullWidth
           InputLabelProps={{
