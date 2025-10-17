@@ -17,6 +17,9 @@ import {
   BusinessAddress,
   RegisteredAgent,
   IncorporationCompanyDetails,
+  IncorporationBusinessDetails,
+  IncorporationPrimaryContact,
+  IncorporationMember,
   Attestation,
 } from 'types';
 import { ServiceConfigStatus, ConfigurableService } from '../status/serviceConfigStatus';
@@ -24,6 +27,45 @@ import { ServiceConfigStatus, ConfigurableService } from '../status/serviceConfi
 export type DatabaseProvider = 'Postgres';
 
 export type QueryParams = unknown[];
+
+export type IncorporationMemberInput = Partial<
+  Omit<IncorporationMember, 'incorporationId' | 'createdAt' | 'updatedAt'>
+> & { id?: string | null };
+
+export type IncorporationWithRelations = Incorporation & {
+  businessAddress: BusinessAddress | null;
+  registeredAgent: RegisteredAgent | null;
+  businessDetails: IncorporationBusinessDetails | null;
+  companyDetails: IncorporationCompanyDetails | null;
+  attestation: Attestation | null;
+  primaryContact: IncorporationPrimaryContact | null;
+  members: IncorporationMember[];
+};
+
+export type IncorporationCreateInput = Omit<
+  Incorporation,
+  'id' | 'createdAt' | 'updatedAt'
+> & {
+  businessAddress?: Partial<BusinessAddress> | null;
+  registeredAgent?: Partial<RegisteredAgent> | null;
+  businessDetails?: Partial<IncorporationBusinessDetails> | null;
+  companyDetails?: Partial<IncorporationCompanyDetails> | null;
+  attestation?: Partial<Attestation> | null;
+  primaryContact?: Partial<IncorporationPrimaryContact> | null;
+  members?: IncorporationMemberInput[] | null;
+};
+
+export type IncorporationUpdateInput = Partial<
+  Omit<Incorporation, 'id' | 'createdAt' | 'updatedAt' | 'companyId'>
+> & {
+  businessAddress?: Partial<BusinessAddress> | null;
+  registeredAgent?: Partial<RegisteredAgent> | null;
+  businessDetails?: Partial<IncorporationBusinessDetails> | null;
+  companyDetails?: Partial<IncorporationCompanyDetails> | null;
+  attestation?: Partial<Attestation> | null;
+  primaryContact?: Partial<IncorporationPrimaryContact> | null;
+  members?: IncorporationMemberInput[] | null;
+};
 /**
  * Abstract base class for database clients.
  * Provides a common interface for database operations across different database providers.
@@ -203,14 +245,15 @@ export abstract class DatabaseClient implements ConfigurableService {
     delete: (id: string) => Promise<void>;
   };
   abstract incorporation: {
-    findByCompanyId: (companyId: string) => Promise<Incorporation | null>;
-    create: (
-      incorporation: Omit<Incorporation, 'id' | 'createdAt' | 'updatedAt'>
-    ) => Promise<Incorporation>;
+    findById: (id: string) => Promise<IncorporationWithRelations | null>;
+    findByCompanyId: (
+      companyId: string
+    ) => Promise<IncorporationWithRelations | null>;
+    create: (incorporation: IncorporationCreateInput) => Promise<IncorporationWithRelations>;
     update: (
       id: string,
-      incorporation: Partial<Omit<Incorporation, 'id' | 'createdAt' | 'updatedAt' | 'companyId'>>
-    ) => Promise<Incorporation>;
+      incorporation: IncorporationUpdateInput
+    ) => Promise<IncorporationWithRelations>;
   };
   abstract checkConnection(): Promise<boolean>;
 
