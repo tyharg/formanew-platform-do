@@ -1,20 +1,10 @@
 'use client';
 
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-  Alert,
-  Box,
-  Button,
-  CircularProgress,
-  Paper,
-  Tabs,
-  Tab,
-  Typography,
-} from '@mui/material';
+import { Alert, Box, CircularProgress, Paper, Tabs, Tab, Typography } from '@mui/material';
 import FinanceLineItemsTab from './FinanceLineItemsTab';
 import { CompanyFinance } from '@/types';
 import { useCompanySelection } from '@/context/CompanySelectionContext';
-import Link from 'next/link';
 
 type TabValue = 'transactions';
 
@@ -98,6 +88,21 @@ export default function CompanyFinanceSettings() {
       />
     );
   };
+
+  if (isLoading) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: 200,
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Paper elevation={1} sx={{ p: 3 }}>
