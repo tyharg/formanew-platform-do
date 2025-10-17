@@ -240,6 +240,7 @@ export interface Incorporation {
   confirmLlcName: string | null;
   consentToUseName: string | null;
   dbaDifferent: boolean | null;
+  businessDetailsId: string | null;
   businessAddressId: string | null;
   registeredAgentId: string | null;
   companyDetailsId: string | null;
@@ -249,6 +250,7 @@ export interface Incorporation {
   companyDetails?: IncorporationCompanyDetails | null;
   attestation?: Attestation | null;
   isComplete?: boolean;
+  primaryContactId: string | null;
   submittedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
@@ -292,6 +294,43 @@ export interface IncorporationCompanyDetails {
   durationType: string | null;
   durationDate: Date | null;
   purposeStatement: string | null;
+}
+
+export interface IncorporationBusinessDetails {
+  id: string;
+  formationState: string | null;
+  formationCounty: string | null;
+  effectiveDate: Date | null;
+  hasForeignQualification: boolean | null;
+  foreignJurisdictions: string | null;
+  managementStructure: string | null;
+}
+
+export interface IncorporationPrimaryContact {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  title: string | null;
+  email: string | null;
+  phone: string | null;
+}
+
+export interface IncorporationMember {
+  id: string;
+  incorporationId: string;
+  firstName: string | null;
+  lastName: string | null;
+  email: string | null;
+  addressLine1: string | null;
+  addressLine2: string | null;
+  city: string | null;
+  state: string | null;
+  postalCode: string | null;
+  country: string | null;
+  ownershipPercentage: number | null;
+  isManager: boolean | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Attestation {
