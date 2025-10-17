@@ -59,7 +59,7 @@ const plans: Plan[] = [
     buttonVariant: 'contained',
     buttonHref: '#',
     features: [
-      '1 incorporated company (additional companies $100/yr)',
+      '1 incorporated company',
       'Unlimited contracts & client portals',
       'Full Storefront',
       'Custom Domain',
@@ -151,16 +151,7 @@ export default function PricingPage() {
                   flexDirection: 'column',
                   gap: 3,
                   minHeight: 520,
-                  '&::before': isHighlight
-                    ? {
-                        content: '""',
-                        position: 'absolute',
-                        inset: -4,
-                        borderRadius: 18,
-                        background: 'linear-gradient(135deg, #4f3cf0, #b36bff)',
-                        zIndex: 0,
-                      }
-                    : undefined,
+                  '&::before': undefined,
                 }}
               >
                 <Box sx={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: 3, flexGrow: 1 }}>
