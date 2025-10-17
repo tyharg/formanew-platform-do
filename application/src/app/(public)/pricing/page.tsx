@@ -236,7 +236,6 @@ export default function PricingPage() {
                     {plan.buttonLabel}
                   </Button>
                 )}
-              </ButtonBase>
             );
           })}
         </Box>
