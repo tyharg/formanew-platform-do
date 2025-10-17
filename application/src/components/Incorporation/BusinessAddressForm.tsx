@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { Typography } from '@mui/material';
 
 interface BusinessAddress {
   street: string;
