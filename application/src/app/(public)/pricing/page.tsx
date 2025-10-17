@@ -37,7 +37,7 @@ const plans: Plan[] = [
   },
   {
     name: 'Incorporation',
-    description: 'Designed for freelancers and professionals aiming to establish a legitimate LLC.',
+    description: 'Designed for contractors and professionals aiming to establish a legitimate LLC.',
     price: '$129 USD',
     cadence: '/year per company',
     buttonLabel: 'Sign up',
@@ -66,7 +66,7 @@ const plans: Plan[] = [
   },
   {
     name: 'Developer Pro',
-    description: 'For developers launching products and SaaS apps.',
+    description: 'For developers launching comprehensive products and SaaS apps.',
     features: [
       'Includes everything in Creator Plus, plus:',
       'Jamstack app hosting platform (deploy apps, APIs, or web tools)',
