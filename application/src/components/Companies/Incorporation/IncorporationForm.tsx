@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import { Company } from 'lib/api/companies';
 import { Incorporation } from 'types';
+import { FormFieldValue } from './types';
 import BusinessAddressForm from './BusinessAddressForm';
 import BusinessInformationForm from './BusinessInformationForm';
 import CompanyDetailsForm from './CompanyDetailsForm';
@@ -101,22 +102,26 @@ const IncorporationForm: React.FC<IncorporationFormProps> = ({ company }) => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
-  const handleFormChange = (field: keyof Incorporation, value: any) => {
+  const handleFormChange = (field: keyof Incorporation, value: FormFieldValue) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleNestedFormChange = (
-    model: keyof Incorporation,
+    model: 'businessAddress' | 'companyDetails' | 'attestation',
     field: string,
-    value: any
+    value: FormFieldValue
   ) => {
-    setFormData((prev) => ({
-      ...prev,
-      [model]: {
-        ...(prev[model] as object),
-        [field]: value,
-      },
-    }));
+    setFormData((prev) => {
+      const previousValue = (prev[model] as Record<string, FormFieldValue> | undefined) ?? {};
+
+      return {
+        ...prev,
+        [model]: {
+          ...previousValue,
+          [field]: value,
+        },
+      } as Partial<Incorporation>;
+    });
   };
 
   const getStepContent = (step: number) => {

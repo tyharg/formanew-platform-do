@@ -36,7 +36,7 @@ export const GET = withAuth(
       );
 
       const productOptions = products.data.map((product) => {
-        const defaultPrice: Stripe.Price | string | null = product.default_price;
+        const defaultPrice: Stripe.Price | string | null = product.default_price ?? null;
 
         let price: { id: string; amount: number; currency: string } | null = null;
 
