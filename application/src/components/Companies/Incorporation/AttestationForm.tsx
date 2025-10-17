@@ -8,10 +8,11 @@ import {
   Typography,
 } from '@mui/material';
 import { Attestation } from 'types';
+import { FormFieldValue } from './types';
 
 interface AttestationFormProps {
   formData: Partial<Attestation>;
-  onFormChange: (field: keyof Attestation, value: any) => void;
+  onFormChange: (field: keyof Attestation, value: FormFieldValue) => void;
 }
 
 const AttestationForm: React.FC<AttestationFormProps> = ({
@@ -20,7 +21,31 @@ const AttestationForm: React.FC<AttestationFormProps> = ({
 }) => {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = event.target;
-    onFormChange(name as keyof Attestation, type === 'checkbox' ? checked : value);
+    let updatedValue: FormFieldValue;
+
+    if (type === 'checkbox') {
+      updatedValue = checked;
+    } else if (type === 'date') {
+      updatedValue = value ? new Date(value) : null;
+    } else {
+      updatedValue = value;
+    }
+
+    onFormChange(name as keyof Attestation, updatedValue);
+  };
+
+  const getDateValue = (date: Date | string | null | undefined) => {
+    if (!date) {
+      return '';
+    }
+
+    const parsedDate = date instanceof Date ? date : new Date(date);
+
+    if (Number.isNaN(parsedDate.getTime())) {
+      return '';
+    }
+
+    return parsedDate.toISOString().split('T')[0];
   };
 
   return (
@@ -114,7 +139,7 @@ const AttestationForm: React.FC<AttestationFormProps> = ({
         name="dateSigned"
         label="Date"
         type="date"
-        value={formData.dateSigned || ''}
+        value={getDateValue(formData.dateSigned)}
         onChange={handleChange}
         fullWidth
         InputLabelProps={{
