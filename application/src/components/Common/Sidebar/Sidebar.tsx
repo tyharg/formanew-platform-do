@@ -108,7 +108,7 @@ const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => {
         ...session.user,
         passwordHash: '',
         createdAt: new Date(),
-        emailVerified: null,
+        emailVerified: false,
       });
     }
   }, [session, setUser]);
