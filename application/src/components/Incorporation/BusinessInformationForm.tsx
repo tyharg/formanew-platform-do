@@ -10,15 +10,10 @@ import {
 } from '@mui/material';
 import { Incorporation } from 'types';
 
-interface BusinessInformationFormProps {
-  formData: Partial<Incorporation>;
-  onFormChange: (field: keyof Incorporation, value: string | boolean) => void;
-}
-
-const BusinessInformationForm: React.FC<BusinessInformationFormProps> = ({
+export default function BusinessInformationForm({
   formData,
   onFormChange,
-}) => {
+}: BusinessInformationFormProps) {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = event.target;
     onFormChange(name as keyof Incorporation, type === 'checkbox' ? checked : value);
