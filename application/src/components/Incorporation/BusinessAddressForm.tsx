@@ -87,16 +87,6 @@ const BusinessAddressForm: React.FC = () => {
             />
           </Stack>
         </Stack>
-        <Box sx={{ mt: 3 }}>
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            fullWidth
-          >
-            Submit
-          </Button>
-        </Box>
       </form>
     </Stack>
   );
