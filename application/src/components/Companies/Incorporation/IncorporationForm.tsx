@@ -42,6 +42,10 @@ const IncorporationForm: React.FC<IncorporationFormProps> = ({ company }) => {
           const data = await response.json();
           if (data.incorporation) {
             setFormData(data.incorporation);
+            // If incorporation is complete, set the active step to the last step
+            if (data.incorporation.isComplete) {
+              setActiveStep(steps.length);
+            }
           }
         }
       } catch (error) {
