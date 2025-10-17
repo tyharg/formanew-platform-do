@@ -1,4 +1,10 @@
-import { DatabaseClient } from './database';
+import {
+  DatabaseClient,
+  IncorporationCreateInput,
+  IncorporationUpdateInput,
+  IncorporationWithRelations,
+  IncorporationMemberInput,
+} from './database';
 import { prisma } from '../../lib/prisma';
 import {
   Subscription,
@@ -15,10 +21,11 @@ import {
   StoredFile,
   WorkItem,
   RelevantParty,
-  Incorporation,
   BusinessAddress,
   RegisteredAgent,
   IncorporationCompanyDetails,
+  IncorporationBusinessDetails,
+  IncorporationPrimaryContact,
   Attestation,
 } from 'types';
 import { Prisma, PrismaClient } from '@prisma/client';
@@ -27,8 +34,15 @@ import { ServiceConfigStatus } from '../status/serviceConfigStatus';
 const INCORPORATION_INCLUDE = {
   businessAddress: true,
   registeredAgent: true,
+  businessDetails: true,
   companyDetails: true,
   attestation: true,
+  primaryContact: true,
+  members: {
+    orderBy: {
+      createdAt: 'asc' as const,
+    },
+  },
 } as const;
 
 type NestedWrite<T extends { id?: string | null }> = {
@@ -70,6 +84,83 @@ export class SqlDatabaseService extends DatabaseClient {
   private static requiredConfig = {
     databaseUrl: { envVar: 'DATABASE_URL', description: 'PostgreSQL connection string' },
   };
+
+  private async findIncorporationWithRelations(
+    client: PrismaClient | Prisma.TransactionClient,
+    where: Prisma.IncorporationWhereUniqueInput
+  ): Promise<IncorporationWithRelations | null> {
+    const record = await client.incorporation.findUnique({
+      where,
+      include: INCORPORATION_INCLUDE,
+    });
+
+    return record as unknown as IncorporationWithRelations | null;
+  }
+
+  private async syncIncorporationMembers(
+    tx: Prisma.TransactionClient,
+    incorporationId: string,
+    members?: IncorporationMemberInput[] | null
+  ): Promise<void> {
+    if (members === undefined) {
+      return;
+    }
+
+    if (!members || members.length === 0) {
+      await tx.incorporationMember.deleteMany({ where: { incorporationId } });
+      return;
+    }
+
+    const sanitizedMembers = members
+      .filter((member): member is IncorporationMemberInput => Boolean(member))
+      .map((member) => {
+        const { id, ...rest } = member;
+        const data = Object.entries(rest).reduce<Record<string, unknown>>((acc, [key, value]) => {
+          if (value !== undefined) {
+            acc[key] = value;
+          }
+          return acc;
+        }, {});
+
+        return {
+          id: id ?? undefined,
+          data,
+        };
+      })
+      .filter(({ id, data }) => id || Object.keys(data).length > 0);
+
+    const idsToKeep = sanitizedMembers
+      .map((member) => member.id)
+      .filter((id): id is string => Boolean(id));
+
+    await tx.incorporationMember.deleteMany({
+      where: {
+        incorporationId,
+        ...(idsToKeep.length > 0 ? { id: { notIn: idsToKeep } } : {}),
+      },
+    });
+
+    for (const member of sanitizedMembers) {
+      const { id, data } = member;
+      if (id) {
+        if (Object.keys(data).length === 0) {
+          continue;
+        }
+
+        await tx.incorporationMember.update({
+          where: { id },
+          data: data as Prisma.IncorporationMemberUpdateInput,
+        });
+      } else if (Object.keys(data).length > 0) {
+        await tx.incorporationMember.create({
+          data: {
+            ...(data as Prisma.IncorporationMemberUncheckedCreateInput),
+            incorporationId,
+          },
+        });
+      }
+    }
+  }
   file = {
     findByOwner: async (ownerType: string, ownerId: string): Promise<StoredFile[]> => {
       return prisma.file.findMany({
@@ -161,45 +252,49 @@ export class SqlDatabaseService extends DatabaseClient {
     },
   };
   incorporation = {
-    findByCompanyId: async (companyId: string): Promise<Incorporation | null> => {
-      const record = await prisma.incorporation.findUnique({
-        where: { companyId },
-        include: INCORPORATION_INCLUDE,
-      });
-
-      return record as unknown as Incorporation | null;
+    findById: async (id: string): Promise<IncorporationWithRelations | null> => {
+      return this.findIncorporationWithRelations(prisma, { id });
+    },
+    findByCompanyId: async (
+      companyId: string
+    ): Promise<IncorporationWithRelations | null> => {
+      return this.findIncorporationWithRelations(prisma, { companyId });
     },
     create: async (
-      incorporation: Omit<Incorporation, 'id' | 'createdAt' | 'updatedAt'> & {
-        businessAddress?: Partial<BusinessAddress> | null;
-        registeredAgent?: Partial<RegisteredAgent> | null;
-        companyDetails?: Partial<IncorporationCompanyDetails> | null;
-        attestation?: Partial<Attestation> | null;
-      }
-    ): Promise<Incorporation> => {
+      incorporation: IncorporationCreateInput
+    ): Promise<IncorporationWithRelations> => {
       return prisma.$transaction(async (tx: Prisma.TransactionClient) => {
         const {
           businessAddress,
           registeredAgent,
+          businessDetails,
           companyDetails,
           attestation,
+          primaryContact,
+          members,
           companyId,
           businessAddressId,
           registeredAgentId,
+          businessDetailsId,
           companyDetailsId,
           attestationId,
+          primaryContactId,
           businessSubType,
           nameReserved,
           llcName,
           confirmLlcName,
           consentToUseName,
           dbaDifferent,
+          status,
+          submittedAt,
         } = incorporation;
 
         let businessAddressIdToUse = businessAddressId ?? undefined;
         let registeredAgentIdToUse = registeredAgentId ?? undefined;
+        let businessDetailsIdToUse = businessDetailsId ?? undefined;
         let companyDetailsIdToUse = companyDetailsId ?? undefined;
         let attestationIdToUse = attestationId ?? undefined;
+        let primaryContactIdToUse = primaryContactId ?? undefined;
 
         const businessAddressWrite = sanitizeNestedData<BusinessAddress>(businessAddress);
         if (businessAddressWrite) {
@@ -235,7 +330,26 @@ export class SqlDatabaseService extends DatabaseClient {
           }
         }
 
-        const companyDetailsWrite = sanitizeNestedData<IncorporationCompanyDetails>(companyDetails);
+        const businessDetailsWrite =
+          sanitizeNestedData<IncorporationBusinessDetails>(businessDetails);
+        if (businessDetailsWrite) {
+          const targetId = businessDetailsWrite.id ?? businessDetailsIdToUse;
+          if (targetId) {
+            await tx.incorporationBusinessDetails.update({
+              where: { id: targetId },
+              data: businessDetailsWrite.data as Prisma.IncorporationBusinessDetailsUpdateInput,
+            });
+            businessDetailsIdToUse = targetId;
+          } else {
+            const createdBusinessDetails = await tx.incorporationBusinessDetails.create({
+              data: businessDetailsWrite.data as Prisma.IncorporationBusinessDetailsCreateInput,
+            });
+            businessDetailsIdToUse = createdBusinessDetails.id;
+          }
+        }
+
+        const companyDetailsWrite =
+          sanitizeNestedData<IncorporationCompanyDetails>(companyDetails);
         if (companyDetailsWrite) {
           const targetId = companyDetailsWrite.id ?? companyDetailsIdToUse;
           if (targetId) {
@@ -269,59 +383,92 @@ export class SqlDatabaseService extends DatabaseClient {
           }
         }
 
-        const created = await tx.incorporation.create({
-          data: {
-            companyId,
-            businessSubType: businessSubType ?? null,
-            nameReserved: nameReserved ?? null,
-            llcName: llcName ?? null,
-            confirmLlcName: confirmLlcName ?? null,
-            consentToUseName: consentToUseName ?? null,
-            dbaDifferent: dbaDifferent ?? null,
-            businessAddressId: businessAddressIdToUse ?? null,
-            registeredAgentId: registeredAgentIdToUse ?? null,
-            companyDetailsId: companyDetailsIdToUse ?? null,
-            attestationId: attestationIdToUse ?? null,
-          },
-          include: INCORPORATION_INCLUDE,
-        });
+        const primaryContactWrite =
+          sanitizeNestedData<IncorporationPrimaryContact>(primaryContact);
+        if (primaryContactWrite) {
+          const targetId = primaryContactWrite.id ?? primaryContactIdToUse;
+          if (targetId) {
+            await tx.incorporationPrimaryContact.update({
+              where: { id: targetId },
+              data: primaryContactWrite.data as Prisma.IncorporationPrimaryContactUpdateInput,
+            });
+            primaryContactIdToUse = targetId;
+          } else {
+            const createdPrimaryContact = await tx.incorporationPrimaryContact.create({
+              data: primaryContactWrite.data as Prisma.IncorporationPrimaryContactCreateInput,
+            });
+            primaryContactIdToUse = createdPrimaryContact.id;
+          }
+        }
 
-        return created as unknown as Incorporation;
+        const createData: Prisma.IncorporationUncheckedCreateInput = {
+          companyId,
+          businessSubType: businessSubType ?? null,
+          nameReserved: nameReserved ?? null,
+          llcName: llcName ?? null,
+          confirmLlcName: confirmLlcName ?? null,
+          consentToUseName: consentToUseName ?? null,
+          dbaDifferent: dbaDifferent ?? null,
+          businessAddressId: businessAddressIdToUse ?? null,
+          registeredAgentId: registeredAgentIdToUse ?? null,
+          businessDetailsId: businessDetailsIdToUse ?? null,
+          companyDetailsId: companyDetailsIdToUse ?? null,
+          attestationId: attestationIdToUse ?? null,
+          primaryContactId: primaryContactIdToUse ?? null,
+          submittedAt: submittedAt ?? null,
+        };
+
+        if (status !== undefined) {
+          createData.status = status;
+        }
+
+        const created = await tx.incorporation.create({ data: createData });
+
+        await this.syncIncorporationMembers(tx, created.id, members);
+
+        const result = await this.findIncorporationWithRelations(tx, { id: created.id });
+        if (!result) {
+          throw new Error('Failed to load incorporation after creation');
+        }
+
+        return result;
       });
     },
     update: async (
       id: string,
-      incorporation: Partial<
-        Omit<Incorporation, 'id' | 'createdAt' | 'updatedAt' | 'companyId'>
-      > & {
-        businessAddress?: Partial<BusinessAddress> | null;
-        registeredAgent?: Partial<RegisteredAgent> | null;
-        companyDetails?: Partial<IncorporationCompanyDetails> | null;
-        attestation?: Partial<Attestation> | null;
-      }
-    ): Promise<Incorporation> => {
+      incorporation: IncorporationUpdateInput
+    ): Promise<IncorporationWithRelations> => {
       return prisma.$transaction(async (tx: Prisma.TransactionClient) => {
         const {
           businessAddress,
           registeredAgent,
+          businessDetails,
           companyDetails,
           attestation,
+          primaryContact,
+          members,
           businessAddressId,
           registeredAgentId,
+          businessDetailsId,
           companyDetailsId,
           attestationId,
+          primaryContactId,
           businessSubType,
           nameReserved,
           llcName,
           confirmLlcName,
           consentToUseName,
           dbaDifferent,
+          status,
+          submittedAt,
         } = incorporation;
 
         let businessAddressIdToUse = businessAddressId ?? undefined;
         let registeredAgentIdToUse = registeredAgentId ?? undefined;
+        let businessDetailsIdToUse = businessDetailsId ?? undefined;
         let companyDetailsIdToUse = companyDetailsId ?? undefined;
         let attestationIdToUse = attestationId ?? undefined;
+        let primaryContactIdToUse = primaryContactId ?? undefined;
 
         const businessAddressWrite = sanitizeNestedData<BusinessAddress>(businessAddress);
         if (businessAddressWrite) {
@@ -357,7 +504,26 @@ export class SqlDatabaseService extends DatabaseClient {
           }
         }
 
-        const companyDetailsWrite = sanitizeNestedData<IncorporationCompanyDetails>(companyDetails);
+        const businessDetailsWrite =
+          sanitizeNestedData<IncorporationBusinessDetails>(businessDetails);
+        if (businessDetailsWrite) {
+          const targetId = businessDetailsWrite.id ?? businessDetailsIdToUse;
+          if (targetId) {
+            await tx.incorporationBusinessDetails.update({
+              where: { id: targetId },
+              data: businessDetailsWrite.data as Prisma.IncorporationBusinessDetailsUpdateInput,
+            });
+            businessDetailsIdToUse = targetId;
+          } else {
+            const createdBusinessDetails = await tx.incorporationBusinessDetails.create({
+              data: businessDetailsWrite.data as Prisma.IncorporationBusinessDetailsCreateInput,
+            });
+            businessDetailsIdToUse = createdBusinessDetails.id;
+          }
+        }
+
+        const companyDetailsWrite =
+          sanitizeNestedData<IncorporationCompanyDetails>(companyDetails);
         if (companyDetailsWrite) {
           const targetId = companyDetailsWrite.id ?? companyDetailsIdToUse;
           if (targetId) {
@@ -388,6 +554,24 @@ export class SqlDatabaseService extends DatabaseClient {
               data: attestationWrite.data as Prisma.AttestationCreateInput,
             });
             attestationIdToUse = createdAttestation.id;
+          }
+        }
+
+        const primaryContactWrite =
+          sanitizeNestedData<IncorporationPrimaryContact>(primaryContact);
+        if (primaryContactWrite) {
+          const targetId = primaryContactWrite.id ?? primaryContactIdToUse;
+          if (targetId) {
+            await tx.incorporationPrimaryContact.update({
+              where: { id: targetId },
+              data: primaryContactWrite.data as Prisma.IncorporationPrimaryContactUpdateInput,
+            });
+            primaryContactIdToUse = targetId;
+          } else {
+            const createdPrimaryContact = await tx.incorporationPrimaryContact.create({
+              data: primaryContactWrite.data as Prisma.IncorporationPrimaryContactCreateInput,
+            });
+            primaryContactIdToUse = createdPrimaryContact.id;
           }
         }
 
@@ -411,11 +595,20 @@ export class SqlDatabaseService extends DatabaseClient {
         if (dbaDifferent !== undefined) {
           updateData.dbaDifferent = dbaDifferent;
         }
+        if (status !== undefined) {
+          updateData.status = status;
+        }
+        if (submittedAt !== undefined) {
+          updateData.submittedAt = submittedAt ?? null;
+        }
         if (businessAddressIdToUse !== undefined) {
           updateData.businessAddressId = businessAddressIdToUse ?? null;
         }
         if (registeredAgentIdToUse !== undefined) {
           updateData.registeredAgentId = registeredAgentIdToUse ?? null;
+        }
+        if (businessDetailsIdToUse !== undefined) {
+          updateData.businessDetailsId = businessDetailsIdToUse ?? null;
         }
         if (companyDetailsIdToUse !== undefined) {
           updateData.companyDetailsId = companyDetailsIdToUse ?? null;
@@ -423,14 +616,23 @@ export class SqlDatabaseService extends DatabaseClient {
         if (attestationIdToUse !== undefined) {
           updateData.attestationId = attestationIdToUse ?? null;
         }
+        if (primaryContactIdToUse !== undefined) {
+          updateData.primaryContactId = primaryContactIdToUse ?? null;
+        }
 
-        const updated = await tx.incorporation.update({
+        await tx.incorporation.update({
           where: { id },
           data: updateData,
-          include: INCORPORATION_INCLUDE,
         });
 
-        return updated as unknown as Incorporation;
+        await this.syncIncorporationMembers(tx, id, members);
+
+        const result = await this.findIncorporationWithRelations(tx, { id });
+        if (!result) {
+          throw new Error('Failed to load incorporation after update');
+        }
+
+        return result;
       });
     },
   };
