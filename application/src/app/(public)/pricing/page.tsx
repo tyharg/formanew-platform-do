@@ -129,7 +129,7 @@ export default function PricingPage() {
             const isHighlight = Boolean(plan.highlight);
 
             return (
-              <Box
+              <ButtonBase
                 key={plan.name}
                 sx={{
                   position: 'relative',
@@ -145,7 +145,12 @@ export default function PricingPage() {
                   gap: 3,
                   minHeight: 520,
                   '&::before': undefined,
+                  '&:hover': {
+                    boxShadow: '0 24px 60px rgba(98, 82, 246, 0.35)',
+                  },
                 }}
+                component={Link}
+                href={plan.buttonHref || '#'}
               >
                 <Box sx={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: 3, flexGrow: 1 }}>
                   {plan.badgeText && (
@@ -191,38 +196,6 @@ export default function PricingPage() {
                     )}
                   </Box>
 
-                  {plan.buttonHref && (
-                    <Button
-                      variant={plan.buttonVariant}
-                      component={Link}
-                      href={plan.buttonHref}
-                      size="large"
-                      sx={{
-                        borderRadius: 999,
-                        px: 3,
-                        py: 1.25,
-                        fontWeight: 600,
-                        ...(plan.buttonVariant === 'contained'
-                          ? {
-                              bgcolor: isHighlight ? '#4f3cf0' : '#111',
-                              color: '#fff',
-                              '&:hover': {
-                                bgcolor: isHighlight ? '#4230d8' : '#222',
-                              },
-                            }
-                          : {
-                              borderColor: '#4f3cf0',
-                              color: '#4f3cf0',
-                              '&:hover': {
-                                borderColor: '#4230d8',
-                                color: '#4230d8',
-                              },
-                            }),
-                      }}
-                    >
-                      {plan.buttonLabel}
-                    </Button>
-                  )}
 
                   <List sx={{ pt: 1, pb: 0 }}>
                     {plan.features.map((feature) => (
@@ -238,7 +211,38 @@ export default function PricingPage() {
                     ))}
                   </List>
                 </Box>
-              </Box>
+                {plan.buttonHref && (
+                  <Button
+                    variant={plan.buttonVariant}
+                    size="large"
+                    sx={{
+                      borderRadius: 999,
+                      px: 3,
+                      py: 1.25,
+                      fontWeight: 600,
+                      mt: 2,
+                      ...(plan.buttonVariant === 'contained'
+                        ? {
+                            bgcolor: isHighlight ? '#4f3cf0' : '#111',
+                            color: '#fff',
+                            '&:hover': {
+                              bgcolor: isHighlight ? '#4230d8' : '#222',
+                            },
+                          }
+                        : {
+                            borderColor: '#4f3cf0',
+                            color: '#4f3cf0',
+                            '&:hover': {
+                              borderColor: '#4230d8',
+                              color: '#4230d8',
+                            },
+                          }),
+                    }}
+                  >
+                    {plan.buttonLabel}
+                  </Button>
+                )}
+              </ButtonBase>
             );
           })}
         </Box>
