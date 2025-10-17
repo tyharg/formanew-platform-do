@@ -66,7 +66,7 @@ const plans: Plan[] = [
   },
   {
     name: 'Developer Pro',
-    description: 'Tailored for developers ready to launch real products and SaaS applications.',
+    description: 'For developers launching products and SaaS apps.',
     features: [
       'Includes everything in Creator Plus, plus:',
       'Jamstack app hosting platform (deploy apps, APIs, or web tools)',
