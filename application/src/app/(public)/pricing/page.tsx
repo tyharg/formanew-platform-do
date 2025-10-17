@@ -1,6 +1,5 @@
-import { Box, Button, ButtonBase, Chip, Typography, List, ListItem, ListItemIcon, ListItemText } from '@mui/material';
+import { Box, Button, Chip, Typography, List, ListItem, ListItemIcon, ListItemText } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
-import Link from 'next/link';
 import GetInvoiceButton from 'components/Pricing/GetInvoiceButton';
 
 export const dynamic = 'force-dynamic';
@@ -10,9 +9,9 @@ type Plan = {
   description: string;
   price?: string;
   cadence?: string;
-  buttonLabel: string;
-  buttonVariant: 'contained' | 'outlined';
-  buttonHref: string;
+  buttonLabel?: string;
+  buttonVariant?: 'contained' | 'outlined';
+  buttonHref?: string;
   features: string[];
   highlight?: boolean;
   badgeText?: string;
@@ -127,6 +126,8 @@ export default function PricingPage() {
         >
           {plans.map((plan) => {
             const isHighlight = Boolean(plan.highlight);
+            const buttonVariant = plan.buttonVariant ?? 'contained';
+            const shouldRenderButton = Boolean(plan.buttonHref && plan.buttonLabel);
 
             return (
               <Box
@@ -220,9 +221,9 @@ export default function PricingPage() {
                     ))}
                   </List>
                 </Box>
-                {plan.buttonHref && (
+                {shouldRenderButton && plan.buttonHref && plan.buttonLabel && (
                   <Button
-                    variant={plan.buttonVariant}
+                    variant={buttonVariant}
                     size="large"
                     sx={{
                       borderRadius: 999,
@@ -230,7 +231,7 @@ export default function PricingPage() {
                       py: 1.25,
                       fontWeight: 600,
                       mt: 2,
-                      ...(plan.buttonVariant === 'contained'
+                      ...(buttonVariant === 'contained'
                         ? {
                             bgcolor: isHighlight ? '#4f3cf0' : '#111',
                             color: '#fff',
