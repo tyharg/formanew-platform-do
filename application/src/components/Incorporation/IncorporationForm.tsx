@@ -10,11 +10,12 @@ import {
   Stepper,
   Typography,
 } from '@mui/material';
-import { Company } from 'lib/api/companies';
+import { Company } from 'types';
 import { Incorporation } from 'types';
-import BusinessAddressForm from './BusinessAddressForm';
-import CompanyDetailsForm from './CompanyDetailsForm';
-import AttestationForm from './AttestationForm';
+import BusinessInformationForm from '@/components/Incorporation/BusinessInformationForm';
+import CompanyDetailsForm from '@/components/Incorporation/CompanyDetailsForm';
+import BusinessAddressForm from '@/components/Incorporation/BusinessAddressForm';
+import AttestationForm from '@/components/Incorporation/AttestationForm';
 
 const steps = [
   'Business Information',
@@ -36,7 +37,7 @@ const IncorporationForm: React.FC<IncorporationFormProps> = ({ company }) => {
   useEffect(() => {
     const fetchIncorporationData = async () => {
       try {
-        const response = await fetch(`/api/company/${company.id}/incorporation`);
+        const response = await fetch(`/api/dashboard/incorporation`);
         if (response.ok) {
           const data = await response.json();
           if (data.incorporation) {
@@ -57,8 +58,8 @@ const IncorporationForm: React.FC<IncorporationFormProps> = ({ company }) => {
     setIsSaving(true);
     try {
       const url = formData.id
-        ? `/api/company/${company.id}/incorporation/${formData.id}`
-        : `/api/company/${company.id}/incorporation`;
+        ? `/api/dashboard/incorporation/${formData.id}`
+        : `/api/dashboard/incorporation`;
       const method = formData.id ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
@@ -95,14 +96,14 @@ const IncorporationForm: React.FC<IncorporationFormProps> = ({ company }) => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
-  const handleFormChange = (field: keyof Incorporation, value: any) => {
+  const handleFormChange = (field: keyof Incorporation, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleNestedFormChange = (
     model: keyof Incorporation,
     field: string,
-    value: any
+    value: string | boolean
   ) => {
     setFormData((prev) => ({
       ...prev,
@@ -125,27 +126,27 @@ const IncorporationForm: React.FC<IncorporationFormProps> = ({ company }) => {
       case 1:
         return (
           <BusinessAddressForm
-            formData={formData.businessAddress || {}}
+            formData={{}}
             onFormChange={(field, value) =>
-              handleNestedFormChange('businessAddress', field, value)
+              handleNestedFormChange('businessAddressId', field, value)
             }
           />
         );
       case 2:
         return (
           <CompanyDetailsForm
-            formData={formData.companyDetails || {}}
+            formData={{}}
             onFormChange={(field, value) =>
-              handleNestedFormChange('companyDetails', field, value)
+              handleNestedFormChange('companyDetailsId', field, value)
             }
           />
         );
       case 3:
         return (
           <AttestationForm
-            formData={formData.attestation || {}}
+            formData={{}}
             onFormChange={(field, value) =>
-              handleNestedFormChange('attestation', field, value)
+              handleNestedFormChange('attestationId', field, value)
             }
           />
         );

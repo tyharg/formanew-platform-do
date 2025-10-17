@@ -14,10 +14,6 @@ import {
   WorkItem,
   RelevantParty,
   Incorporation,
-  BusinessAddress,
-  RegisteredAgent,
-  IncorporationCompanyDetails,
-  Attestation,
 } from 'types';
 import { ServiceConfigStatus, ConfigurableService } from '../status/serviceConfigStatus';
 

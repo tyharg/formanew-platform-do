@@ -22,6 +22,10 @@ describe('ContractsTable', () => {
       description: 'MSA for ongoing services',
       createdAt: '2024-12-10T00:00:00.000Z',
       updatedAt: '2025-01-10T00:00:00.000Z',
+      isBillingEnabled: false,
+      stripePriceId: null,
+      billingAmount: null,
+      billingCurrency: null,
     },
   ];
 

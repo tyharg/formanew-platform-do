@@ -13,7 +13,7 @@ import { IncorporationCompanyDetails } from 'types';
 
 interface CompanyDetailsFormProps {
   formData: Partial<IncorporationCompanyDetails>;
-  onFormChange: (field: keyof IncorporationCompanyDetails, value: any) => void;
+  onFormChange: (field: keyof IncorporationCompanyDetails, value: string) => void;
 }
 
 const CompanyDetailsForm: React.FC<CompanyDetailsFormProps> = ({

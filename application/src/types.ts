@@ -78,6 +78,10 @@ export interface Contract {
   paymentTerms: string | null;
   renewalTerms: string | null;
   description: string | null;
+  isBillingEnabled: boolean;
+  stripePriceId: string | null;
+  billingAmount: number | null;
+  billingCurrency: string | null;
   createdAt: Date;
   updatedAt: Date;
   files?: StoredFile[];

@@ -6,11 +6,16 @@ import { prisma } from 'lib/prisma';
 
 const toIsoString = (value: Date | null) => (value ? value.toISOString() : null);
 
+interface Params {
+  companyId: string;
+}
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { companyId: string } }
+  { params }: { params: Promise<Params> }
 ) {
   try {
+    const { companyId } = await params;
     const token = request.nextUrl.searchParams.get('token');
 
     if (!token) {
@@ -62,9 +67,9 @@ export async function GET(
     }
 
     const contractIds = Array.from(new Set(relevantParties.map((party) => party.contractId)));
-
+    const awaitedParams = await params;
     const contracts = await prisma.contract.findMany({
-      where: { id: { in: contractIds }, companyId: params.companyId },
+      where: { id: { in: contractIds }, companyId: awaitedParams.companyId },
       include: {
         company: {
           select: {

@@ -1,8 +1,8 @@
 'use client';
 
 import { Box } from '@mui/material';
-import { Company } from 'lib/api/companies';
-import IncorporationForm from './IncorporationForm';
+import { Company } from 'types';
+import IncorporationForm from '@/components/Incorporation/IncorporationForm';
 
 interface IncorporationTabProps {
   company: Company;

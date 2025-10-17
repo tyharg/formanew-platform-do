@@ -4,11 +4,17 @@ import { createStorageService } from 'services/storage/storageFactory';
 import { HTTP_STATUS } from 'lib/api/http';
 import { verifyClientPortalToken } from 'lib/auth/clientPortalToken';
 
+interface Params {
+  contractId: string;
+  fileId: string;
+}
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { contractId: string; fileId: string } }
+  { params }: { params: Promise<Params> }
 ) {
   try {
+    const { contractId, fileId } = await params;
     const token = request.nextUrl.searchParams.get('token');
 
     if (!token) {
@@ -27,8 +33,6 @@ export async function GET(
         { status: HTTP_STATUS.UNAUTHORIZED }
       );
     }
-
-    const { contractId, fileId } = params;
     const db = await createDatabaseService();
     const partiesFromToken = await db.relevantParty.findByIds(payload.partyIds);
 
@@ -71,7 +75,7 @@ export async function GET(
     }
 
     const storage = await createStorageService();
-    const downloadUrl = await storage.getDownloadUrl(file.storageKey);
+    const downloadUrl = await storage.getFileUrl(file.ownerId, file.storageKey);
 
     return NextResponse.redirect(downloadUrl);
   } catch (error) {

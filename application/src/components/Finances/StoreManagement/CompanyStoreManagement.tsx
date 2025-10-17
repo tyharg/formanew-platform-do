@@ -66,9 +66,9 @@ const mapProducts = (products: Array<Record<string, unknown>>): StoreProduct[] =
         currency: price.currency,
         active,
         displayOnStorefront,
-      } satisfies StoreProduct;
+      };
     })
-    .filter((product): product is StoreProduct => Boolean(product));
+    .filter(Boolean) as StoreProduct[];
 
 export default function CompanyStoreManagement() {
   const { selectedCompanyId, isLoading: companiesLoading } = useCompanySelection();

@@ -108,9 +108,26 @@ export default function Footer() {
         </Box>
         
         <Box sx={{ pt: DIMENSIONS.spacing.container, borderTop: `1px solid ${theme.palette.divider}`, textAlign: 'center' }}>
-          <Typography variant="body2" color="text.secondary">
-            © 2025 FormaNew. Built with ❤️ using DigitalOcean services.
-          </Typography>
+          <Stack direction="row" spacing={2} justifyContent="center">
+            <Typography variant="body2" color="text.secondary">
+              © 2025 FormaNew. Built with ❤️ using DigitalOcean services.
+            </Typography>
+            <Typography
+              component={Link}
+              href="/privacy-policy"
+              sx={{
+                color: 'text.secondary',
+                textDecoration: 'none',
+                fontSize: '0.875rem',
+                '&:hover': {
+                  color: 'primary.main',
+                  textDecoration: 'underline',
+                },
+              }}
+            >
+              Privacy Policy
+            </Typography>
+          </Stack>
         </Box>
       </Container>
     </Box>

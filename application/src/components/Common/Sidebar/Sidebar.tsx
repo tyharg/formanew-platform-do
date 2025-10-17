@@ -42,6 +42,8 @@ import { useSession, signOut } from 'next-auth/react';
 import { USER_ROLES } from 'lib/auth/roles';
 import BrandLogo from 'components/Common/BrandLogo/BrandLogo';
 import { useCompanySelection } from 'context/CompanySelectionContext';
+import { useUser } from '@/context/UserContext';
+import { useEffect } from 'react';
 
 interface SidebarLinkProps {
   href: string;
@@ -88,11 +90,23 @@ const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => {
   const {
     companies,
     selectedCompanyId,
+    selectedCompany,
     selectCompany,
     isLoading: isLoadingCompanies,
     isRefreshing,
   } = useCompanySelection();
+  const { setUser, setCompany } = useUser();
   const isInitialCompanyLoad = isLoadingCompanies && companies.length === 0;
+
+  useEffect(() => {
+    setCompany(selectedCompany);
+  }, [selectedCompany, setCompany]);
+
+  useEffect(() => {
+    if (session) {
+      setUser(session.user);
+    }
+  }, [session, setUser]);
 
   const getProfileIcon = useCallback(() => {
     const url = session?.user?.image ?? undefined;
@@ -166,6 +180,13 @@ const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => {
             onClick={onNavigate}
           >
             Finances
+          </SidebarLink>
+          <SidebarLink
+            href="/dashboard/incorporation"
+            icon={<Business fontSize="small" />}
+            onClick={onNavigate}
+          >
+            Incorporation
           </SidebarLink>
           <SidebarLink
             href="/dashboard/store"

@@ -162,7 +162,8 @@ const ClientPortal: React.FC = () => {
   const [requestState, setRequestState] = useState(initialRequestState);
   const [activeTab, setActiveTab] = useState('contracts');
   const searchParams = useSearchParams();
-  const { companyId } = useParams();
+  const { companyId: rawCompanyId } = useParams();
+  const companyId = Array.isArray(rawCompanyId) ? rawCompanyId[0] : rawCompanyId;
   const token = searchParams.get('token') ?? '';
 
   useEffect(() => {
@@ -308,7 +309,7 @@ const ClientPortal: React.FC = () => {
             <Stack spacing={2}>
               {proposals.length > 0 ? (
                 proposals.map((contract) => (
-                  <ContractCard key={contract.id} contract={contract} companyId={companyId} token={token} />
+                  <ContractCard key={contract.id} contract={contract} companyId={companyId || ''} token={token} />
                 ))
               ) : (
                 <Typography variant="body2" color="text.secondary">
@@ -326,7 +327,7 @@ const ClientPortal: React.FC = () => {
             <Stack spacing={2}>
               {active.length > 0 ? (
                 active.map((contract) => (
-                  <ContractCard key={contract.id} contract={contract} companyId={companyId} token={token} />
+                  <ContractCard key={contract.id} contract={contract} companyId={companyId || ''} token={token} />
                 ))
               ) : (
                 <Typography variant="body2" color="text.secondary">
@@ -344,7 +345,7 @@ const ClientPortal: React.FC = () => {
             <Stack spacing={2}>
               {completed.length > 0 ? (
                 completed.map((contract) => (
-                  <ContractCard key={contract.id} contract={contract} companyId={companyId} token={token} />
+                  <ContractCard key={contract.id} contract={contract} companyId={companyId || ''} token={token} />
                 ))
               ) : (
                 <Typography variant="body2" color="text.secondary">

@@ -15,6 +15,7 @@ import {
   StoredFile,
   WorkItem,
   RelevantParty,
+  Incorporation,
 } from 'types';
 import { Prisma, PrismaClient } from '@prisma/client';
 import { ServiceConfigStatus } from '../status/serviceConfigStatus';
@@ -120,6 +121,17 @@ export class SqlDatabaseService extends DatabaseClient {
     },
     delete: async (id: string): Promise<void> => {
       await prisma.relevantParty.delete({ where: { id } });
+    },
+  };
+  incorporation = {
+    findByCompanyId: async (companyId: string) => {
+      return prisma.incorporation.findUnique({ where: { companyId } });
+    },
+    create: async (incorporation: Omit<Incorporation, 'id' | 'createdAt' | 'updatedAt'>) => {
+      return prisma.incorporation.create({ data: incorporation });
+    },
+    update: async (id: string, incorporation: Partial<Omit<Incorporation, 'id' | 'createdAt' | 'updatedAt' | 'companyId'>>) => {
+      return prisma.incorporation.update({ where: { id }, data: incorporation });
     },
   };
   private lastConnectionError: string = '';

@@ -6,11 +6,17 @@ import { prisma } from 'lib/prisma';
 
 const toIsoString = (value: Date | null) => (value ? value.toISOString() : null);
 
+interface Params {
+  contractId: string;
+  companyId: string;
+}
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { contractId: string; companyId: string } }
+  { params }: { params: Promise<Params> }
 ) {
   try {
+    const { contractId } = await params;
     const token = request.nextUrl.searchParams.get('token');
 
     if (!token) {
@@ -29,8 +35,6 @@ export async function GET(
         { status: HTTP_STATUS.UNAUTHORIZED }
       );
     }
-
-    const contractId = params.contractId;
     const db = await createDatabaseService();
     const partiesFromToken = await db.relevantParty.findByIds(payload.partyIds);
 

@@ -1,7 +1,6 @@
 'use client';
 
 import {
-  Box,
   FormControlLabel,
   Link,
   Stack,
@@ -13,7 +12,7 @@ import { Incorporation } from 'types';
 
 interface BusinessInformationFormProps {
   formData: Partial<Incorporation>;
-  onFormChange: (field: keyof Incorporation, value: any) => void;
+  onFormChange: (field: keyof Incorporation, value: string | boolean) => void;
 }
 
 const BusinessInformationForm: React.FC<BusinessInformationFormProps> = ({

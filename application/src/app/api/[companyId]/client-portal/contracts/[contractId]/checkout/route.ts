@@ -1,15 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createDatabaseService } from 'services/database/databaseFactory';
-import { HTTP_STATUS } from 'lib/api/http';
-import { verifyClientPortalToken } from 'lib/auth/clientPortalToken';
-import { stripe } from 'lib/stripe';
-import { serverConfig } from 'settings';
+import { createDatabaseService } from '@/services/database/databaseFactory';
+import { HTTP_STATUS } from '@/lib/api/http';
+import { verifyClientPortalToken } from '@/lib/auth/clientPortalToken';
+import { stripe } from '@/lib/stripe';
+import { serverConfig } from '@/settings';
+
+interface Params {
+  companyId: string;
+  contractId: string;
+}
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { companyId: string; contractId: string } }
+  { params }: { params: Promise<Params> }
 ) {
   try {
+    const { companyId, contractId } = await params;
     const token = request.nextUrl.searchParams.get('token');
 
     if (!token) {
@@ -25,8 +31,6 @@ export async function POST(
         { status: HTTP_STATUS.UNAUTHORIZED }
       );
     }
-
-    const { companyId, contractId } = params;
     const db = await createDatabaseService();
     const partiesFromToken = await db.relevantParty.findByIds(payload.partyIds);
 
@@ -92,7 +96,7 @@ export async function POST(
               product_data: {
                 name: contract.title,
               },
-              unit_amount: contract.billingAmount,
+              unit_amount: contract.billingAmount || 0,
             },
             quantity: 1,
           },

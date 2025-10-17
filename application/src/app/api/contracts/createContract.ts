@@ -90,7 +90,7 @@ export const createContract = async (
       counterpartyName,
       counterpartyEmail: nullableString(body.counterpartyEmail),
       contractValue: parseOptionalNumber(body.contractValue),
-      currency: nullableString(body.currency) ?? 'USD',
+      currency: nullableString(body.currency) || 'USD',
       status: status ?? ContractStatus.DRAFT,
       startDate: parseOptionalDate(body.startDate),
       endDate: parseOptionalDate(body.endDate),
@@ -98,6 +98,10 @@ export const createContract = async (
       paymentTerms: nullableString(body.paymentTerms),
       renewalTerms: nullableString(body.renewalTerms),
       description: nullableString(body.description),
+      isBillingEnabled: false,
+      stripePriceId: null,
+      billingAmount: null,
+      billingCurrency: null,
     });
 
     return NextResponse.json({ contract }, { status: HTTP_STATUS.CREATED });

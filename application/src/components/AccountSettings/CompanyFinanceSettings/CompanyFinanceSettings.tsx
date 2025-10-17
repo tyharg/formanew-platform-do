@@ -3,9 +3,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
-  Box,
-  Button,
-  CircularProgress,
   Paper,
   Tabs,
   Tab,
@@ -14,7 +11,6 @@ import {
 import FinanceLineItemsTab from './FinanceLineItemsTab';
 import { CompanyFinance } from '@/types';
 import { useCompanySelection } from '@/context/CompanySelectionContext';
-import Link from 'next/link';
 
 type TabValue = 'transactions';
 
@@ -36,7 +32,6 @@ export default function CompanyFinanceSettings() {
   const { selectedCompanyId, isLoading: companiesLoading } = useCompanySelection();
   const [finance, setFinance] = useState<CompanyFinance | null>(null);
   const [tab, setTab] = useState<TabValue>('transactions');
-  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchLiveAccountStatus = useCallback(async (companyId: string, stripeAccountId: string) => {
@@ -50,11 +45,9 @@ export default function CompanyFinanceSettings() {
   const fetchCompanyFinance = useCallback(async () => {
     if (!selectedCompanyId) {
       setFinance(null);
-      setIsLoading(false);
       return;
     }
 
-    setIsLoading(true);
     setError(null);
 
     try {
@@ -71,8 +64,6 @@ export default function CompanyFinanceSettings() {
     } catch (err) {
       console.error('Failed to load company finance details', err);
       setError(err instanceof Error ? err.message : 'Unable to load Stripe Connect status.');
-    } finally {
-      setIsLoading(false);
     }
   }, [selectedCompanyId, fetchLiveAccountStatus]);
 
