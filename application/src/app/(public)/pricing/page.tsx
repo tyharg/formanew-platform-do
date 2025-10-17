@@ -149,6 +149,9 @@ export default function PricingPage() {
               >
                 <Box sx={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: 3, flexGrow: 1 }}>
                   <Box>
+                    <Typography variant="h3" sx={{ fontWeight: 700, fontSize: '1.75rem', mb: 1 }}>
+                      {plan.name}
+                    </Typography>
                     {plan.badgeText && (
                       <Chip
                         label={plan.badgeText}
@@ -163,9 +166,6 @@ export default function PricingPage() {
                         }}
                       />
                     )}
-                    <Typography variant="h3" sx={{ fontWeight: 700, fontSize: '1.75rem', mb: 1 }}>
-                      {plan.name}
-                    </Typography>
                     <Typography variant="body1" color="text.secondary">
                       {plan.description}
                     </Typography>
