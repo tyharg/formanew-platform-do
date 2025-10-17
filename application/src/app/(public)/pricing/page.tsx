@@ -191,36 +191,38 @@ export default function PricingPage() {
                     )}
                   </Box>
 
-                  <Button
-                    variant={plan.buttonVariant}
-                    component={Link}
-                    href={plan.buttonHref}
-                    size="large"
-                    sx={{
-                      borderRadius: 999,
-                      px: 3,
-                      py: 1.25,
-                      fontWeight: 600,
-                      ...(plan.buttonVariant === 'contained'
-                        ? {
-                            bgcolor: isHighlight ? '#4f3cf0' : '#111',
-                            color: '#fff',
-                            '&:hover': {
-                              bgcolor: isHighlight ? '#4230d8' : '#222',
-                            },
-                          }
-                        : {
-                            borderColor: '#4f3cf0',
-                            color: '#4f3cf0',
-                            '&:hover': {
-                              borderColor: '#4230d8',
-                              color: '#4230d8',
-                            },
-                          }),
-                    }}
-                  >
-                    {plan.buttonLabel}
-                  </Button>
+                  {plan.buttonHref && (
+                    <Button
+                      variant={plan.buttonVariant}
+                      component={Link}
+                      href={plan.buttonHref}
+                      size="large"
+                      sx={{
+                        borderRadius: 999,
+                        px: 3,
+                        py: 1.25,
+                        fontWeight: 600,
+                        ...(plan.buttonVariant === 'contained'
+                          ? {
+                              bgcolor: isHighlight ? '#4f3cf0' : '#111',
+                              color: '#fff',
+                              '&:hover': {
+                                bgcolor: isHighlight ? '#4230d8' : '#222',
+                              },
+                            }
+                          : {
+                              borderColor: '#4f3cf0',
+                              color: '#4f3cf0',
+                              '&:hover': {
+                                borderColor: '#4230d8',
+                                color: '#4230d8',
+                              },
+                            }),
+                      }}
+                    >
+                      {plan.buttonLabel}
+                    </Button>
+                  )}
 
                   <List sx={{ pt: 1, pb: 0 }}>
                     {plan.features.map((feature) => (
