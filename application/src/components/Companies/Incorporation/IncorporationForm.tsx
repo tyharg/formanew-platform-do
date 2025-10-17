@@ -13,6 +13,7 @@ import {
 import { Company } from 'lib/api/companies';
 import { Incorporation } from 'types';
 import BusinessAddressForm from './BusinessAddressForm';
+import BusinessInformationForm from './BusinessInformationForm';
 import CompanyDetailsForm from './CompanyDetailsForm';
 import AttestationForm from './AttestationForm';
 
