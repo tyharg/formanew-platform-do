@@ -257,13 +257,29 @@ model Incorporation {
   businessAddressId   String?                      @unique
   registeredAgent     RegisteredAgent?             @relation(fields: [registeredAgentId], references: [id])
   registeredAgentId   String?                      @unique
+  businessDetails     IncorporationBusinessDetails? @relation(fields: [businessDetailsId], references: [id])
+  businessDetailsId   String?                       @unique
   companyDetails      IncorporationCompanyDetails? @relation(fields: [companyDetailsId], references: [id])
   companyDetailsId    String?                      @unique
   attestation         Attestation?                 @relation(fields: [attestationId], references: [id])
   attestationId       String?                      @unique
+  primaryContact      IncorporationPrimaryContact? @relation(fields: [primaryContactId], references: [id])
+  primaryContactId    String?                      @unique
+  members             IncorporationMember[]
   submittedAt         DateTime?
   createdAt           DateTime                     @default(now())
   updatedAt           DateTime                     @updatedAt
+}
+
+model IncorporationBusinessDetails {
+  id                     String         @id @default(uuid())
+  incorporation          Incorporation?
+  formationState         String?
+  formationCounty        String?
+  effectiveDate          DateTime?
+  hasForeignQualification Boolean?
+  foreignJurisdictions   String?
+  managementStructure    String?
 }
 
 model BusinessAddress {
@@ -307,6 +323,35 @@ model IncorporationCompanyDetails {
   durationType     String?
   durationDate     DateTime?
   purposeStatement String?
+}
+
+model IncorporationPrimaryContact {
+  id              String         @id @default(uuid())
+  incorporation   Incorporation?
+  firstName       String?
+  lastName        String?
+  title           String?
+  email           String?
+  phone           String?
+}
+
+model IncorporationMember {
+  id                   String       @id @default(uuid())
+  incorporation        Incorporation @relation(fields: [incorporationId], references: [id], onDelete: Cascade)
+  incorporationId      String
+  firstName            String?
+  lastName             String?
+  email                String?
+  addressLine1         String?
+  addressLine2         String?
+  city                 String?
+  state                String?
+  postalCode           String?
+  country              String?
+  ownershipPercentage  Float?
+  isManager            Boolean?
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
 }
 
 model Attestation {
