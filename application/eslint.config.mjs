@@ -13,7 +13,7 @@ const config = [
   }),
 
   {
-    ignores:[".next/**"]
+    ignores: [".next/**", "application/.next/**"]
   }
 
   {
