@@ -22,7 +22,7 @@ type Plan = {
 const plans: Plan[] = [
   {
     name: 'Free Tier',
-    description: 'Perfect for testing the waters.',
+    description: 'Ideal for exploring and getting started with our services.',
     price: '$0 USD',
     cadence: '/year',
     buttonLabel: 'Sign up',
@@ -37,7 +37,7 @@ const plans: Plan[] = [
   },
   {
     name: 'Incorporation',
-    description: 'For freelancers and professionals who want to go legit with a real LLC.',
+    description: 'Designed for freelancers and professionals aiming to establish a legitimate LLC.',
     price: '$129 USD',
     cadence: '/year per company',
     buttonLabel: 'Sign up',
@@ -53,7 +53,7 @@ const plans: Plan[] = [
   },
   {
     name: 'Creator Plus',
-    description: 'For creators who want a full online business presence.',
+    description: 'Perfect for creators seeking a comprehensive online business presence.',
     features: [
       'Includes everything in Incorporation, plus:',
       'Professional storefront',
@@ -66,7 +66,7 @@ const plans: Plan[] = [
   },
   {
     name: 'Developer Pro',
-    description: 'For developers ready to deploy real products and SaaS apps.',
+    description: 'Tailored for developers ready to launch real products and SaaS applications.',
     features: [
       'Includes everything in Creator Plus, plus:',
       'Jamstack app hosting platform (deploy apps, APIs, or web tools)',
