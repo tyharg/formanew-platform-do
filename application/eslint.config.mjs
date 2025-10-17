@@ -11,6 +11,11 @@ const config = [
   ...compat.config({
     extends: ['next/core-web-vitals', 'next/typescript'],
   }),
+
+  {
+    ignores:[".next/**"]
+  }
+
   {
     files: ['**/*.{js,jsx,ts,tsx,mjs,cjs}'],
     languageOptions: {
