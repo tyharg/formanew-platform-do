@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Stack, TextField, Typography } from '@mui/material';
+import { Box, Stack, TextField, Typography } from '@mui/material';
 
 interface BusinessAddress {
   street: string;
