@@ -14,7 +14,7 @@ const config = [
 
   {
     ignores: [".next/**", "application/.next/**"]
-  }
+  },
 
   {
     files: ['**/*.{js,jsx,ts,tsx,mjs,cjs}'],
