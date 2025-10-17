@@ -139,7 +139,7 @@ export default function PricingPage() {
                   bgcolor: '#fff',
                   border: '1px solid',
                   borderColor: isHighlight ? 'transparent' : '#e7e0ff',
-                  boxShadow: isHighlight ? '0 24px 60px rgba(98, 82, 246, 0.25)' : '0 12px 30px rgba(15, 15, 30, 0.08)',
+                  boxShadow: isHighlight ? '0 12px 30px rgba(98, 82, 246, 0.125)' : '0 12px 30px rgba(15, 15, 30, 0.08)',
                   display: 'flex',
                   flexDirection: 'column',
                   gap: 3,
@@ -153,22 +153,21 @@ export default function PricingPage() {
                 href={plan.buttonHref || '#'}
               >
                 <Box sx={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: 3, flexGrow: 1 }}>
-                  {plan.badgeText && (
-                    <Chip
-                      label={plan.badgeText}
-                      color="secondary"
-                      size="small"
-                      sx={{
-                        alignSelf: 'flex-start',
-                        fontWeight: 600,
-                        bgcolor: '#f6f1ff',
-                        color: '#4f3cf0',
-                        mb: 1,
-                      }}
-                    />
-                  )}
-
                   <Box>
+                    {plan.badgeText && (
+                      <Chip
+                        label={plan.badgeText}
+                        color="secondary"
+                        size="small"
+                        sx={{
+                          alignSelf: 'flex-start',
+                          fontWeight: 600,
+                          bgcolor: '#f6f1ff',
+                          color: '#4f3cf0',
+                          mb: 1,
+                        }}
+                      />
+                    )}
                     <Typography variant="h3" sx={{ fontWeight: 700, fontSize: '1.75rem', mb: 1 }}>
                       {plan.name}
                     </Typography>
@@ -184,7 +183,7 @@ export default function PricingPage() {
                       </Typography>
                     ) : (
                       <>
-                        <Typography variant="h4" sx={{ fontWeight: 700, fontSize: '3rem', lineHeight: 1 }}>
+                        <Typography variant="h4" sx={{ fontWeight: 700, fontSize: '2.5rem', lineHeight: 1 }}>
                           {plan.price}
                         </Typography>
                         {plan.cadence && (
@@ -217,7 +216,7 @@ export default function PricingPage() {
                     size="large"
                     sx={{
                       borderRadius: 999,
-                      px: 3,
+                      px: 5,
                       py: 1.25,
                       fontWeight: 600,
                       mt: 2,
