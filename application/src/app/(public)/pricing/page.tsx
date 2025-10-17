@@ -1,99 +1,274 @@
-import { Box, Button, Card, CardContent, Typography, List, ListItem } from '@mui/material';
+import { Box, Button, Chip, Typography, List, ListItem, ListItemIcon, ListItemText } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
 import Link from 'next/link';
-import { createBillingService } from 'services/billing/billingFactory';
 import GetInvoiceButton from 'components/Pricing/GetInvoiceButton';
 
-export const dynamic = 'force-dynamic'; // Ensure this page is always revalidated
+export const dynamic = 'force-dynamic';
 
-/**
- * Renders the pricing page with available subscription plans.
- */
-export default async function PricingPage() {
-  const billingService = await createBillingService();
-  const plans = await billingService.getProducts();
+type Plan = {
+  name: string;
+  description: string;
+  price?: string;
+  cadence?: string;
+  buttonLabel: string;
+  buttonVariant: 'contained' | 'outlined';
+  buttonHref: string;
+  features: string[];
+  highlight?: boolean;
+  badgeText?: string;
+  supportingText?: string;
+};
 
+const plans: Plan[] = [
+  {
+    name: 'Starter',
+    description: 'Get started with video communication',
+    price: '$10.00',
+    cadence: 'USD/month (billed annually)',
+    buttonLabel: 'Sign up',
+    buttonVariant: 'outlined',
+    buttonHref: '/signup',
+    features: [
+      'Unlimited video messages',
+      'Screen & system recordings',
+      'Unlimited meeting length',
+      'Custom backgrounds & camera effects',
+      'Engagement and rich insights',
+    ],
+  },
+  {
+    name: 'Business',
+    description: 'Move work forward faster with unlimited videos and basic editing',
+    price: '$15.00',
+    cadence: 'USD/month (billed annually)',
+    buttonLabel: 'Try for free',
+    buttonVariant: 'contained',
+    buttonHref: '/signup',
+    features: [
+      'Everything in Starter, and',
+      'Unlimited videos',
+      'Unlimited recorders & viewers',
+      'Advanced editing',
+      'Upload and download videos',
+    ],
+  },
+  {
+    name: 'Business + AI',
+    description: 'Communicate your best with videos instantly enhanced and created with Loom AI',
+    price: '$20.00',
+    cadence: 'USD/month (billed annually)',
+    buttonLabel: 'Try for free',
+    buttonVariant: 'contained',
+    buttonHref: '/signup',
+    features: [
+      'Everything in Business, and',
+      'AI title, summary, & keywords',
+      'AI video chapters',
+      'Video-to-text automation',
+      'Auto-editing: filler word removal',
+      'Auto-editing: silence removal',
+      'Auto-meeting notes',
+    ],
+    highlight: true,
+    badgeText: 'Most Popular',
+  },
+  {
+    name: 'Enterprise',
+    description: 'Control and securely manage your content across the entire organization',
+    buttonLabel: 'Contact Sales',
+    buttonVariant: 'outlined',
+    buttonHref: '/contact-sales',
+    features: [
+      'Everything in Business + AI, and',
+      'Security features (SSO, SCIM)',
+      'Custom data retention policies',
+      'Admin controls and permissions',
+      'Customer success partnership',
+    ],
+    supportingText: "Let's Talk",
+  },
+];
+
+export default function PricingPage() {
   return (
     <Box
+      component="section"
       sx={{
-        maxWidth: 1200,
-        mx: 'auto',
+        bgcolor: '#f8f5ff',
+        py: { xs: 8, md: 12 },
         px: 2,
-        py: 6,
-        alignItems: 'center',
-        justifyContent: 'center',
       }}
     >
-      <Typography variant="h1" gutterBottom align="center" sx={{ mb: 4 }}>
-        Choose your Plan
-      </Typography>
-
       <Box
         sx={{
-          display: 'grid',
-          gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
-          gap: 4,
-          mt: 4,
+          maxWidth: 1200,
+          mx: 'auto',
+          textAlign: 'center',
         }}
       >
-        {plans.map((plan) => (
-          <Card key={plan.priceId} elevation={3} sx={{ p: 2 }}>
-            <CardContent>
-              <Typography variant="h2" gutterBottom>
-                {plan.name}
-              </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Typography sx={{ mb: 2, mr: 1, fontSize: '3rem', fontWeight: 700 }} gutterBottom>
-                  ${plan.amount}
-                </Typography>
-                <Typography variant="h4" gutterBottom>
-                  /{plan.interval}
-                </Typography>
-              </Box>
-              <Typography variant="subtitle1" gutterBottom>
-                {plan.description}
-              </Typography>
-              <List>
-                {plan.features.map((feature, index) => (
-                  <ListItem key={index} sx={{ py: 0.5, px: 0 }}>
-                    <CheckIcon sx={{ color: 'success.main', mr: 1 }} />
-                    <Typography variant="subtitle1">{feature}</Typography>
-                  </ListItem>
-                ))}
-              </List>
-              
-              {/* Get Started Button */}
-              <Button
-                variant="contained"
-                fullWidth
-                component={Link}
-                href="/signup"
+        <Typography
+          variant="h1"
+          sx={{
+            fontSize: { xs: '2.5rem', md: '3rem' },
+            fontWeight: 700,
+            mb: 2,
+          }}
+        >
+          Choose the plan that fits your needs.
+        </Typography>
+        <Typography
+          variant="subtitle1"
+          color="text.secondary"
+          sx={{
+            maxWidth: 560,
+            mx: 'auto',
+            mb: { xs: 6, md: 8 },
+          }}
+        >
+          Discover flexible plans designed to help every team communicate with clarity and speed.
+        </Typography>
+
+        <Box
+          sx={{
+            display: 'grid',
+            gap: { xs: 3, md: 4 },
+            gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))', lg: 'repeat(4, minmax(0, 1fr))' },
+          }}
+        >
+          {plans.map((plan) => {
+            const isHighlight = Boolean(plan.highlight);
+
+            return (
+              <Box
+                key={plan.name}
                 sx={{
-                  mt: 2,
-                  bgcolor: 'black',
-                  color: 'white',
-                  '&:hover': { bgcolor: '#333' },
+                  position: 'relative',
+                  p: { xs: 3, md: 4 },
+                  textAlign: 'left',
+                  borderRadius: 4,
+                  bgcolor: '#fff',
+                  border: '1px solid',
+                  borderColor: isHighlight ? 'transparent' : '#e7e0ff',
+                  boxShadow: isHighlight ? '0 24px 60px rgba(98, 82, 246, 0.25)' : '0 12px 30px rgba(15, 15, 30, 0.08)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 3,
+                  minHeight: 520,
+                  '&::before': isHighlight
+                    ? {
+                        content: '""',
+                        position: 'absolute',
+                        inset: -4,
+                        borderRadius: 18,
+                        background: 'linear-gradient(135deg, #4f3cf0, #b36bff)',
+                        zIndex: 0,
+                      }
+                    : undefined,
                 }}
               >
-                Get Started
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
-      </Box>
+                <Box sx={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: 3, flexGrow: 1 }}>
+                  {plan.badgeText && (
+                    <Chip
+                      label={plan.badgeText}
+                      color="secondary"
+                      size="small"
+                      sx={{
+                        alignSelf: 'flex-start',
+                        fontWeight: 600,
+                        bgcolor: '#f6f1ff',
+                        color: '#4f3cf0',
+                        mb: 1,
+                      }}
+                    />
+                  )}
 
-      {/* Single Get Invoice Button - positioned below the plans */}
-      <Box sx={{ mt: 6, textAlign: 'center' }}>
-        <Typography variant="h5" gutterBottom>
-          Need an invoice for your current subscription?
-        </Typography>
-        <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-          Generate and receive a professional invoice for your current plan via email.
-        </Typography>
-        <GetInvoiceButton 
-          variant="outlined"
-          size="large"
-        />
+                  <Box>
+                    <Typography variant="h3" sx={{ fontWeight: 700, fontSize: '1.75rem', mb: 1 }}>
+                      {plan.name}
+                    </Typography>
+                    <Typography variant="body1" color="text.secondary">
+                      {plan.description}
+                    </Typography>
+                  </Box>
+
+                  <Box>
+                    {plan.supportingText ? (
+                      <Typography variant="h4" sx={{ fontWeight: 700, fontSize: '2rem' }}>
+                        {plan.supportingText}
+                      </Typography>
+                    ) : (
+                      <>
+                        <Typography variant="h4" sx={{ fontWeight: 700, fontSize: '3rem', lineHeight: 1 }}>
+                          {plan.price}
+                        </Typography>
+                        {plan.cadence && (
+                          <Typography variant="subtitle2" color="text.secondary">
+                            {plan.cadence}
+                          </Typography>
+                        )}
+                      </>
+                    )}
+                  </Box>
+
+                  <Button
+                    variant={plan.buttonVariant}
+                    component={Link}
+                    href={plan.buttonHref}
+                    size="large"
+                    sx={{
+                      borderRadius: 999,
+                      px: 3,
+                      py: 1.25,
+                      fontWeight: 600,
+                      ...(plan.buttonVariant === 'contained'
+                        ? {
+                            bgcolor: isHighlight ? '#4f3cf0' : '#111',
+                            color: '#fff',
+                            '&:hover': {
+                              bgcolor: isHighlight ? '#4230d8' : '#222',
+                            },
+                          }
+                        : {
+                            borderColor: '#4f3cf0',
+                            color: '#4f3cf0',
+                            '&:hover': {
+                              borderColor: '#4230d8',
+                              color: '#4230d8',
+                            },
+                          }),
+                    }}
+                  >
+                    {plan.buttonLabel}
+                  </Button>
+
+                  <List sx={{ pt: 1, pb: 0 }}>
+                    {plan.features.map((feature) => (
+                      <ListItem key={feature} sx={{ px: 0, py: 0.75 }}>
+                        <ListItemIcon sx={{ minWidth: 36 }}>
+                          <CheckIcon sx={{ color: '#4f3cf0' }} />
+                        </ListItemIcon>
+                        <ListItemText
+                          primaryTypographyProps={{ variant: 'body1', fontWeight: 500 }}
+                          primary={feature}
+                        />
+                      </ListItem>
+                    ))}
+                  </List>
+                </Box>
+              </Box>
+            );
+          })}
+        </Box>
+
+        <Box sx={{ mt: { xs: 8, md: 10 }, textAlign: 'center' }}>
+          <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>
+            Need an invoice for your current subscription?
+          </Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+            Generate and receive a professional invoice for your current plan via email.
+          </Typography>
+          <GetInvoiceButton variant="outlined" size="large" />
+        </Box>
       </Box>
     </Box>
   );
