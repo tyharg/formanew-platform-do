@@ -47,6 +47,10 @@ export const POST = withAuth(
       }
 
       const body = await request.json();
+      // Ensure dateSigned is formatted as ISO-8601
+      if (body.attestation && body.attestation.dateSigned) {
+        body.attestation.dateSigned = new Date(body.attestation.dateSigned).toISOString();
+      }
       const incorporation = await db.incorporation.create({ ...body, companyId });
 
       return NextResponse.json({ incorporation });
