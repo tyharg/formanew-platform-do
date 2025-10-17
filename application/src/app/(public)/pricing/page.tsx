@@ -162,7 +162,7 @@ export default function PricingPage() {
                           fontWeight: 600,
                           bgcolor: '#f6f1ff',
                           color: '#4f3cf0',
-                          mb: 1,
+                          my: 2,
                         }}
                       />
                     )}
