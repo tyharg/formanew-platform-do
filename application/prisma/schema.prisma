@@ -19,6 +19,11 @@ enum WorkItemStatus {
   COMPLETED
 }
 
+enum IncorporationStatus {
+  DRAFT
+  SUBMITTED
+}
+
 model File {
   id              String     @id @default(uuid())
   ownerType       String
@@ -241,6 +246,7 @@ model Incorporation {
   id                  String                       @id @default(uuid())
   company             Company                      @relation(fields: [companyId], references: [id])
   companyId           String                       @unique
+  status              IncorporationStatus          @default(DRAFT)
   businessSubType     String?
   nameReserved        Boolean?
   llcName             String?
@@ -255,6 +261,7 @@ model Incorporation {
   companyDetailsId    String?                      @unique
   attestation         Attestation?                 @relation(fields: [attestationId], references: [id])
   attestationId       String?                      @unique
+  submittedAt         DateTime?
   createdAt           DateTime                     @default(now())
   updatedAt           DateTime                     @updatedAt
 }
