@@ -33,6 +33,7 @@ const TestConsumer = () => {
 describe('CompanySelectionProvider', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    localStorage.clear();
     mockUseSession.mockReturnValue({ data: null, status: 'loading' });
     const companies: Company[] = [
       {
@@ -104,6 +105,34 @@ describe('CompanySelectionProvider', () => {
 
     await waitFor(() => {
       expect(screen.getByTestId('state').textContent).toBe('company-2');
+    });
+  });
+
+  it('falls back to the stored company when there is no default', async () => {
+    localStorage.setItem('formanew:selectedCompanyId:user-1', 'company-1');
+
+    mockUseSession.mockReturnValue({
+      data: {
+        user: {
+          id: 'user-1',
+          name: 'Test User',
+          email: 'test@example.com',
+          role: 'USER',
+          image: null,
+          defaultCompanyId: null,
+        },
+      },
+      status: 'authenticated',
+    });
+
+    render(
+      <CompanySelectionProvider>
+        <TestConsumer />
+      </CompanySelectionProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('state').textContent).toBe('company-1');
     });
   });
 });

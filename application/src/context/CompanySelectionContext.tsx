@@ -4,6 +4,19 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { useSession } from 'next-auth/react';
 import { CompaniesApiClient, Company } from 'lib/api/companies';
 
+const STORAGE_KEY_PREFIX = 'formanew:selectedCompanyId';
+
+const getStorageKey = (userId: string | null) =>
+  userId ? `${STORAGE_KEY_PREFIX}:${userId}` : STORAGE_KEY_PREFIX;
+
+const getStoredCompanyId = (userId: string | null): string | null => {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  return localStorage.getItem(getStorageKey(userId));
+};
+
 interface CompanySelectionContextValue {
   companies: Company[];
   selectedCompanyId: string | null;
@@ -63,10 +76,17 @@ export const CompanySelectionProvider = ({ children }: { children: React.ReactNo
           return previous;
         }
 
+        if (!hasUserSelected) {
+          const storedId = getStoredCompanyId(userId);
+          if (isValidCompanyId(storedId)) {
+            return storedId;
+          }
+        }
+
         return nextCompanies[0]?.id ?? null;
       });
     },
-    [defaultCompanyId, hasUserSelected]
+    [defaultCompanyId, hasUserSelected, userId]
   );
 
   const loadCompanies = useCallback(async () => {
@@ -118,6 +138,19 @@ export const CompanySelectionProvider = ({ children }: { children: React.ReactNo
     },
     [companies]
   );
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || isLoading) {
+      return;
+    }
+
+    const storageKey = getStorageKey(userId);
+    if (selectedCompanyId) {
+      localStorage.setItem(storageKey, selectedCompanyId);
+    } else {
+      localStorage.removeItem(storageKey);
+    }
+  }, [isLoading, selectedCompanyId, userId]);
 
   const contextValue = useMemo<CompanySelectionContextValue>(() => {
     const selectedCompany = selectedCompanyId
