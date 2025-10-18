@@ -833,6 +833,13 @@ export class SqlDatabaseService extends DatabaseClient {
       });
       return records as unknown as Company[];
     },
+    findAll: async (): Promise<Company[]> => {
+      const records = await prisma.company.findMany({
+        include: { contracts: true, contacts: true, notes: true, finance: true },
+        orderBy: { createdAt: 'desc' },
+      });
+      return records as unknown as Company[];
+    },
     create: async (
       company: Omit<
         Company,
@@ -990,6 +997,12 @@ export class SqlDatabaseService extends DatabaseClient {
   companyFinance = {
     findByCompanyId: async (companyId: string): Promise<CompanyFinance | null> => {
       const record = await prisma.companyFinance.findUnique({ where: { companyId } });
+      return record
+        ? ({ products: [], ...record } as unknown as CompanyFinance)
+        : null;
+    },
+    findByStripeAccountId: async (accountId: string): Promise<CompanyFinance | null> => {
+      const record = await prisma.companyFinance.findFirst({ where: { stripeAccountId: accountId } });
       return record
         ? ({ products: [], ...record } as unknown as CompanyFinance)
         : null;

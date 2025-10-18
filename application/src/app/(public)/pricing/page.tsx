@@ -1,6 +1,5 @@
 import { Box, Button, Chip, Typography, List, ListItem, ListItemIcon, ListItemText } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
-import GetInvoiceButton from 'components/Pricing/GetInvoiceButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -114,7 +113,7 @@ export default function PricingPage() {
             mb: { xs: 6, md: 8 },
           }}
         >
-          Discover flexible plans designed to help every team communicate with clarity and speed.
+          Select the incorporation bundle that gives your company the right mix of filings, compliance guardrails, and growth tools.
         </Typography>
 
         <Box
@@ -257,15 +256,6 @@ export default function PricingPage() {
           })}
         </Box>
 
-        <Box sx={{ mt: { xs: 8, md: 10 }, textAlign: 'center' }}>
-          <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>
-            Need an invoice for your current subscription?
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-            Generate and receive a professional invoice for your current plan via email.
-          </Typography>
-          <GetInvoiceButton variant="outlined" size="large" />
-        </Box>
       </Box>
     </Box>
   );

@@ -141,6 +141,7 @@ export abstract class DatabaseClient implements ConfigurableService {
   abstract company: {
     findById: (id: string) => Promise<Company | null>;
     findByUserId: (userId: string) => Promise<Company[]>;
+    findAll: () => Promise<Company[]>;
     create: (
       company: Omit<
         Company,
@@ -190,6 +191,7 @@ export abstract class DatabaseClient implements ConfigurableService {
   };
   abstract companyFinance: {
     findByCompanyId: (companyId: string) => Promise<CompanyFinance | null>;
+    findByStripeAccountId: (accountId: string) => Promise<CompanyFinance | null>;
     create: (
       finance: {
         companyId: string;

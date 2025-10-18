@@ -20,7 +20,7 @@ import CompanyContactForm from '../CompanyContactForm/CompanyContactForm';
 import CompanyNotesCard from '../CompanyNotesCard/CompanyNotesCard';
 import CompanyLaunchpad from '../CompanyLaunchpad/CompanyLaunchpad';
 import CompanyNoteForm from '../CompanyNoteForm/CompanyNoteForm';
-import IncorporationTab from '../Incorporation/IncorporationTab';
+import CompanyHomeTab from '../CompanyHome/CompanyHomeTab';
 import {
   CompaniesApiClient,
   Company,
@@ -34,15 +34,15 @@ import {
 
 const companiesClient = new CompaniesApiClient();
 
-type TabKey = 'launchpad' | 'settings' | 'contacts' | 'notes' | 'contracts' | 'incorporation';
+type TabKey = 'home' | 'launchpad' | 'settings' | 'contacts' | 'notes' | 'contracts';
 
 interface CompanyDetailsPageProps {
   companyId: string;
 }
 
 const tabConfig: { key: TabKey; label: string }[] = [
+  { key: 'home', label: 'Home' },
   { key: 'launchpad', label: 'Launchpad' },
-  { key: 'incorporation', label: 'Incorporation' },
   { key: 'settings', label: 'Settings' },
   { key: 'contacts', label: 'Contacts' },
   { key: 'notes', label: 'Notes' },
@@ -53,7 +53,7 @@ const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = ({ companyId }) =>
   const [company, setCompany] = useState<Company | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<TabKey>('launchpad');
+  const [activeTab, setActiveTab] = useState<TabKey>('home');
 
   const [isSaving, setIsSaving] = useState(false);
   const [formResetKey, setFormResetKey] = useState(0);
@@ -241,7 +241,7 @@ const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = ({ companyId }) =>
       title={company.displayName || company.legalName || 'Company'}
       sx={{ minHeight: '60vh' }}
     >
-      <Stack spacing={4}>
+      <Stack spacing={{ xs: 4, md: 5 }}>
         {error && <Alert severity="error">{error}</Alert>}
 
         <Box>
@@ -269,6 +269,13 @@ const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = ({ companyId }) =>
           />
         )}
 
+        {activeTab === 'home' && (
+          <CompanyHomeTab
+            company={company}
+            onNavigateToTab={(target) => setActiveTab(target)}
+          />
+        )}
+
         {activeTab === 'launchpad' && (
           <CompanyLaunchpad
             company={company}
@@ -285,8 +292,6 @@ const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = ({ companyId }) =>
             }}
           />
         )}
-
-        {activeTab === 'incorporation' && <IncorporationTab company={company} />}
 
         {activeTab === 'contacts' && (
           <CompanyContactsCard

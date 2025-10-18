@@ -8,7 +8,7 @@ import { useSearchParams } from 'next/navigation';
 export default function SuccessPageClient() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('session_id');
-  const accountId = searchParams.get('accountId');
+  const companyId = searchParams.get('companyId');
 
   return (
     <Box
@@ -34,10 +34,10 @@ export default function SuccessPageClient() {
             Session ID: {sessionId}
           </Typography>
         )}
-        {accountId ? (
+        {companyId ? (
           <Button
             variant="outlined"
-            onClick={() => (window.location.href = `/store/${accountId}`)}
+            onClick={() => (window.location.href = `/company/${companyId}/store`)}
             sx={{ mt: 2 }}
           >
             Return to Store

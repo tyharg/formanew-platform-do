@@ -14,32 +14,52 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
   return (
     <MaterialThemeProvider>
       <NavigationHandler />
-      <Box sx={{ display: 'flex', minHeight: '100vh', width: '100%' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          minHeight: '100vh',
+          width: '100%',
+          bgcolor: 'background.default',
+        }}
+      >
         <Sidebar />
         <Box
+          component="main"
           sx={{
             flexGrow: 1,
-            padding: '1rem',
             overflowY: 'auto',
-            position: 'relative',
           }}
         >
           <Box
             sx={{
-              position: 'absolute',
-              top: 16,
-              right: 16,
-              zIndex: 10,
-              display: { xs: 'none', md: 'block' }, // Hide on mobile since FAB is used
+              position: 'relative',
+              minHeight: '100%',
+              maxWidth: { lg: 'min(1200px, 100%)', xl: 1400 },
+              mx: 'auto',
+              px: { xs: 2, md: 5, xl: 6 },
+              py: { xs: 4, md: 6 },
+              display: 'flex',
+              flexDirection: 'column',
+              gap: { xs: 3, md: 4 },
             }}
           >
-            <ThemePicker />
+            <Box
+              sx={{
+                position: 'absolute',
+                top: 24,
+                right: 24,
+                zIndex: 10,
+                display: { xs: 'none', md: 'block' },
+              }}
+            >
+              <ThemePicker />
+            </Box>
+            {/* Mobile theme picker renders itself with fixed positioning */}
+            <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+              <ThemePicker />
+            </Box>
+            {children}
           </Box>
-          {/* Mobile theme picker renders itself with fixed positioning */}
-          <Box sx={{ display: { xs: 'block', md: 'none' } }}>
-            <ThemePicker />
-          </Box>
-          {children}
         </Box>
       </Box>
     </MaterialThemeProvider>

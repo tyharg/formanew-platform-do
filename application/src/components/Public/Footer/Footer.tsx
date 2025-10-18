@@ -2,43 +2,75 @@ import React from 'react';
 import Link from 'next/link';
 import { Box, Container, Typography, Stack, useTheme } from '@mui/material';
 import GitHubIcon from '@mui/icons-material/GitHub';
-import LaunchIcon from '@mui/icons-material/Launch';
-import MenuBookIcon from '@mui/icons-material/MenuBook';
-import CloudIcon from '@mui/icons-material/Cloud';
-import StorageIcon from '@mui/icons-material/Storage';
-import DatabaseIcon from '@mui/icons-material/Storage';
-import PsychologyIcon from '@mui/icons-material/Psychology';
-import SupportIcon from '@mui/icons-material/Support';
-import TwitterIcon from '@mui/icons-material/Twitter';
-import ForumIcon from '@mui/icons-material/Forum';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import GavelIcon from '@mui/icons-material/Gavel';
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
+import SupportAgentIcon from '@mui/icons-material/SupportAgent';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
+import TwitterIcon from '@mui/icons-material/Twitter';
 import { URLS, DIMENSIONS } from 'constants/landing';
 
 const footerSections = [
   {
-    title: 'Product & Code',
+    title: 'Product',
     links: [
-      { label: 'GitHub Repository', href: URLS.githubRepo, icon: <GitHubIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} /> },
-      { label: 'Documentation', href: URLS.documentation, icon: <MenuBookIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} /> },
-      { label: 'Live Demo', href: '#', icon: <LaunchIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} /> },
+      {
+        label: 'Pricing',
+        href: '/pricing',
+        icon: <MonetizationOnIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} />,
+      },
+      {
+        label: 'Dashboard',
+        href: '/dashboard',
+        icon: <DashboardIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} />,
+      },
+      {
+        label: 'Incorporation',
+        href: '/incorporation',
+        icon: <GavelIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} />,
+      },
     ],
   },
   {
-    title: 'DigitalOcean Services',
+    title: 'Resources',
     links: [
-      { label: 'App Platform', href: URLS.appPlatform, icon: <CloudIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} /> },
-      { label: 'Spaces Storage', href: URLS.spaces, icon: <StorageIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} /> },
-      { label: 'Managed Databases', href: URLS.databases, icon: <DatabaseIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} /> },
-      { label: 'Gradient', href: URLS.gradient, icon: <PsychologyIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} /> },
+      {
+        label: 'Product Tour',
+        href: '/connect-demo',
+        icon: <PlayCircleOutlineIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} />,
+      },
+      {
+        label: 'System Status',
+        href: '/system-status',
+        icon: <MonitorHeartIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} />,
+      },
+      {
+        label: 'Support',
+        href: 'mailto:support@formanew.com',
+        icon: <SupportAgentIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} />,
+      },
     ],
   },
   {
-    title: 'Support & Community',
+    title: 'Community',
     links: [
-      { label: 'DigitalOcean Support', href: URLS.support, icon: <SupportIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} /> },
-      { label: 'DigitalOcean Twitter', href: URLS.twitter, icon: <TwitterIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} /> },
-      { label: 'Community Forum', href: URLS.community, icon: <ForumIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} /> },
-      { label: 'Status Page', href: URLS.status, icon: <MonitorHeartIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} /> },
+      {
+        label: 'GitHub',
+        href: URLS.githubRepo,
+        icon: <GitHubIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} />,
+      },
+      {
+        label: 'LinkedIn',
+        href: 'https://www.linkedin.com/company/formanew',
+        icon: <LinkedInIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} />,
+      },
+      {
+        label: 'Twitter',
+        href: 'https://twitter.com/FormaNewHQ',
+        icon: <TwitterIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} />,
+      },
     ],
   },
 ];
@@ -109,7 +141,7 @@ export default function Footer() {
         
         <Box sx={{ pt: DIMENSIONS.spacing.container, borderTop: `1px solid ${theme.palette.divider}`, textAlign: 'center' }}>
           <Typography variant="body2" color="text.secondary">
-            © 2025 FormaNew. Built with ❤️ using DigitalOcean services.
+            © 2025 FormaNew. All rights reserved.
           </Typography>
         </Box>
       </Container>
