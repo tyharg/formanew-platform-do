@@ -13,7 +13,7 @@ interface PageContainerProps extends Omit<BoxProps, 'sx'> {
  * Reusable page container component that provides consistent layout and spacing.
  *
  * Features:
- * - Consistent max width and centering
+ * - Consistent centering with optional max width override
  * - Standard horizontal and vertical padding
  * - Optional page title rendering
  * - Customizable max width
@@ -21,14 +21,14 @@ interface PageContainerProps extends Omit<BoxProps, 'sx'> {
  * - Supports all Box props for additional customization
  *
  * @param children - Content to be rendered inside the container
- * @param maxWidth - Maximum width of the container (default: 1200)
+ * @param maxWidth - Optional maximum width of the container
  * @param disablePadding - Whether to disable the default padding
  * @param title - Optional page title to display at the top
  * @param sx - Additional styling
  */
 const PageContainer: React.FC<PageContainerProps> = ({
   children,
-  maxWidth = 1200,
+  maxWidth,
   disablePadding = false,
   title,
   sx = {},
@@ -37,11 +37,12 @@ const PageContainer: React.FC<PageContainerProps> = ({
   return (
     <Box
       sx={{
-        maxWidth,
+        width: '100%',
+        ...(maxWidth && { maxWidth }),
         mx: 'auto',
         ...(!disablePadding && {
-          px: 2,
-          py: 4,
+          px: { xs: 1, sm: 2, md: 3, lg: 4 },
+          py: { xs: 2, md: 4, lg: 5 },
         }),
         ...sx,
       }}
@@ -52,7 +53,7 @@ const PageContainer: React.FC<PageContainerProps> = ({
           {title}
         </Typography>
       )}
-      <Card sx={{ p: 4 }}>{children}</Card>
+      <Card sx={{ p: { xs: 2, sm: 3, md: 4 } }}>{children}</Card>
     </Box>
   );
 };
