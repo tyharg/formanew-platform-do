@@ -1,6 +1,13 @@
 import { Suspense } from 'react';
+import type { Metadata } from 'next';
 import SuccessPageClient from './SuccessPageClient';
 import { Box, CircularProgress } from '@mui/material';
+
+export const metadata: Metadata = {
+  title: 'Payment Success | FormaNew SaaS Starter Kit',
+  description:
+    'Confirmation page for successful FormaNew subscription upgrades with guidance on accessing your new DigitalOcean-powered workspace.',
+};
 
 function LoadingState() {
   return (
