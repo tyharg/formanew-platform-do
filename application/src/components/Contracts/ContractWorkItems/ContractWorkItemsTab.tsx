@@ -372,7 +372,7 @@ const ContractWorkItemsTab: React.FC<ContractWorkItemsTabProps> = ({ contractId 
         </Stack>
       </Paper>
 
-      <Dialog open={dialogOpen} onClose={handleDialogClose} maxWidth="sm" fullWidth>
+      <Dialog open={dialogOpen} onClose={handleDialogClose}>
         <DialogTitle>{dialogMode === 'create' ? 'Add work item' : 'Edit work item'}</DialogTitle>
         <DialogContent dividers>
           <Stack spacing={2} sx={{ pt: 1 }}>

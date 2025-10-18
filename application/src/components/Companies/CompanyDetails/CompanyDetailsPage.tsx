@@ -333,8 +333,6 @@ const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = ({ companyId }) =>
       <Dialog
         open={isContactModalOpen}
         onClose={() => (isContactSubmitting ? undefined : setIsContactModalOpen(false))}
-        maxWidth="sm"
-        fullWidth
       >
         <DialogContent dividers sx={{ p: 3 }}>
           <CompanyContactForm
@@ -356,8 +354,6 @@ const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = ({ companyId }) =>
       <Dialog
         open={isNoteModalOpen}
         onClose={() => (isNoteSubmitting ? undefined : setIsNoteModalOpen(false))}
-        maxWidth="sm"
-        fullWidth
       >
         <DialogContent dividers sx={{ p: 3 }}>
           <CompanyNoteForm

@@ -316,7 +316,7 @@ const NotesPage: React.FC = () => {
       )}
 
       {/* Create Note Modal */}
-      <Dialog open={isCreateModalOpen} onClose={handleCloseCreateModal} maxWidth="md" fullWidth>
+      <Dialog open={isCreateModalOpen} onClose={handleCloseCreateModal}>
         <DialogContent>
           <NoteForm mode="create" onSave={handleCreateNote} onCancel={handleCloseCreateModal} />
         </DialogContent>

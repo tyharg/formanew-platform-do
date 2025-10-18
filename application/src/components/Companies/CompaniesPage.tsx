@@ -289,8 +289,6 @@ const CompaniesPage: React.FC = () => {
       <Dialog
         open={isCreateEditOpen}
         onClose={() => (isSubmitting ? undefined : setIsCreateEditOpen(false))}
-        fullWidth
-        maxWidth="md"
       >
         <DialogContent dividers sx={{ p: 3 }}>
           <CompanyForm

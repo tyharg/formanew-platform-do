@@ -1,4 +1,5 @@
 import { createTheme, ThemeOptions, PaletteMode } from '@mui/material/styles';
+import { deepmerge } from '@mui/utils';
 
 // Import all themes from the themes directory
 import { defaultTheme } from './themes/default';
@@ -32,6 +33,15 @@ console.log(
   Object.keys(themeRegistry)
 );
 
+const dialogDefaults: NonNullable<ThemeOptions['components']> = {
+  MuiDialog: {
+    defaultProps: {
+      fullWidth: true,
+      maxWidth: 'md',
+    },
+  },
+};
+
 // Function to create theme with mode
 /**
  * Creates a Material UI theme from configuration and mode
@@ -61,10 +71,30 @@ export function createThemeFromConfig(
 
   const palette = config.palette[mode];
 
+  const mergedComponents = (() => {
+    const combined = deepmerge(
+      dialogDefaults,
+      config.components ?? {},
+    ) as NonNullable<ThemeOptions['components']>;
+
+    const dialogSettings = {
+      ...(combined.MuiDialog ?? {}),
+      defaultProps: {
+        ...(combined.MuiDialog?.defaultProps ?? {}),
+        ...(dialogDefaults.MuiDialog?.defaultProps ?? {}),
+      },
+    };
+
+    return {
+      ...combined,
+      MuiDialog: dialogSettings,
+    } satisfies ThemeOptions['components'];
+  })();
+
   return createTheme({
     palette,
     typography: config.typography,
-    components: config.components,
+    components: mergedComponents,
     cssVariables: options?.cssVariables || false,
   });
 }

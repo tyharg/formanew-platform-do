@@ -313,8 +313,6 @@ const ContractsPage: React.FC = () => {
       <Dialog
         open={isFormOpen}
         onClose={() => (isSubmitting ? undefined : setIsFormOpen(false))}
-        fullWidth
-        maxWidth="md"
       >
         <DialogContent dividers sx={{ p: 3 }}>
           <ContractForm

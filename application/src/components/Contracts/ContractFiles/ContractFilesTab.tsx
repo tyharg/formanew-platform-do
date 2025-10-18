@@ -351,7 +351,7 @@ const ContractFilesTab: React.FC<ContractFilesTabProps> = ({ contractId }) => {
         </Stack>
       </Paper>
 
-      <Dialog open={Boolean(previewFile)} onClose={handleClosePreview} maxWidth="md" fullWidth>
+      <Dialog open={Boolean(previewFile)} onClose={handleClosePreview}>
         {previewFile && (
           <>
             <DialogTitle>{previewFile.name}</DialogTitle>

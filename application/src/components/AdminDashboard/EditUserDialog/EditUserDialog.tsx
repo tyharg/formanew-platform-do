@@ -39,7 +39,7 @@ const EditUserDialog: React.FC<EditUserDialogProps> = ({
   handleEditButton,
   handleEditClose,
 }) => (
-  <Dialog open={open} onClose={handleEditClose} maxWidth="xs" fullWidth>
+  <Dialog open={open} onClose={handleEditClose}>
     <DialogTitle>Edit User</DialogTitle>
     <IconButton
       aria-label="close"

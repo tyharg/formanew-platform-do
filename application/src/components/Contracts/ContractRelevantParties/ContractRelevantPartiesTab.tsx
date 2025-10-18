@@ -284,7 +284,7 @@ const ContractRelevantPartiesTab: React.FC<ContractRelevantPartiesTabProps> = ({
         )}
       </Box>
 
-      <Dialog open={dialogOpen} onClose={handleDialogClose} maxWidth="sm" fullWidth>
+      <Dialog open={dialogOpen} onClose={handleDialogClose}>
         <DialogTitle>{dialogMode === 'create' ? 'Add relevant party' : 'Edit relevant party'}</DialogTitle>
         <DialogContent dividers>
           <Stack spacing={2} sx={{ pt: 1 }}>

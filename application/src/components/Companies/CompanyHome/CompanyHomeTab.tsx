@@ -204,10 +204,6 @@ const CompanyHomeTab = ({ company, onNavigateToTab }: CompanyHomeTabProps) => {
 
   return (
     <Stack spacing={3}>
-      <Typography variant="h5" fontWeight={700} gutterBottom>
-        Home
-      </Typography>
-
       <Card variant="outlined">
         <CardContent>
           <Grid container spacing={3}>
