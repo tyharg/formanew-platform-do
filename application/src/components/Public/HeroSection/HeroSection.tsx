@@ -40,42 +40,42 @@ const HeroSection = () => {
             height: '100%',
             justifyContent: 'space-between'
           }}>
-            <Typography 
-              variant="h1" 
-              component="h1" 
+            <Typography
+              variant="h1"
+              component="h1"
               id="hero-title"
               fontWeight="bold"
-              sx={{ 
+              sx={{
                 textAlign: 'center',
                 width: '100%'
               }}
             >
               FormaNew
             </Typography>
-            <Typography 
-              variant="h3" 
-              component="h2" 
-              fontWeight="bold" 
+            <Typography
+              variant="h3"
+              component="h2"
+              fontWeight="bold"
               color="primary.main"
-              sx={{ 
+              sx={{
                 textAlign: 'center',
                 width: '100%'
               }}
             >
-              The Flagship Next-Generation Digital Economy Platform
+              The flagship platform for modern incorporation and the future of work
             </Typography>
-            <Typography 
-              variant="h6" 
-              component="p" 
-              color="text.secondary" 
-              sx={{ 
-                maxWidth: DIMENSIONS.layout.maxContentWidth, 
+            <Typography
+              variant="h6"
+              component="p"
+              color="text.secondary"
+              sx={{
+                maxWidth: DIMENSIONS.layout.maxContentWidth,
                 mx: 'auto',
                 textAlign: 'center',
                 width: '100%'
               }}
             >
-              Launch your digital brand in record time with our elegent, ready-to-use platform. Packed with automated incorporation and powerful integrations.  Enter the future of work with FormaNew.
+              Launch your digital brand in record time with our elegant, ready-to-use workspace. From guided filings and EIN automation to embedded payments and client-ready tools, FormaNew keeps your incorporation on track while preparing your team for the future of work.
             </Typography>
             <Box component="nav" aria-label="Primary actions">
               <CTAButtons />

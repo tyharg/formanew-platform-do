@@ -147,6 +147,13 @@ const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => {
             Dashboard
           </SidebarLink>
           <SidebarLink
+            href="/incorporation"
+            icon={<Gavel fontSize="small" />}
+            onClick={onNavigate}
+          >
+            Incorporation
+          </SidebarLink>
+          <SidebarLink
             href="/dashboard/notes"
             icon={<Receipt fontSize="small" />}
             onClick={onNavigate}

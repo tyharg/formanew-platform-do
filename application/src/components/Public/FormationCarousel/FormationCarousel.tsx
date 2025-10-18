@@ -13,28 +13,38 @@ import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import { DIMENSIONS } from 'constants/landing';
 
 const formationSteps = [
-  'LLC incorportion',
-  'IRS & compliance',
-  'Contract acquisition',
-  'Growth toolkit',
+  'Incorporation filing',
+  'Compliance automation',
+  'Financial launchpad',
+  'Client onboarding',
+  'Growth partnerships',
 ];
 
 const stepMessages: Record<string, { headline: string; description: string }> = {
-  'LLC incorportion': {
-    headline: 'Form your LLC end-to-end with FormaNew',
-    description: 'Guided filings, name checks, and registered agent coverage ensure the entity launches cleanly in any state.',
+  'Incorporation filing': {
+    headline: 'Guided formation for modern operators',
+    description:
+      'Reserve your name, draft articles, and route signatures with a guided checklist that keeps every filing step on schedule.',
   },
-  'IRS & compliance': {
-    headline: 'Lock in IRS filings and compliance guardrails',
-    description: 'Automated EIN submission, compliance reminders, and annual report tracking keep the business in good standing.',
+  'Compliance automation': {
+    headline: 'Built-in compliance without the busywork',
+    description:
+      'Automated EIN filing, annual report reminders, and registered agent coordination keep your LLC in good standing year-round.',
   },
-  'Contract acquisition': {
-    headline: 'Win the contracts that grow revenue',
-    description: 'Proposal templates, past-performance checklists, and sourcing alerts help secure government and commercial deals.',
+  'Financial launchpad': {
+    headline: 'Track every dollar from quote to payout',
+    description:
+      'Send invoices, reconcile expenses, and monitor cash flow inside one dashboard that’s tuned for freelancers and studios.',
   },
-  'Growth toolkit': {
-    headline: 'Keep momentum with ongoing growth support',
-    description: 'Tap coaching, capital introductions, and partner perks tailored to help the company scale.',
+  'Client onboarding': {
+    headline: 'Deliver a polished client experience day one',
+    description:
+      'Share branded portals, secure payments, and status updates that make collaborating with you effortless for every client.',
+  },
+  'Growth partnerships': {
+    headline: 'Scale with curated partners and perks',
+    description:
+      'Unlock partner benefits, coaching sessions, and curated capital introductions tailored to your next stage of growth.',
   },
 };
 
@@ -243,7 +253,7 @@ const FormationCarousel = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <PlayCircleOutlineIcon color="primary" fontSize="small" />
               <Typography variant="body2" color="text.secondary">
-                FormaNew unifies formation, operations, and growth in one workspace.
+                Every milestone syncs to your FormaNew dashboard so filings, finances, and client delivery stay in lockstep.
               </Typography>
             </Box>
           </Box>

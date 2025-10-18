@@ -12,31 +12,36 @@ interface ProductDisplay {
   currency: string;
 }
 
+interface StorefrontPageClientProps {
+  companyId: string;
+  initialStorefrontName: string;
+}
+
 const APPLICATION_FEE_PERCENTAGE = 0.1;
 const MIN_APPLICATION_FEE_CENTS = 100;
 
-interface StorefrontPageClientProps {
-  accountId: string;
-}
-
-export default function StorefrontPageClient({ accountId }: StorefrontPageClientProps) {
+export default function StorefrontPageClient({ companyId, initialStorefrontName }: StorefrontPageClientProps) {
   const [products, setProducts] = useState<ProductDisplay[]>([]);
+  const [storefrontName, setStorefrontName] = useState(initialStorefrontName);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isCheckoutLoading, setIsCheckoutLoading] = useState<string | null>(null);
+  const [isStoreConnected, setIsStoreConnected] = useState(true);
 
   useEffect(() => {
     const fetchProducts = async () => {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await fetch(`/api/store/${accountId}/products`);
+        const response = await fetch(`/api/company/${companyId}/store/products`);
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || 'Failed to fetch products.');
+          throw new Error(errorData.error || 'Failed to fetch products.');
         }
         const data = await response.json();
-        setProducts(data.products);
+        setProducts(data.products ?? []);
+        setStorefrontName(data.storefrontName ?? initialStorefrontName);
+        setIsStoreConnected(Boolean(data.stripeAccountId));
       } catch (err) {
         console.error(err);
         setError(err instanceof Error ? err.message : 'Could not load products.');
@@ -46,7 +51,7 @@ export default function StorefrontPageClient({ accountId }: StorefrontPageClient
     };
 
     fetchProducts();
-  }, [accountId]);
+  }, [companyId, initialStorefrontName]);
 
   const handlePurchase = async (product: ProductDisplay) => {
     setIsCheckoutLoading(product.id);
@@ -59,7 +64,7 @@ export default function StorefrontPageClient({ accountId }: StorefrontPageClient
       );
       const applicationFeeAmount = (calculatedFeeCents / 100).toFixed(2);
 
-      const response = await fetch(`/api/store/${accountId}/checkout`, {
+      const response = await fetch(`/api/company/${companyId}/store/checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -71,7 +76,7 @@ export default function StorefrontPageClient({ accountId }: StorefrontPageClient
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to create checkout session.');
+        throw new Error(data.error || 'Failed to create checkout session.');
       }
 
       window.location.href = data.url;
@@ -93,11 +98,17 @@ export default function StorefrontPageClient({ accountId }: StorefrontPageClient
   return (
     <Box sx={{ maxWidth: 900, mx: 'auto', p: 3 }}>
       <Typography variant="h4" component="h1" gutterBottom>
-        Storefront: {accountId}
+        {storefrontName}
       </Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
         Welcome to our store! All payments are processed securely via Stripe Connect.
       </Typography>
+
+      {!isStoreConnected && (
+        <Alert severity="warning" sx={{ mb: 3 }}>
+          This storefront is not accepting payments yet. The owner needs to complete Stripe Connect onboarding.
+        </Alert>
+      )}
 
       {error && (
         <Alert severity="error" sx={{ mb: 3 }}>
@@ -107,7 +118,7 @@ export default function StorefrontPageClient({ accountId }: StorefrontPageClient
 
       {products.length === 0 ? (
         <Alert severity="info">
-          No products available yet. The account owner needs to create some products in their Finance settings.
+          No products available yet. The account owner needs to create products in their Finance settings.
         </Alert>
       ) : (
         <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 3 }}>
@@ -128,13 +139,14 @@ export default function StorefrontPageClient({ accountId }: StorefrontPageClient
                   color="primary"
                   fullWidth
                   onClick={() => handlePurchase(product)}
-                  disabled={isCheckoutLoading === product.id}
+                  disabled={isCheckoutLoading === product.id || !isStoreConnected}
                   startIcon={isCheckoutLoading === product.id ? <CircularProgress size={20} color="inherit" /> : null}
                 >
                   {isCheckoutLoading === product.id ? 'Redirecting...' : 'Buy Now'}
                 </Button>
                 <Typography variant="caption" display="block" sx={{ mt: 1, textAlign: 'center' }}>
-                  Platform Fee: {(Math.max(Math.round(product.unitAmount * APPLICATION_FEE_PERCENTAGE), MIN_APPLICATION_FEE_CENTS) / 100).toFixed(2)} {product.currency.toUpperCase()} (10% min $1.00)
+                  Platform Fee: {(Math.max(Math.round(product.unitAmount * APPLICATION_FEE_PERCENTAGE), MIN_APPLICATION_FEE_CENTS) / 100).toFixed(2)}{' '}
+                  {product.currency.toUpperCase()} (10% min $1.00)
                 </Typography>
               </CardContent>
             </Card>

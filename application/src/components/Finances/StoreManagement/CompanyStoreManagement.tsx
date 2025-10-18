@@ -111,11 +111,11 @@ export default function CompanyStoreManagement() {
   );
 
   const storeUrl = useMemo(() => {
-    if (!finance?.stripeAccountId) {
+    if (!selectedCompanyId) {
       return null;
     }
-    return `/store/${finance.stripeAccountId}`;
-  }, [finance?.stripeAccountId]);
+    return `/company/${selectedCompanyId}/store`;
+  }, [selectedCompanyId]);
 
   const fetchProducts = useCallback(
     async (companyId: string) => {

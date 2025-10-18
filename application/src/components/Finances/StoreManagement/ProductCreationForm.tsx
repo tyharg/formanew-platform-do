@@ -90,8 +90,8 @@ export default function ProductCreationForm({ companyId, stripeAccountId, onProd
           {successMessage}
           <Box sx={{ mt: 1 }}>
             <Typography variant="caption">
-              View your storefront: <a href={`/store/${stripeAccountId}`} target="_blank" rel="noopener noreferrer">
-                {`/store/${stripeAccountId}`}
+              View your storefront: <a href={`/company/${companyId}/store`} target="_blank" rel="noopener noreferrer">
+                {`/company/${companyId}/store`}
               </a>
             </Typography>
           </Box>

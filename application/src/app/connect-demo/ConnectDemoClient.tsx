@@ -375,7 +375,8 @@ export default function ConnectDemoClient() {
         )}
 
         <p style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#555' }}>
-          Tip: You can also visit <code>/connect-demo/store/&lt;accountId&gt;</code> to see a simple public storefront.
+          Tip: You can also visit <code>/company/&lt;companyId&gt;/store</code> to see a simple public storefront once you have a
+          connected Stripe account.
         </p>
       </section>
     </div>

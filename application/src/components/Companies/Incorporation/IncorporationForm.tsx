@@ -10,8 +10,7 @@ import {
   Stepper,
   Typography,
 } from '@mui/material';
-import { Company } from 'lib/api/companies';
-import { Incorporation } from 'types';
+import { Incorporation, IncorporationStatus } from 'types';
 import { FormFieldValue } from './types';
 import BusinessAddressForm from './BusinessAddressForm';
 import BusinessInformationForm from './BusinessInformationForm';
@@ -26,27 +25,42 @@ const steps = [
 ];
 
 interface IncorporationFormProps {
-  company: Company;
+  companyId: string;
+  onDataLoaded?: (incorporation: Incorporation | null) => void;
 }
 
-const IncorporationForm: React.FC<IncorporationFormProps> = ({ company }) => {
+const IncorporationForm: React.FC<IncorporationFormProps> = ({ companyId, onDataLoaded }) => {
   const [activeStep, setActiveStep] = useState(0);
   const [formData, setFormData] = useState<Partial<Incorporation>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const syncData = (data: Incorporation | null) => {
+    if (data) {
+      setFormData(data);
+      const submitted =
+        data.status === IncorporationStatus.SUBMITTED || Boolean(data.submittedAt) || Boolean(data.isComplete);
+      setIsSubmitted(submitted);
+      setActiveStep((prev) => (submitted ? steps.length : Math.min(prev, steps.length - 1)));
+    } else {
+      setFormData({});
+      setIsSubmitted(false);
+      setActiveStep(0);
+    }
+    onDataLoaded?.(data);
+  };
 
   useEffect(() => {
     const fetchIncorporationData = async () => {
       try {
-        const response = await fetch(`/api/company/${company.id}/incorporation`);
+        const response = await fetch(`/api/company/${companyId}/incorporation`);
         if (response.ok) {
           const data = await response.json();
           if (data.incorporation) {
-            setFormData(data.incorporation);
-            // If incorporation is complete, set the active step to the last step
-            if (data.incorporation.isComplete) {
-              setActiveStep(steps.length);
-            }
+            syncData(data.incorporation as Incorporation);
+          } else {
+            syncData(null);
           }
         }
       } catch (error) {
@@ -57,14 +71,15 @@ const IncorporationForm: React.FC<IncorporationFormProps> = ({ company }) => {
     };
 
     fetchIncorporationData();
-  }, [company.id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [companyId]);
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
       const url = formData.id
-        ? `/api/company/${company.id}/incorporation/${formData.id}`
-        : `/api/company/${company.id}/incorporation`;
+        ? `/api/company/${companyId}/incorporation/${formData.id}`
+        : `/api/company/${companyId}/incorporation`;
       const method = formData.id ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
@@ -77,8 +92,10 @@ const IncorporationForm: React.FC<IncorporationFormProps> = ({ company }) => {
 
       if (response.ok) {
         const data = await response.json();
-        setFormData(data.incorporation);
-        setActiveStep((prevActiveStep) => prevActiveStep + 1);
+        syncData(data.incorporation as Incorporation);
+        setActiveStep((prevActiveStep) =>
+          isSubmitted ? steps.length : Math.min(prevActiveStep + 1, steps.length),
+        );
       } else {
         const errorText = await response.text();
         console.error(`Failed to save incorporation data: ${response.status} - ${errorText}`);
@@ -91,6 +108,10 @@ const IncorporationForm: React.FC<IncorporationFormProps> = ({ company }) => {
   };
 
   const handleNext = () => {
+    if (isSubmitted) {
+      return;
+    }
+
     if (activeStep === steps.length - 1) {
       handleSave();
     } else {
@@ -99,6 +120,9 @@ const IncorporationForm: React.FC<IncorporationFormProps> = ({ company }) => {
   };
 
   const handleBack = () => {
+    if (isSubmitted) {
+      return;
+    }
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
@@ -171,7 +195,7 @@ const IncorporationForm: React.FC<IncorporationFormProps> = ({ company }) => {
 
   return (
     <Box>
-      <Stepper activeStep={activeStep} alternativeLabel>
+      <Stepper activeStep={Math.min(activeStep, steps.length)} alternativeLabel>
         {steps.map((label) => (
           <Step key={label}>
             <StepLabel>{label}</StepLabel>
@@ -179,11 +203,17 @@ const IncorporationForm: React.FC<IncorporationFormProps> = ({ company }) => {
         ))}
       </Stepper>
       <Box sx={{ mt: 4 }}>
-        {activeStep === steps.length ? (
+        {activeStep === steps.length || isSubmitted ? (
           <Box>
             <Typography sx={{ mt: 2, mb: 1 }}>
-              All steps completed - you&apos;re finished
+              All steps completed — your incorporation packet is ready.
             </Typography>
+            {formData.submittedAt && (
+              <Typography variant="body2" color="text.secondary">
+                Submitted on {new Date(formData.submittedAt).toLocaleDateString()}. A FormaNew specialist will follow up with
+                next steps shortly.
+              </Typography>
+            )}
           </Box>
         ) : (
           <Box>
