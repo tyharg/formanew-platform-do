@@ -1,10 +1,8 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { CompaniesApiClient, Company } from 'lib/api/companies';
-
-const STORAGE_KEY = 'formanew:selectedCompanyId';
 
 interface CompanySelectionContextValue {
   companies: Company[];
@@ -21,13 +19,6 @@ const CompanySelectionContext = createContext<CompanySelectionContextValue | und
 
 const companiesClient = new CompaniesApiClient();
 
-const getStoredCompanyId = (): string | null => {
-  if (typeof window === 'undefined') {
-    return null;
-  }
-  return localStorage.getItem(STORAGE_KEY);
-};
-
 export const CompanySelectionProvider = ({ children }: { children: React.ReactNode }) => {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
@@ -36,7 +27,23 @@ export const CompanySelectionProvider = ({ children }: { children: React.ReactNo
   const [error, setError] = useState<string | null>(null);
   const [hasUserSelected, setHasUserSelected] = useState(false);
   const { data: session } = useSession();
+  const userId = session?.user?.id ?? null;
   const defaultCompanyId = session?.user?.defaultCompanyId ?? null;
+  const previousUserIdRef = useRef<string | null | undefined>(undefined);
+
+  useEffect(() => {
+    if (previousUserIdRef.current === userId) {
+      return;
+    }
+
+    previousUserIdRef.current = userId;
+    setHasUserSelected(false);
+    setSelectedCompanyId(null);
+    setCompanies([]);
+    setError(null);
+    setIsLoading(true);
+    setIsRefreshing(false);
+  }, [userId]);
 
   useEffect(() => {
     setHasUserSelected(false);
@@ -56,13 +63,6 @@ export const CompanySelectionProvider = ({ children }: { children: React.ReactNo
           return previous;
         }
 
-        if (!hasUserSelected) {
-          const storedId = getStoredCompanyId();
-          if (isValidCompanyId(storedId)) {
-            return storedId;
-          }
-        }
-
         return nextCompanies[0]?.id ?? null;
       });
     },
@@ -70,6 +70,15 @@ export const CompanySelectionProvider = ({ children }: { children: React.ReactNo
   );
 
   const loadCompanies = useCallback(async () => {
+    if (!userId) {
+      setCompanies([]);
+      setSelectedCompanyId(null);
+      setIsLoading(false);
+      setIsRefreshing(false);
+      setError(null);
+      return;
+    }
+
     setError(null);
     setIsRefreshing(true);
     try {
@@ -85,7 +94,7 @@ export const CompanySelectionProvider = ({ children }: { children: React.ReactNo
       setIsLoading(false);
       setIsRefreshing(false);
     }
-  }, [resolveSelection]);
+  }, [resolveSelection, userId]);
 
   useEffect(() => {
     loadCompanies();
@@ -96,18 +105,6 @@ export const CompanySelectionProvider = ({ children }: { children: React.ReactNo
       resolveSelection(companies);
     }
   }, [companies, resolveSelection]);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    if (selectedCompanyId) {
-      localStorage.setItem(STORAGE_KEY, selectedCompanyId);
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
-    }
-  }, [selectedCompanyId]);
 
   const selectCompany = useCallback(
     (companyId: string | null) => {
