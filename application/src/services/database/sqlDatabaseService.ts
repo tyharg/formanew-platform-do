@@ -644,16 +644,16 @@ export class SqlDatabaseService extends DatabaseClient {
 
   user = {
     findById: async (id: string) => {
-      return prisma.user.findUnique({ where: { id } });
+      return prisma.user.findUnique({ where: { id } }) as unknown as User | null;
     },
     findByEmail: async (email: string) => {
-      return prisma.user.findUnique({ where: { email } });
+      return prisma.user.findUnique({ where: { email } }) as unknown as User | null;
     },
     findByEmailAndPassword: async (email: string, passwordHash: string) => {
-      return prisma.user.findFirst({ where: { email, passwordHash } });
+      return prisma.user.findFirst({ where: { email, passwordHash } }) as unknown as User | null;
     },
     findByVerificationToken: async (token: string) => {
-      return prisma.user.findFirst({ where: { verificationToken: token } });
+      return prisma.user.findFirst({ where: { verificationToken: token } }) as unknown as User | null;
     },
     findAll: async (options?: {
       page?: number;
@@ -693,7 +693,7 @@ export class SqlDatabaseService extends DatabaseClient {
         }),
         prisma.user.count({ where }),
       ]);
-      return { users, total };
+      return { users: users as unknown as UserWithSubscriptions[], total };
     },
     create: async (user: Omit<User, 'id' | 'createdAt'>): Promise<User> => {
       const { companies: _companies, defaultCompany: _defaultCompany, ...userData } = user;
