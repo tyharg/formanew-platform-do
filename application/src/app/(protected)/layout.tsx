@@ -34,9 +34,9 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
             sx={{
               position: 'relative',
               minHeight: '100%',
-              maxWidth: { lg: 'min(1200px, 100%)', xl: 1400 },
+              maxWidth: { xl: 1440 },
               mx: 'auto',
-              px: { xs: 2, md: 5, xl: 6 },
+              px: { xs: 1, sm: 1.5, md: 2, lg: 2.5, xl: 3 },
               py: { xs: 4, md: 6 },
               display: 'flex',
               flexDirection: 'column',
