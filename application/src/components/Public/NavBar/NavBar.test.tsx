@@ -69,7 +69,7 @@ describe('NavBar', () => {
 
   it('renders links for authenticated users', () => {
     (useSession as jest.Mock).mockReturnValue({
-      data: { user: { name: 'Jane' } },
+      data: { user: { name: 'Jane', defaultCompanyId: null } },
       status: 'authenticated',
     });
     (useMediaQuery as jest.Mock).mockReturnValue(false); // Desktop
@@ -81,7 +81,7 @@ describe('NavBar', () => {
 
   it('calls signOut on logout click (desktop)', async () => {
     (useSession as jest.Mock).mockReturnValue({
-      data: { user: { name: 'Jane' } },
+      data: { user: { name: 'Jane', defaultCompanyId: null } },
       status: 'authenticated',
     });
     (useMediaQuery as jest.Mock).mockReturnValue(false); // Desktop

@@ -696,19 +696,19 @@ export class SqlDatabaseService extends DatabaseClient {
       return { users, total };
     },
     create: async (user: Omit<User, 'id' | 'createdAt'>): Promise<User> => {
-      const { companies: _companies, ...userData } = user;
+      const { companies: _companies, defaultCompany: _defaultCompany, ...userData } = user;
       const newUser = await prisma.user.create({ data: userData });
       return newUser as unknown as User;
     },
     update: async (id: string, user: Partial<Omit<User, 'id' | 'createdAt'>>): Promise<User> => {
-      const { companies: _companies, ...userData } = user;
+      const { companies: _companies, defaultCompany: _defaultCompany, ...userData } = user;
       return prisma.user.update({ where: { id }, data: userData }) as unknown as User;
     },
     updateByEmail: async (
       email: string,
       user: Partial<Omit<User, 'id' | 'createdAt'>>
     ): Promise<User> => {
-      const { companies: _companies, ...userData } = user;
+      const { companies: _companies, defaultCompany: _defaultCompany, ...userData } = user;
       return prisma.user.update({ where: { email }, data: userData }) as unknown as User;
     },
     delete: async (id: string): Promise<void> => {

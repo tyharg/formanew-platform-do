@@ -7,6 +7,8 @@ export interface User {
   email: string;
   passwordHash: string;
   image: string | null;
+  defaultCompanyId: string | null;
+  defaultCompany?: Company | null;
 
   role: UserRole;
   createdAt: Date;

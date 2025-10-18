@@ -70,7 +70,7 @@ describe('Sidebar', () => {
 
   it('renders desktop sidebar with standard links', () => {
     (useSession as jest.Mock).mockReturnValue({
-      data: { user: { name: 'User', role: USER_ROLES.USER } },
+      data: { user: { name: 'User', role: USER_ROLES.USER, defaultCompanyId: null } },
     });
     (useMediaQuery as jest.Mock).mockReturnValue(false);
 
@@ -87,7 +87,7 @@ describe('Sidebar', () => {
 
   it('renders admin link for ADMIN role', () => {
     (useSession as jest.Mock).mockReturnValue({
-      data: { user: { name: 'Admin', role: USER_ROLES.ADMIN } },
+      data: { user: { name: 'Admin', role: USER_ROLES.ADMIN, defaultCompanyId: null } },
     });
     (useMediaQuery as jest.Mock).mockReturnValue(false);
 
@@ -97,7 +97,7 @@ describe('Sidebar', () => {
 
   it('calls signOut on logout click', () => {
     (useSession as jest.Mock).mockReturnValue({
-      data: { user: { name: 'User', role: USER_ROLES.USER } },
+      data: { user: { name: 'User', role: USER_ROLES.USER, defaultCompanyId: null } },
     });
     (useMediaQuery as jest.Mock).mockReturnValue(false);
 
@@ -109,7 +109,7 @@ describe('Sidebar', () => {
 
   it('renders mobile drawer toggle', () => {
     (useSession as jest.Mock).mockReturnValue({
-      data: { user: { name: 'User', role: USER_ROLES.USER } },
+      data: { user: { name: 'User', role: USER_ROLES.USER, defaultCompanyId: null } },
     });
     (useMediaQuery as jest.Mock).mockReturnValue(true);
 

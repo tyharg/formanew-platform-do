@@ -100,6 +100,7 @@ export async function POST(req: NextRequest) {
       email,
       image: null,
       passwordHash: hashedPassword,
+      defaultCompanyId: null,
       role: isFirstUser ? USER_ROLES.ADMIN : USER_ROLES.USER,
       verificationToken,
       emailVerified: !isEmailEnabled,

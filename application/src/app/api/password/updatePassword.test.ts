@@ -49,7 +49,7 @@ jest.mock('../../../services/email/emailFactory', () => ({
   createEmailService: () => Promise.resolve(mockEmailClient),
 }));
 
-const mockUser = { id: 'user1', role: 'user' };
+const mockUser = { id: 'user1', role: 'user', defaultCompanyId: null };
 
 function createRequestWithFormData(fields: Record<string, string>) {
   return {
@@ -125,7 +125,7 @@ describe('updatePassword', () => {
   });
 
   it('returns error if current password is incorrect', async () => {
-    mockFindById.mockResolvedValue({ passwordHash: 'hash' });
+    mockFindById.mockResolvedValue({ passwordHash: 'hash', defaultCompanyId: null });
     const req = createRequestWithFormData({
       currentPassword: 'wrong',
       newPassword: 'b',
@@ -143,6 +143,7 @@ describe('updatePassword', () => {
       name: 'Test',
       image: 'img',
       passwordHash: '$2b$12$iyGm98HPjDxoD74cIbEHz.QVTvoPu5kPhiIuB6chsL6agm1x.KgF.',
+      defaultCompanyId: null,
     });
     mockUpdate.mockResolvedValue(undefined);
     const req = createRequestWithFormData({
@@ -176,6 +177,7 @@ describe('updatePassword', () => {
       name: 'Test',
       image: 'img',
       passwordHash: '$2b$12$iyGm98HPjDxoD74cIbEHz.QVTvoPu5kPhiIuB6chsL6agm1x.KgF.',
+      defaultCompanyId: null,
     });
     mockUpdate.mockResolvedValue(undefined);
     const req = createRequestWithFormData({
