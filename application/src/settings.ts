@@ -5,6 +5,7 @@ export interface ServerConfig {
   billingProvider: string;
   invoiceProvider: string;
   enableEmailIntegration: boolean;
+  disableSignup: boolean;
   baseURL?: string;
   GradientAI: {
     doInferenceApiKey?: string;
@@ -50,6 +51,7 @@ export const serverConfig: ServerConfig = {
   enableEmailIntegration: process.env.ENABLE_EMAIL_INTEGRATION
     ? process.env.ENABLE_EMAIL_INTEGRATION === 'true'
     : false,
+  disableSignup: process.env.DISABLE_SIGNUP === 'true',
   baseURL: process.env.BASE_URL,
   Database: {
     url: process.env.DATABASE_URL,

@@ -126,6 +126,13 @@ describe('SignUpForm', () => {
     expect(await screen.findByText('Account created.')).toBeInTheDocument();
   });
 
+  it('renders disabled message when signups are disabled', () => {
+    render(<SignUpForm isSignupDisabled />);
+
+    expect(screen.getByTestId('signup-disabled-message')).toBeInTheDocument();
+    expect(screen.queryByTestId('signup-form')).not.toBeInTheDocument();
+  });
+
   it('requires Turnstile verification when enabled', async () => {
     const originalSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
     process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY = 'test-site-key';

@@ -71,6 +71,13 @@ const createSubscription = async (db: DatabaseClient, user: User) => {
  */
 export async function POST(req: NextRequest) {
   try {
+    if (serverConfig.disableSignup) {
+      return NextResponse.json(
+        { error: 'Signups are currently disabled.' },
+        { status: HTTP_STATUS.FORBIDDEN }
+      );
+    }
+
     const { name, email, password, turnstileToken } = await req.json();
     if (!email || !password || !name) {
       return NextResponse.json(
