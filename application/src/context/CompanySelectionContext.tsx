@@ -4,11 +4,6 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { useSession } from 'next-auth/react';
 import { CompaniesApiClient, Company } from 'lib/api/companies';
 
-const STORAGE_KEY_PREFIX = 'formanew:selectedCompanyId';
-
-const getStorageKey = (userId: string | null) =>
-  userId ? `${STORAGE_KEY_PREFIX}:${userId}` : STORAGE_KEY_PREFIX;
-
 interface CompanySelectionContextValue {
   companies: Company[];
   selectedCompanyId: string | null;
@@ -23,13 +18,6 @@ interface CompanySelectionContextValue {
 const CompanySelectionContext = createContext<CompanySelectionContextValue | undefined>(undefined);
 
 const companiesClient = new CompaniesApiClient();
-
-const getStoredCompanyId = (userId: string | null): string | null => {
-  if (typeof window === 'undefined') {
-    return null;
-  }
-  return localStorage.getItem(getStorageKey(userId));
-};
 
 export const CompanySelectionProvider = ({ children }: { children: React.ReactNode }) => {
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -75,17 +63,10 @@ export const CompanySelectionProvider = ({ children }: { children: React.ReactNo
           return previous;
         }
 
-        if (!hasUserSelected) {
-          const storedId = getStoredCompanyId(userId);
-          if (isValidCompanyId(storedId)) {
-            return storedId;
-          }
-        }
-
         return nextCompanies[0]?.id ?? null;
       });
     },
-    [defaultCompanyId, hasUserSelected, userId]
+    [defaultCompanyId, hasUserSelected]
   );
 
   const loadCompanies = useCallback(async () => {
@@ -124,20 +105,6 @@ export const CompanySelectionProvider = ({ children }: { children: React.ReactNo
       resolveSelection(companies);
     }
   }, [companies, resolveSelection]);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    const storageKey = getStorageKey(userId);
-
-    if (selectedCompanyId) {
-      localStorage.setItem(storageKey, selectedCompanyId);
-    } else {
-      localStorage.removeItem(storageKey);
-    }
-  }, [selectedCompanyId, userId]);
 
   const selectCompany = useCallback(
     (companyId: string | null) => {
