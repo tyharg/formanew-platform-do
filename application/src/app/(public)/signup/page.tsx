@@ -8,7 +8,9 @@ import React from 'react';
  * @returns Registration page with benefits presentation and call to action.
  */
 const SignupPage: React.FC = () => {
-  return <SignUpForm />;
+  const isSignupDisabled = process.env.DISABLE_SIGNUP === 'true';
+
+  return <SignUpForm isSignupDisabled={isSignupDisabled} />;
 };
 
 export default SignupPage;

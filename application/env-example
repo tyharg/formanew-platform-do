@@ -117,6 +117,9 @@ INVOICE_PROVIDER=DigitalOcean GradientAI
 # In the app: Used for generating absolute URLs for email links and Stripe callbacks
 BASE_URL=
 
+# Toggle to disable new user signups (set to true to disable signup flows)
+DISABLE_SIGNUP=false
+
 # ====================
 # AI CONFIGURATION (DigitalOcean Inference API)
 # ====================

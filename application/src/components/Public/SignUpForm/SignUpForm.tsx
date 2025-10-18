@@ -17,11 +17,15 @@ import { useNavigating } from 'hooks/navigation';
 import { USER_ROLES } from 'lib/auth/roles';
 import TurnstileChallenge from 'components/Public/LoginForm/TurnstileChallenge';
 
+interface SignUpFormProps {
+  isSignupDisabled?: boolean;
+}
+
 /**
  * User registration form.
  * Includes password validation, Auth.js integration and error handling.
  */
-const SignUpForm: React.FC = () => {
+const SignUpForm: React.FC<SignUpFormProps> = ({ isSignupDisabled = false }) => {
   const { setNavigating } = useNavigating();
 
   const [email, setEmail] = useState('');
@@ -107,8 +111,18 @@ const SignUpForm: React.FC = () => {
                 </Typography>
               </Stack>
 
-              {/* Show success message OR form, not both */}
-              {success ? (
+              {/* Show disabled message, success message, or form */}
+              {isSignupDisabled ? (
+                <Stack spacing={3} textAlign="center">
+                  <Typography
+                    color="text.secondary"
+                    variant="body1"
+                    data-testid="signup-disabled-message"
+                  >
+                    Signups are currently disabled. Please check back soon.
+                  </Typography>
+                </Stack>
+              ) : success ? (
                 <Stack spacing={3} textAlign="center">
                   <Typography color="success.main" variant="body1" textAlign="center">
                     {success}
