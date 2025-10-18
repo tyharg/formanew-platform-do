@@ -96,6 +96,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.role = (user as User).role;
         token.email = (user as User).email;
         token.name = (user as User).name;
+        token.defaultCompanyId = (user as User).defaultCompanyId ?? null;
       }
 
       if (trigger === 'update') {
@@ -112,6 +113,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
 
       session.user.email = token.email as string;
+      session.user.defaultCompanyId = (token.defaultCompanyId as string | null) ?? null;
 
       if (token.image) {
         session.user.image = token.image as string;

@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { CompaniesApiClient, Company } from 'lib/api/companies';
 
 const STORAGE_KEY = 'formanew:selectedCompanyId';
@@ -33,21 +34,40 @@ export const CompanySelectionProvider = ({ children }: { children: React.ReactNo
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasUserSelected, setHasUserSelected] = useState(false);
+  const { data: session } = useSession();
+  const defaultCompanyId = session?.user?.defaultCompanyId ?? null;
 
-  const resolveSelection = useCallback((nextCompanies: Company[]) => {
-    setSelectedCompanyId((previous) => {
-      if (previous && nextCompanies.some((company) => company.id === previous)) {
-        return previous;
-      }
+  useEffect(() => {
+    setHasUserSelected(false);
+  }, [defaultCompanyId]);
 
-      const storedId = getStoredCompanyId();
-      if (storedId && nextCompanies.some((company) => company.id === storedId)) {
-        return storedId;
-      }
+  const resolveSelection = useCallback(
+    (nextCompanies: Company[]) => {
+      setSelectedCompanyId((previous) => {
+        const isValidCompanyId = (companyId: string | null | undefined) =>
+          Boolean(companyId) && nextCompanies.some((company) => company.id === companyId);
 
-      return nextCompanies[0]?.id ?? null;
-    });
-  }, []);
+        if (!hasUserSelected && isValidCompanyId(defaultCompanyId)) {
+          return defaultCompanyId;
+        }
+
+        if (previous && isValidCompanyId(previous)) {
+          return previous;
+        }
+
+        if (!hasUserSelected) {
+          const storedId = getStoredCompanyId();
+          if (isValidCompanyId(storedId)) {
+            return storedId;
+          }
+        }
+
+        return nextCompanies[0]?.id ?? null;
+      });
+    },
+    [defaultCompanyId, hasUserSelected]
+  );
 
   const loadCompanies = useCallback(async () => {
     setError(null);
@@ -72,6 +92,12 @@ export const CompanySelectionProvider = ({ children }: { children: React.ReactNo
   }, [loadCompanies]);
 
   useEffect(() => {
+    if (companies.length > 0) {
+      resolveSelection(companies);
+    }
+  }, [companies, resolveSelection]);
+
+  useEffect(() => {
     if (typeof window === 'undefined') {
       return;
     }
@@ -85,6 +111,7 @@ export const CompanySelectionProvider = ({ children }: { children: React.ReactNo
 
   const selectCompany = useCallback(
     (companyId: string | null) => {
+      setHasUserSelected(true);
       setSelectedCompanyId((previous) => {
         if (companyId && !companies.some((company) => company.id === companyId)) {
           return previous;

@@ -24,6 +24,7 @@ describe('AccountSettings', () => {
     name: 'John Doe',
     email: 'john@example.com',
     image: '/profile.jpg',
+    defaultCompanyId: null,
   };
 
   beforeEach(() => {

@@ -16,6 +16,7 @@ describe('ProfileUpdateForm', () => {
     name: 'John Doe',
     email: 'john@example.com',
     image: '/profile.jpg',
+    defaultCompanyId: null,
   };
 
   const mockUpdate = jest.fn();

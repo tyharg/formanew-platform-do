@@ -7,7 +7,7 @@ import { SubscriptionPlanEnum, SubscriptionStatusEnum } from 'types';
 // Mock next-auth/react to avoid ESM import issues in tests
 jest.mock('next-auth/react', () => ({
   useSession: () => ({
-    data: { user: { id: '1', name: 'Alice' } },
+    data: { user: { id: '1', name: 'Alice', defaultCompanyId: null } },
     status: 'authenticated',
     update: jest.fn(),
   }),
@@ -23,6 +23,7 @@ jest.mock('../../lib/api/users', () => {
             name: 'Alice',
             email: 'alice@example.com',
             role: USER_ROLES.USER,
+            defaultCompanyId: null,
             createdAt: new Date().toISOString(),
             subscriptions: [
               { plan: SubscriptionPlanEnum.FREE, status: SubscriptionStatusEnum.ACTIVE },
@@ -33,6 +34,7 @@ jest.mock('../../lib/api/users', () => {
             name: 'Bob',
             email: 'bob@example.com',
             role: USER_ROLES.ADMIN,
+            defaultCompanyId: null,
             createdAt: new Date().toISOString(),
             subscriptions: [
               { plan: SubscriptionPlanEnum.PRO, status: SubscriptionStatusEnum.CANCELED },
