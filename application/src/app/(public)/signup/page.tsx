@@ -1,5 +1,6 @@
 import SignUpForm from 'components/Public/SignUpForm/SignUpForm';
 import React from 'react';
+import { serverConfig } from 'settings';
 
 /**
  * User registration page.
@@ -8,9 +9,7 @@ import React from 'react';
  * @returns Registration page with benefits presentation and call to action.
  */
 const SignupPage: React.FC = () => {
-  const isSignupDisabled = process.env.DISABLE_SIGNUP === 'true';
-
-  return <SignUpForm isSignupDisabled={isSignupDisabled} />;
+  return <SignUpForm isSignupDisabled={serverConfig.disableSignup} />;
 };
 
 export default SignupPage;
