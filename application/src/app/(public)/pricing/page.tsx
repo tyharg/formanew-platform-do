@@ -1,7 +1,20 @@
 import { Box, Button, Chip, Typography, List, ListItem, ListItemIcon, ListItemText } from '@mui/material';
+import type { Metadata } from 'next';
 import CheckIcon from '@mui/icons-material/Check';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: 'Pricing | FormaNew SaaS Plans',
+  description:
+    'Compare FormaNew pricing tiers to launch and scale your SaaS on DigitalOcean with built-in billing, compliance, and storefront tooling.',
+  keywords: [
+    'FormaNew pricing',
+    'SaaS starter kit plans',
+    'DigitalOcean app pricing',
+    'Stripe billing template',
+  ],
+};
 
 type Plan = {
   name: string;

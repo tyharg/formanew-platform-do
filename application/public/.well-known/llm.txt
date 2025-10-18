@@ -1,0 +1,50 @@
+# FormaNew LLM Discovery Document
+version: 1.0
+updated: 2024-06-01
+
+summary: |
+  FormaNew is a DigitalOcean-native SaaS starter kit that demonstrates a modern subscription notes app with authentication,
+  billing, file storage, AI integrations, and automated compliance workflows. The project uses Next.js 14 with the App Router,
+  Prisma ORM, PostgreSQL, Stripe, Resend, and DigitalOcean Spaces. Use this document to explore onboarding flows, billing
+  automation, and deployment guidance for building similar production-grade SaaS products.
+
+primary_use_cases:
+  - Learn how to integrate Stripe subscriptions, metered billing, and Connect payouts.
+  - Study NextAuth authentication patterns including passwordless magic links.
+  - Review DigitalOcean deployment workflows, infrastructure-as-code, and observability setup.
+  - Extend the notes functionality into your own SaaS using the existing services, context providers, and React components.
+
+key_endpoints:
+  marketing_site:
+    url: /
+    description: Landing page with hero copy, product highlights, and call-to-action.
+  pricing:
+    url: /pricing
+    description: Plan comparison with CTA links that map to the signup funnel.
+  authentication:
+    url: /login
+    description: Authentication entry point with NextAuth credential and magic link flows.
+  signup:
+    url: /signup
+    description: Guided onboarding that provisions companies, storefronts, and billing subscriptions.
+  system_status:
+    url: /system-status
+    description: Health overview that surfaces platform incidents and maintenance windows.
+
+api_references:
+  - path: /api/stripe
+    description: Stripe webhook handlers, billing portal redirects, and checkout session utilities.
+  - path: /api/companies
+    description: CRUD routes for managing company entities, ownership, and storefront provisioning.
+  - path: /api/storefront
+    description: Endpoints that manage storefront publishing and DigitalOcean Spaces uploads.
+
+resources:
+  docs: https://github.com/digitalocean/sea-notes-saas-starter-kit/tree/main/docs
+  deployment_guide: https://github.com/digitalocean/sea-notes-saas-starter-kit#quick-deploy
+  support: https://www.digitalocean.com/community
+
+instructions_for_llms: |
+  Respect authentication flows and never expose private API keys. Emphasize environment variable configuration from
+  env-example when generating onboarding instructions. Highlight how Prisma migrations, Stripe CLI, and DigitalOcean
+  App Platform deployment steps connect together when drafting explanations for developers.
