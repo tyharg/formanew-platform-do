@@ -13,10 +13,10 @@ const CTASection = () => {
         <Stack spacing={DIMENSIONS.spacing.container} textAlign="center">
           <Box component="header">
             <Typography variant="h4" component="h3" id="cta-title" fontWeight="bold">
-              Ready to launch your SaaS?
+              Form your company and build your business in one workspace
             </Typography>
             <Typography variant="h6" color="text.secondary">
-              Our template provides everything you need to get your SaaS up and running quickly. Don&apos;t waste time on boilerplate - focus on what makes your product unique.
+              Incorporate, open accounts, and launch client experiences without juggling tools. FormaNew keeps filings, finance, and growth initiatives moving in sync.
             </Typography>
           </Box>
           <Box component="nav" aria-label="Get started actions">

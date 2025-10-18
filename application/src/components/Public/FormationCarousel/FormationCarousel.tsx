@@ -13,28 +13,38 @@ import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import { DIMENSIONS } from 'constants/landing';
 
 const formationSteps = [
-  'LLC incorportion',
-  'IRS & compliance',
-  'Contract acquisition',
-  'Growth toolkit',
+  'Formation filing',
+  'Tax & compliance',
+  'Financial command',
+  'Client experience',
+  'Growth network',
 ];
 
 const stepMessages: Record<string, { headline: string; description: string }> = {
-  'LLC incorportion': {
-    headline: 'Form your LLC end-to-end with FormaNew',
-    description: 'Guided filings, name checks, and registered agent coverage ensure the entity launches cleanly in any state.',
+  'Formation filing': {
+    headline: 'Form your entity with guided filings',
+    description:
+      'Reserve your name, prepare state packets, and submit signatures with a filing assistant that tracks every requirement.',
   },
-  'IRS & compliance': {
-    headline: 'Lock in IRS filings and compliance guardrails',
-    description: 'Automated EIN submission, compliance reminders, and annual report tracking keep the business in good standing.',
+  'Tax & compliance': {
+    headline: 'Automate EIN, tax IDs, and compliance tasks',
+    description:
+      'EIN requests, registered agent docs, and annual reports stay coordinated with smart reminders and digital records.',
   },
-  'Contract acquisition': {
-    headline: 'Win the contracts that grow revenue',
-    description: 'Proposal templates, past-performance checklists, and sourcing alerts help secure government and commercial deals.',
+  'Financial command': {
+    headline: 'Activate banking, payouts, and budgeting',
+    description:
+      'Connect banking partners, sync Stripe payouts, and monitor cash flow with contract revenue forecasts and tax reserves.',
   },
-  'Growth toolkit': {
-    headline: 'Keep momentum with ongoing growth support',
-    description: 'Tap coaching, capital introductions, and partner perks tailored to help the company scale.',
+  'Client experience': {
+    headline: 'Deliver a branded workspace for every client',
+    description:
+      'Share proposals, collect signatures, and accept payments through a secure, white-labeled portal your clients will love.',
+  },
+  'Growth network': {
+    headline: 'Unlock partners, perks, and expansion capital',
+    description:
+      'Tap curated benefits, expert operators, and growth programs that help your future-of-work business scale faster.',
   },
 };
 
@@ -193,7 +203,7 @@ const FormationCarousel = () => {
             }}
           >
             <Typography variant="overline" color="primary.main" sx={{ letterSpacing: 1.5 }}>
-              LLC + MORE
+              FORMATION TIMELINE
             </Typography>
             <Typography variant="h5" sx={{ fontWeight: 600, mt: 0.5 }}>
               {message.headline}
@@ -243,7 +253,7 @@ const FormationCarousel = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <PlayCircleOutlineIcon color="primary" fontSize="small" />
               <Typography variant="body2" color="text.secondary">
-                FormaNew unifies formation, operations, and growth in one workspace.
+                FormaNew keeps incorporation, revenue operations, and client delivery in one flow.
               </Typography>
             </Box>
           </Box>

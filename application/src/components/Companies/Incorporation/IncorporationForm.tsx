@@ -11,7 +11,7 @@ import {
   Typography,
 } from '@mui/material';
 import { Company } from 'lib/api/companies';
-import { Incorporation } from 'types';
+import { Incorporation, IncorporationStatus } from 'types';
 import { FormFieldValue } from './types';
 import BusinessAddressForm from './BusinessAddressForm';
 import BusinessInformationForm from './BusinessInformationForm';
@@ -27,37 +27,34 @@ const steps = [
 
 interface IncorporationFormProps {
   company: Company;
+  incorporation: Incorporation | null;
+  onIncorporationChange?: (incorporation: Incorporation) => void;
+  onRefresh?: () => Promise<void> | void;
+  isLoading?: boolean;
 }
 
-const IncorporationForm: React.FC<IncorporationFormProps> = ({ company }) => {
+const IncorporationForm: React.FC<IncorporationFormProps> = ({
+  company,
+  incorporation,
+  onIncorporationChange,
+  onRefresh,
+  isLoading = false,
+}) => {
   const [activeStep, setActiveStep] = useState(0);
   const [formData, setFormData] = useState<Partial<Incorporation>>({});
-  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    const fetchIncorporationData = async () => {
-      try {
-        const response = await fetch(`/api/company/${company.id}/incorporation`);
-        if (response.ok) {
-          const data = await response.json();
-          if (data.incorporation) {
-            setFormData(data.incorporation);
-            // If incorporation is complete, set the active step to the last step
-            if (data.incorporation.isComplete) {
-              setActiveStep(steps.length);
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Failed to fetch incorporation data', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    setFormData(incorporation ?? {});
+  }, [incorporation]);
 
-    fetchIncorporationData();
-  }, [company.id]);
+  useEffect(() => {
+    if (incorporation?.status === IncorporationStatus.SUBMITTED || incorporation?.isComplete) {
+      setActiveStep(steps.length);
+    } else if (!incorporation) {
+      setActiveStep((prev) => (prev === steps.length ? steps.length - 1 : prev));
+    }
+  }, [incorporation]);
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -72,13 +69,18 @@ const IncorporationForm: React.FC<IncorporationFormProps> = ({ company }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          status: (formData.status as IncorporationStatus | undefined) ?? IncorporationStatus.DRAFT,
+        }),
       });
 
       if (response.ok) {
         const data = await response.json();
         setFormData(data.incorporation);
-        setActiveStep((prevActiveStep) => prevActiveStep + 1);
+        setActiveStep(steps.length);
+        onIncorporationChange?.(data.incorporation);
+        await onRefresh?.();
       } else {
         const errorText = await response.text();
         console.error(`Failed to save incorporation data: ${response.status} - ${errorText}`);
@@ -91,6 +93,9 @@ const IncorporationForm: React.FC<IncorporationFormProps> = ({ company }) => {
   };
 
   const handleNext = () => {
+    if (activeStep >= steps.length) {
+      return;
+    }
     if (activeStep === steps.length - 1) {
       handleSave();
     } else {
@@ -99,6 +104,9 @@ const IncorporationForm: React.FC<IncorporationFormProps> = ({ company }) => {
   };
 
   const handleBack = () => {
+    if (activeStep === 0) {
+      return;
+    }
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
@@ -182,7 +190,7 @@ const IncorporationForm: React.FC<IncorporationFormProps> = ({ company }) => {
         {activeStep === steps.length ? (
           <Box>
             <Typography sx={{ mt: 2, mb: 1 }}>
-              All steps completed - you&apos;re finished
+              All steps completed — review the Details tab for a read-only summary of your incorporation filing.
             </Typography>
           </Box>
         ) : (

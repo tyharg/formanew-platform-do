@@ -35,6 +35,7 @@ import {
   Business,
   AccountBalance,
   Storefront,
+  AssignmentTurnedIn,
 } from '@mui/icons-material';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -173,6 +174,13 @@ const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => {
             onClick={onNavigate}
           >
             Store
+          </SidebarLink>
+          <SidebarLink
+            href="/incorporation"
+            icon={<AssignmentTurnedIn fontSize="small" />}
+            onClick={onNavigate}
+          >
+            Incorporation
           </SidebarLink>
         </List>
       </Box>

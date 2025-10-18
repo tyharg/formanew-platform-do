@@ -46,14 +46,13 @@ const NavBar = () => {
   const navLinks = session
     ? [
         { href: '/pricing', label: 'Pricing' },
-        { href: '/client-portal', label: 'Client portal' },
+        { href: '/dashboard', label: 'Dashboard' },
         { href: '#', label: 'Sign out', onClick: handleLogout },
       ]
     : [
         { href: '/pricing', label: 'Pricing' },
-        { href: '/client-portal', label: 'Client portal' },
-        { href: '/login', label: 'Log in' },
-        { href: '/signup', label: 'Sign up' },
+        { href: '/dashboard', label: 'Dashboard' },
+        { href: '/login', label: 'Sign in' },
       ];
   const drawer = (
     <Box

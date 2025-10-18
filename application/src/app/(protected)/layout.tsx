@@ -19,27 +19,38 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
         <Box
           sx={{
             flexGrow: 1,
-            padding: '1rem',
+            bgcolor: (theme) => theme.palette.grey[50],
+            px: { xs: 2.5, md: 4, lg: 6 },
+            py: { xs: 4, md: 6 },
             overflowY: 'auto',
-            position: 'relative',
           }}
         >
           <Box
             sx={{
-              position: 'absolute',
-              top: 16,
-              right: 16,
-              zIndex: 10,
-              display: { xs: 'none', md: 'block' }, // Hide on mobile since FAB is used
+              position: 'relative',
+              maxWidth: 1400,
+              mx: 'auto',
+              width: '100%',
+              minHeight: '100%',
             }}
           >
-            <ThemePicker />
+            <Box
+              sx={{
+                position: 'absolute',
+                top: 0,
+                right: 0,
+                zIndex: 10,
+                display: { xs: 'none', md: 'block' },
+              }}
+            >
+              <ThemePicker />
+            </Box>
+            {/* Mobile theme picker renders itself with fixed positioning */}
+            <Box sx={{ display: { xs: 'block', md: 'none' }, mb: 3 }}>
+              <ThemePicker />
+            </Box>
+            <Box sx={{ pt: { xs: 0, md: 1 }, pb: { xs: 2, md: 4 } }}>{children}</Box>
           </Box>
-          {/* Mobile theme picker renders itself with fixed positioning */}
-          <Box sx={{ display: { xs: 'block', md: 'none' } }}>
-            <ThemePicker />
-          </Box>
-          {children}
         </Box>
       </Box>
     </MaterialThemeProvider>

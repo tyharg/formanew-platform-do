@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, CardContent, CardHeader, CircularProgress } from '@mui/material';
+import { Box, Typography, CardContent, CardHeader, CircularProgress, Tabs, Tab, Stack } from '@mui/material';
 import PageContainer from '../Common/PageContainer/PageContainer';
 import { UsersClient } from '../../lib/api/users';
 import { UserWithSubscriptions } from '../../types';
@@ -12,6 +12,7 @@ import UserTable from './UserTable/UserTable';
 import EditUserDialog from './EditUserDialog/EditUserDialog';
 import UserFilterControls from './UserFilterControls/UserFilterControls';
 import Pagination from '../Common/Pagination/Pagination';
+import AdminCompaniesTable from './AdminCompaniesTable';
 
 /**
  * Admin dashboard component for managing users, roles, and subscriptions.
@@ -49,6 +50,7 @@ export default function AdminDashboard() {
   });
 
   const session = useSession();
+  const [activeTab, setActiveTab] = useState<'users' | 'companies'>('users');
 
   // Open modal and set form state
   const handleEditClick = (user: UserWithSubscriptions) => {
@@ -147,57 +149,70 @@ export default function AdminDashboard() {
   }, [page, pageSize, searchName, filterPlan, filterStatus]);
   return (
     <PageContainer title="Admin Dashboard">
-      <CardHeader
-        title={
-          <Typography variant="h6" fontWeight="bold">
-            User Management
-          </Typography>
-        }
-      />
-      <CardContent sx={{ pt: 0 }}>
-        <UserFilterControls
-          searchName={searchName}
-          setSearchName={setSearchName}
-          filterPlan={filterPlan}
-          setFilterPlan={setFilterPlan}
-          filterStatus={filterStatus}
-          setFilterStatus={setFilterStatus}
-          setPage={setPage}
-        />
-        {loading ? (
-          <Box display="flex" justifyContent="center" alignItems="center" minHeight={100}>
-            <CircularProgress />
-          </Box>
-        ) : error ? (
-          <Typography color="error">{error}</Typography>
-        ) : (
+      <Stack spacing={3}>
+        <Tabs value={activeTab} onChange={(_, value: 'users' | 'companies') => setActiveTab(value)}>
+          <Tab label="Users" value="users" />
+          <Tab label="Companies" value="companies" />
+        </Tabs>
+
+        {activeTab === 'users' ? (
           <>
-            <UserTable
-              users={users}
-              selectedUser={selectedUser}
-              isLoadingEdit={isLoadingEdit}
-              handleAdminSwitchChange={handleAdminSwitchChange}
-              handleEditClick={handleEditClick}
+            <CardHeader
+              title={
+                <Typography variant="h6" fontWeight="bold">
+                  User Management
+                </Typography>
+              }
             />
-            <Pagination
-              totalItems={totalUsers}
-              pageSize={pageSize}
-              setPageSize={setPageSize}
-              page={page}
-              setPage={setPage}
+            <CardContent sx={{ pt: 0 }}>
+              <UserFilterControls
+                searchName={searchName}
+                setSearchName={setSearchName}
+                filterPlan={filterPlan}
+                setFilterPlan={setFilterPlan}
+                filterStatus={filterStatus}
+                setFilterStatus={setFilterStatus}
+                setPage={setPage}
+              />
+              {loading ? (
+                <Box display="flex" justifyContent="center" alignItems="center" minHeight={100}>
+                  <CircularProgress />
+                </Box>
+              ) : error ? (
+                <Typography color="error">{error}</Typography>
+              ) : (
+                <>
+                  <UserTable
+                    users={users}
+                    selectedUser={selectedUser}
+                    isLoadingEdit={isLoadingEdit}
+                    handleAdminSwitchChange={handleAdminSwitchChange}
+                    handleEditClick={handleEditClick}
+                  />
+                  <Pagination
+                    totalItems={totalUsers}
+                    pageSize={pageSize}
+                    setPageSize={setPageSize}
+                    page={page}
+                    setPage={setPage}
+                  />
+                </>
+              )}
+            </CardContent>
+            <EditUserDialog
+              open={openEdit}
+              editForm={editForm}
+              isLoadingEdit={isLoadingEdit}
+              handleEditChange={handleEditChange}
+              handleEditSubscriptionChange={handleEditSubscriptionChange}
+              handleEditButton={handleEditButton}
+              handleEditClose={handleEditClose}
             />
           </>
+        ) : (
+          <AdminCompaniesTable />
         )}
-      </CardContent>
-      <EditUserDialog
-        open={openEdit}
-        editForm={editForm}
-        isLoadingEdit={isLoadingEdit}
-        handleEditChange={handleEditChange}
-        handleEditSubscriptionChange={handleEditSubscriptionChange}
-        handleEditButton={handleEditButton}
-        handleEditClose={handleEditClose}
-      />
+      </Stack>
       <Toast
         open={toast.open}
         message={toast.message}

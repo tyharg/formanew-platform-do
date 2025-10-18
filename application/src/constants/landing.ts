@@ -6,10 +6,10 @@
 // Brand and UI Colors
 export const COLORS = {
   // CTA Button Colors
-  github: '#000000',
-  githubHover: '#333333',
-  deploy: '#0069ff',
-  deployHover: '#0056cc',
+  github: '#1b1b1b',
+  githubHover: '#2f2f2f',
+  deploy: '#4338ca',
+  deployHover: '#3730a3',
   
   // Feature Card Icon Colors
   llcFormation: '#1e88e5',
@@ -26,22 +26,21 @@ export const COLORS = {
 // External URLs
 export const URLS = {
   // Repository and Deployment
-  githubRepo: 'https://github.com/digitalocean/sea-notes-saas-starter-kit',
-  deployment: 'https://cloud.digitalocean.com/apps/new?repo=https://github.com/digitalocean/sea-notes-saas-starter-kit/tree/main',
-  
-  // DigitalOcean Services
-  appPlatform: 'https://www.digitalocean.com/products/app-platform',
-  spaces: 'https://www.digitalocean.com/products/spaces',
-  databases: 'https://www.digitalocean.com/products/managed-databases',
-  gradient: 'https://www.digitalocean.com/products/gradientai',
-  functions: 'https://www.digitalocean.com/products/functions',
-  
+  githubRepo: 'https://github.com/formanew/platform',
+  deployment: 'https://formanew.com/contact',
+
+  // Platform resources
+  launchGuide: 'https://formanew.com/guide',
+  partnerNetwork: 'https://formanew.com/partners',
+  helpCenter: 'https://formanew.com/support',
+  blog: 'https://formanew.com/blog',
+
   // Support and Community
-  support: 'https://www.digitalocean.com/support',
-  twitter: 'https://twitter.com/digitalocean',
-  community: 'https://www.digitalocean.com/community',
-  status: 'https://status.digitalocean.com',
-  documentation: 'https://docs.digitalocean.com',
+  support: 'mailto:support@formanew.com',
+  twitter: 'https://x.com/formanew',
+  community: 'https://formanew.com/community',
+  status: 'https://status.formanew.com',
+  documentation: 'https://docs.formanew.com',
 } as const;
 
 // Component Dimensions

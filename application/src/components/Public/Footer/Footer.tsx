@@ -4,41 +4,36 @@ import { Box, Container, Typography, Stack, useTheme } from '@mui/material';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import LaunchIcon from '@mui/icons-material/Launch';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
-import CloudIcon from '@mui/icons-material/Cloud';
-import StorageIcon from '@mui/icons-material/Storage';
-import DatabaseIcon from '@mui/icons-material/Storage';
-import PsychologyIcon from '@mui/icons-material/Psychology';
-import SupportIcon from '@mui/icons-material/Support';
-import TwitterIcon from '@mui/icons-material/Twitter';
-import ForumIcon from '@mui/icons-material/Forum';
-import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
+import HeadsetMicIcon from '@mui/icons-material/HeadsetMic';
+import Diversity3Icon from '@mui/icons-material/Diversity3';
+import ArticleIcon from '@mui/icons-material/Article';
+import BoltIcon from '@mui/icons-material/Bolt';
+import SchoolIcon from '@mui/icons-material/School';
 import { URLS, DIMENSIONS } from 'constants/landing';
 
 const footerSections = [
   {
-    title: 'Product & Code',
+    title: 'Platform',
     links: [
+      { label: 'Pricing', href: '/pricing', icon: <LaunchIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} /> },
+      { label: 'Product tour', href: '/dashboard', icon: <BoltIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} /> },
       { label: 'GitHub Repository', href: URLS.githubRepo, icon: <GitHubIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} /> },
-      { label: 'Documentation', href: URLS.documentation, icon: <MenuBookIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} /> },
-      { label: 'Live Demo', href: '#', icon: <LaunchIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} /> },
     ],
   },
   {
-    title: 'DigitalOcean Services',
+    title: 'Resources',
     links: [
-      { label: 'App Platform', href: URLS.appPlatform, icon: <CloudIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} /> },
-      { label: 'Spaces Storage', href: URLS.spaces, icon: <StorageIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} /> },
-      { label: 'Managed Databases', href: URLS.databases, icon: <DatabaseIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} /> },
-      { label: 'Gradient', href: URLS.gradient, icon: <PsychologyIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} /> },
+      { label: 'Launch guide', href: URLS.launchGuide, icon: <MenuBookIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} /> },
+      { label: 'Knowledge base', href: URLS.documentation, icon: <SchoolIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} /> },
+      { label: 'Blog', href: URLS.blog, icon: <ArticleIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} /> },
     ],
   },
   {
-    title: 'Support & Community',
+    title: 'Community',
     links: [
-      { label: 'DigitalOcean Support', href: URLS.support, icon: <SupportIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} /> },
-      { label: 'DigitalOcean Twitter', href: URLS.twitter, icon: <TwitterIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} /> },
-      { label: 'Community Forum', href: URLS.community, icon: <ForumIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} /> },
-      { label: 'Status Page', href: URLS.status, icon: <MonitorHeartIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} /> },
+      { label: 'Partner network', href: URLS.partnerNetwork, icon: <Diversity3Icon sx={{ fontSize: DIMENSIONS.iconSize.small }} /> },
+      { label: 'Help center', href: URLS.helpCenter, icon: <HeadsetMicIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} /> },
+      { label: 'Status page', href: URLS.status, icon: <LaunchIcon sx={{ fontSize: DIMENSIONS.iconSize.small }} /> },
     ],
   },
 ];
@@ -109,7 +104,7 @@ export default function Footer() {
         
         <Box sx={{ pt: DIMENSIONS.spacing.container, borderTop: `1px solid ${theme.palette.divider}`, textAlign: 'center' }}>
           <Typography variant="body2" color="text.secondary">
-            © 2025 FormaNew. Built with ❤️ using DigitalOcean services.
+            © 2025 FormaNew. Purpose-built for modern founders building the next wave of digital companies.
           </Typography>
         </Box>
       </Container>

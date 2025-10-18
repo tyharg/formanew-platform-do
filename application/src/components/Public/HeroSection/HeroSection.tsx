@@ -52,30 +52,30 @@ const HeroSection = () => {
             >
               FormaNew
             </Typography>
-            <Typography 
-              variant="h3" 
-              component="h2" 
-              fontWeight="bold" 
+            <Typography
+              variant="h3"
+              component="h2"
+              fontWeight="bold"
               color="primary.main"
-              sx={{ 
+              sx={{
                 textAlign: 'center',
                 width: '100%'
               }}
             >
-              The Flagship Next-Generation Digital Economy Platform
+              The flagship platform for incorporation and the future of work
             </Typography>
-            <Typography 
-              variant="h6" 
-              component="p" 
-              color="text.secondary" 
-              sx={{ 
-                maxWidth: DIMENSIONS.layout.maxContentWidth, 
+            <Typography
+              variant="h6"
+              component="p"
+              color="text.secondary"
+              sx={{
+                maxWidth: DIMENSIONS.layout.maxContentWidth,
                 mx: 'auto',
                 textAlign: 'center',
                 width: '100%'
               }}
             >
-              Launch your digital brand in record time with our elegent, ready-to-use platform. Packed with automated incorporation and powerful integrations.  Enter the future of work with FormaNew.
+              Launch a compliant company, spin up accounts, and deliver modern client experiences in record time. FormaNew automates filings, orchestrates finances, and keeps your distributed team moving forward together.
             </Typography>
             <Box component="nav" aria-label="Primary actions">
               <CTAButtons />

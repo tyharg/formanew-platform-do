@@ -40,8 +40,8 @@ const PageContainer: React.FC<PageContainerProps> = ({
         maxWidth,
         mx: 'auto',
         ...(!disablePadding && {
-          px: 2,
-          py: 4,
+          px: { xs: 1.5, md: 2.5 },
+          py: { xs: 3, md: 4 },
         }),
         ...sx,
       }}
@@ -52,7 +52,20 @@ const PageContainer: React.FC<PageContainerProps> = ({
           {title}
         </Typography>
       )}
-      <Card sx={{ p: 4 }}>{children}</Card>
+      <Card
+        sx={{
+          p: { xs: 3, md: 4 },
+          borderRadius: 3,
+          boxShadow: '0 30px 60px -40px rgba(15, 23, 42, 0.4)',
+          border: '1px solid',
+          borderColor: 'divider',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 3,
+        }}
+      >
+        {children}
+      </Card>
     </Box>
   );
 };

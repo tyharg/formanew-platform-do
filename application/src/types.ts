@@ -246,11 +246,13 @@ export interface Incorporation {
   companyDetailsId: string | null;
   attestationId: string | null;
   businessAddress?: BusinessAddress | null;
+  businessDetails?: IncorporationBusinessDetails | null;
   registeredAgent?: RegisteredAgent | null;
   companyDetails?: IncorporationCompanyDetails | null;
   attestation?: Attestation | null;
   isComplete?: boolean;
   primaryContactId: string | null;
+  primaryContact?: IncorporationPrimaryContact | null;
   submittedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;

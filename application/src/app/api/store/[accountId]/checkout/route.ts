@@ -23,9 +23,13 @@ export async function POST(
       return NextResponse.json({ error: 'Invalid Stripe account ID.' }, { status: HTTP_STATUS.BAD_REQUEST });
     }
 
-    const { priceId } = await req.json();
+    const { priceId, companyId } = await req.json();
     if (typeof priceId !== 'string' || priceId.length === 0) {
       return NextResponse.json({ error: 'Provide the connected account price ID to sell.' }, { status: HTTP_STATUS.BAD_REQUEST });
+    }
+
+    if (companyId && typeof companyId !== 'string') {
+      return NextResponse.json({ error: 'Invalid companyId parameter.' }, { status: HTTP_STATUS.BAD_REQUEST });
     }
 
     const baseUrl = getBaseUrl();
@@ -46,8 +50,12 @@ export async function POST(
         payment_intent_data: {
           application_fee_amount: applicationFee,
         },
-        success_url: `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}&accountId=${accountId}`,
-        cancel_url: `${baseUrl}/store/${accountId}`,
+        success_url: companyId
+          ? `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}&accountId=${accountId}&companyId=${companyId}`
+          : `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}&accountId=${accountId}`,
+        cancel_url: companyId
+          ? `${baseUrl}/company/${companyId}/store`
+          : `${baseUrl}/store/${accountId}`,
       },
       { stripeAccount: accountId }
     );
